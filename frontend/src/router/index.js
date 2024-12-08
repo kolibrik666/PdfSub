@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import SignUpView from '../views/SignUpView.vue'
 import AdminView from '../views/AdminView.vue'
+import PublicationDetailView from '../views/PublicationDetailView.vue';
 import ManagePublicationsView from '../views/ManagePublicationsView.vue';
 const routes = [
   {
@@ -29,6 +30,11 @@ const routes = [
     path: '/manage-publications',
     name: 'manage-publications',
     component: ManagePublicationsView,
+  },
+  {
+    path: '/publication/:id',
+    name: 'publication-detail',
+    component: PublicationDetailView,
   },
   {
     path: '/about',
