@@ -1,61 +1,64 @@
-To make the admin panel more beautiful and stylized, you can enhance the CSS styles. Here is an updated version of the `AdminView.vue` with improved styling:
-
-```vue
 <template>
   <div class="admin-view">
     <h1>Admin Panel</h1>
     <table>
       <thead>
-      <tr>
-        <th>Surname</th>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Password</th>
-        <th>Role</th>
-        <th>Actions</th>
-      </tr>
+        <tr>
+          <th>Surname</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Password</th>
+          <th>Role</th>
+          <th>Actions</th>
+        </tr>
       </thead>
       <tbody>
-      <tr v-for="user in users" :key="user.id">
-        <td><input type="text" v-model="user.surname" /></td>
-        <td><input type="text" v-model="user.name" /></td>
-        <td><input type="email" v-model="user.email" /></td>
-        <td><input type="password" v-model="user.password" /></td>
-        <td>
-          <select v-model="user.role">
-            <option v-for="role in roles" :key="role" :value="role">{{ role }}</option>
-          </select>
-        </td>
-        <td>
-          <button @click="updateUser(user)">Update</button>
-          <button @click="deleteUser(user.id)">Delete</button>
-        </td>
-      </tr>
+        <tr v-for="user in users" :key="user.email">
+          <td><input type="text" v-model="user.surname" /></td>
+          <td><input type="text" v-model="user.name" /></td>
+          <td><input type="email" v-model="user.email" /></td>
+          <td><input type="password" v-model="user.password" /></td>
+          <td>
+            <select v-model="user.role">
+              <option v-for="role in roles" :key="role" :value="role">{{ role }}</option>
+            </select>
+          </td>
+          <td>
+            <button @click="updateUser(user)">Update</button>
+            <button @click="deleteUser(user.email)">Delete</button>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
 </template>
 
 <script>
+import api from '../services/api';
+
 export default {
   data() {
     return {
-      users: [
-        { id: 1, surname: 'Doe', name: 'John', email: 'user1@example.com', password: '', role: 'User', permissions: 'read' },
-        { id: 2, surname: 'Smith', name: 'Jane', email: 'user2@example.com', password: '', role: 'Admin', permissions: 'read,write' },
-        // Add more dummy users as needed
-      ],
+      users: [],
       roles: ['Participant', 'Admin', 'Reviewer'],
     };
   },
+  created() {
+    this.fetchUsers();
+  },
   methods: {
+    fetchUsers() {
+      api.getUsers().then(response => {
+        this.users = response.data;
+      });
+    },
     updateUser(user) {
       console.log('Updating user:', user);
       // Implement update logic here
     },
-    deleteUser(userId) {
-      console.log('Deleting user with ID:', userId);
-      this.users = this.users.filter(user => user.id !== userId);
+    deleteUser(email) {
+      console.log('Deleting user with email:', email);
+      this.users = this.users.filter(user => user.email !== email);
     },
   },
 };
@@ -125,6 +128,3 @@ button + button:hover {
   background-color: #e53935;
 }
 </style>
-```
-
-This code enhances the visual appearance of the admin panel by adding background colors, padding, border-radius, and hover effects to the buttons. The table and form elements are also styled for a cleaner look.
