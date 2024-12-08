@@ -5,6 +5,7 @@ import SignUpView from '../views/SignUpView.vue'
 import AdminView from '../views/AdminView.vue'
 import PublicationDetailView from '../views/PublicationDetailView.vue';
 import ManagePublicationsView from '../views/ManagePublicationsView.vue';
+import StudentPublicationsView from '../views/StudentPublicationsView.vue';
 const routes = [
   {
     path: '/',
@@ -35,6 +36,11 @@ const routes = [
     path: '/publication/:id',
     name: 'publication-detail',
     component: PublicationDetailView,
+  },
+  {
+    path: '/student-publications',
+    name: 'student-publications',
+    component: StudentPublicationsView,
   },
   {
     path: '/about',
