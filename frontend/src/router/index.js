@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import SignUpView from '../views/SignUpView.vue'
+import AdminView from '../views/AdminView.vue'
+import ManagePublicationsView from '../views/ManagePublicationsView.vue';
 const routes = [
   {
     path: '/',
@@ -17,6 +19,16 @@ const routes = [
     path: '/sign_up',
     name: 'sign-up',
     component: SignUpView
+  },
+  {
+    path: '/admin',
+    name: 'admin',
+    component: AdminView
+  },
+  {
+    path: '/manage-publications',
+    name: 'manage-publications',
+    component: ManagePublicationsView,
   },
   {
     path: '/about',
