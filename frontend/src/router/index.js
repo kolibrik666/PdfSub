@@ -1,17 +1,19 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import SignUpView from '../views/SignUpView.vue'
 import AdminView from '../views/AdminView.vue'
 import PublicationDetailView from '../views/PublicationDetailView.vue';
 import ManagePublicationsView from '../views/ManagePublicationsView.vue';
 import StudentPublicationsView from '../views/StudentPublicationsView.vue';
+import LandingPageView from '@/views/LandingPageView.vue'
+
 const routes = [
   {
     path: '/',
     name: 'home',
-    component: HomeView
+    component: LandingPageView
   },
+ 
   {
     path: '/login',
     name: 'login',
@@ -41,6 +43,11 @@ const routes = [
     path: '/student-publications',
     name: 'student-publications',
     component: StudentPublicationsView,
+  },
+  {
+    path: '/landing-page',
+    name: 'landing-page',
+    component: LandingPageView,
   },
   {
     path: '/about',
