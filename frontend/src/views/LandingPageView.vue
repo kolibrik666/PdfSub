@@ -1,52 +1,58 @@
 <template>
-    <div class="landing-page">
-      <!-- Banner Section with Buttons -->
+    <div>
+      <!-- Banner Section -->
       <div class="banner">
-        <img src="https://via.placeholder.com/1500x400" alt="Banner Image" class="banner-image" />
+        <img src="../assets/img/lecture-seats.jpg" alt="Banner Image" class="banner-image" />
         <div class="cta-buttons">
-            <router-link to="/login">
-          <button class="cta-button login-button">Login</button>
-            </router-link>
-            <router-link to="/sign_up">
-          <button class="cta-button signup-button">Sign Up</button>
-            </router-link>
+          <router-link to="/login">
+            <button class="cta-button login-button">Login</button>
+          </router-link>
+          <router-link to="/sign_up">
+            <button class="cta-button signup-button">Sign Up</button>
+          </router-link>
         </div>
       </div>
   
-      <!-- Informational Row with 4 Divs -->
-      <div class="info-row">
-        <div class="info-box">
-          <h3>Feature 1</h3>
-          <p>This is the first feature of our app, which helps you do amazing things.</p>
+      <!-- Landing Page Content -->
+      <div class="landing-page">
+        <!-- Informational Row -->
+        <div class="info-row">
+          <div class="info-box">
+            <h3>Feature 1</h3>
+            <p>This is the first feature of our app, which helps you do amazing things.</p>
+          </div>
+          <div class="info-box">
+            <h3>Feature 2</h3>
+            <p>Our second feature is designed to save you time and increase productivity.</p>
+          </div>
+          <div class="info-box">
+            <h3>Feature 3</h3>
+            <p>Explore our third feature to streamline your workflow with ease.</p>
+          </div>
+          <div class="info-box">
+            <h3>Feature 4</h3>
+            <p>With our fourth feature, you can automate your processes effortlessly.</p>
+          </div>
         </div>
-        <div class="info-box">
-          <h3>Feature 2</h3>
-          <p>Our second feature is designed to save you time and increase productivity.</p>
-        </div>
-        <div class="info-box">
-          <h3>Feature 3</h3>
-          <p>Explore our third feature to streamline your workflow with ease.</p>
-        </div>
-        <div class="info-box">
-          <h3>Feature 4</h3>
-          <p>With our fourth feature, you can automate your processes effortlessly.</p>
-        </div>
-      </div>
   
-      <!-- FAQ Section with Collapsible Boxes -->
-      <div class="faq">
-        <h2>Frequently Asked Questions</h2>
-        <div v-for="(item, index) in faqItems" :key="index" class="faq-item">
-          <button class="faq-toggle" @click="toggleFaq(index)">
-            <h3>{{ item.question }}</h3>
-          </button>
-          <div v-show="item.isOpen" class="faq-answer">
-            <p>{{ item.answer }}</p>
+        <!-- FAQ Section -->
+        <div class="faq">
+          <h2>FAQ</h2>
+          <div v-for="(item, index) in faqItems" :key="index" class="faq-item">
+            <button class="faq-toggle" @click="toggleFaq(index)">
+              <h3>{{ item.question }}</h3>
+            </button>
+            <div v-show="item.isOpen" class="faq-answer">
+              <p>{{ item.answer }}</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </template>
+  
+  
+     
   
   <script>
   export default {
@@ -80,20 +86,24 @@
   
   .landing-page {
     text-align: center;
-    max-width: 1200px;
+    max-width: 1300px;
     margin: 0 auto;
   }
   
   /* Banner Styling */
   .banner {
-    position: relative;
-  }
+  position: relative;
+  width: 100%; /* Full width */
+  height: 400px; /* Set the desired height for the banner */
+  overflow: hidden; /* Ensures no overflow content from the image */
   
-  .banner-image {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
+}
+
+.banner-image {
+  width: 100%; /* Full width */
+  height: auto; /* Maintain aspect ratio */
+  display: block; /* Removes extra spacing */
+}
   
   .cta-buttons {
     position: absolute;

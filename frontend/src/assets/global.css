@@ -5,10 +5,12 @@ Author: TemplatesOnWeb
 Author URI: https://www.templateonweb.com/
 Licence: <a href="https://www.templateonweb.com/license">Website Template Licence</a>
 */
+
 body{
     font-family: 'Rajdhani', sans-serif;
     color: #ffffff;
     background-color: #010102;
+    
 }
 ul{
     list-style:none;
