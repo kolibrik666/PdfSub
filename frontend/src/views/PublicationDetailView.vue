@@ -11,6 +11,8 @@
 </template>
 
 <script>
+import api from '../services/api';
+
 export default {
   data() {
     return {
@@ -19,15 +21,15 @@ export default {
   },
   created() {
     const publicationId = this.$route.params.id;
-    // Fetch the publication details based on the ID
-    // Replace with actual API call
-    const publications = [
-      { id: 1, title: 'Publication 1', authors: ['Author 1', 'Author 2'], reviewer: 'Reviewer 1', abstract: 'Abstract 1', status: 'drafted', fileUrl: 'path/to/publication1.pdf' },
-      { id: 2, title: 'Publication 2', authors: ['Author 3'], reviewer: 'Reviewer 2', abstract: 'Abstract 2', status: 'submitted', fileUrl: 'path/to/publication2.docx' },
-    ];
-    this.publication = publications.find(pub => pub.id === parseInt(publicationId));
+    this.fetchPublication(publicationId);
   },
   methods: {
+    fetchPublication(id) {
+      api.getPublication(id).then(response => {
+        this.publication = response.data;
+      });
+    },
+
     goBack() {
       this.$router.push('/manage-publications');
     },

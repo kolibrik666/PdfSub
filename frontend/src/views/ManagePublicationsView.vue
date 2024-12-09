@@ -44,23 +44,23 @@
 </template>
 
 <script>
+
+import api from '../services/api';
 export default {
   data() {
     return {
-      publications: [
-        { id: 1, title: 'Publication 1', authors: ['Author 1', 'Author 2'], reviewer: '', status: 'drafted', fileUrl: 'path/to/publication1.pdf' },
-        { id: 2, title: 'Publication 2', authors: ['Author 3'], reviewer: '', status: 'submitted', fileUrl: 'path/to/publication2.docx' },
-        // Add more dummy publications as needed
-      ],
-      reviewers: ['Reviewer 1', 'Reviewer 2', 'Reviewer 3'],
-      newPublication: {
-        title: '',
-        authors: '',
-        file: null,
-      },
+      publications: [],
     };
   },
+  created() {
+    this.fetchPublications();
+  },
   methods: {
+    fetchPublications() {
+      api.getPublications().then(response => {
+        this.publications = response.data;
+      });
+    },
     assignReviewer(publication) {
       console.log('Assigning reviewer:', publication);
       // Implement assign reviewer logic here
