@@ -70,8 +70,11 @@ def update_user(email):
 
 @app.route('/api/users/<string:email>', methods=['DELETE'])
 def delete_user(email):
-    users_collection.delete_one({'email': email})
-    return jsonify({'message': 'User deleted successfully'}),
+    result = users_collection.delete_one({'email': email})
+    if result.deleted_count == 1:
+        return jsonify({'message': 'User deleted successfully'}), 200
+    else:
+        return jsonify({'message': 'User not found'}), 404
 
 @app.route('/api/users', methods=['GET'])
 def get_users():

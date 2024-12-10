@@ -63,13 +63,15 @@ export default {
       });
     },
     deleteUser(email) {
-      api.deleteUser(email).then(() => {
-        this.users = this.users.filter(user => user.email !== email);
-        alert('User deleted successfully');
-      }).catch(error => {
-        console.error('Delete failed', error);
-        alert('Delete failed');
-      });
+      api.delete(`/api/users/${email}`)
+          .then(() => {
+            this.users = this.users.filter(user => user.email !== email);
+            alert('User deleted successfully');
+          })
+          .catch(error => {
+            console.error('Delete failed', error);
+            alert('Delete failed');
+          });
     },
   },
   mounted() {
