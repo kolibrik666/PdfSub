@@ -1,6 +1,20 @@
 <template>
   <div class="admin-container">
     <h1>Manage Users</h1>
+    <div class="filter-container">
+      <input
+          v-model="searchQuery"
+          class="search-input"
+          placeholder="Search by email, name, or surname"
+      />
+      <select v-model="selectedRole" class="role-select">
+        <option value="">All Roles</option>
+        <option value="admin">Admin</option>
+        <option value="student">Student</option>
+        <option value="participant">Participant</option>
+        <option value="reviewer">Reviewer</option>
+      </select>
+    </div>
     <table>
       <thead>
       <tr>
@@ -12,7 +26,7 @@
       </tr>
       </thead>
       <tbody>
-      <tr v-for="user in users" :key="user.email">
+      <tr v-for="user in filteredUsers" :key="user.email">
         <td>{{ user.email }}</td>
         <td><input v-model="user.name" /></td>
         <td><input v-model="user.surname" /></td>
@@ -39,7 +53,25 @@ export default {
   data() {
     return {
       users: [],
+      searchQuery: '',
+      selectedRole: '',
     };
+  },
+  computed: {
+    filteredUsers() {
+      return this.users.filter(user => {
+        const searchLower = this.searchQuery.toLowerCase();
+        const matchesSearch = user.email.toLowerCase().includes(searchLower) ||
+            user.name.toLowerCase().includes(searchLower) ||
+            user.surname.toLowerCase().includes(searchLower);
+        const matchesRole = !this.selectedRole ||
+            (this.selectedRole === 'admin' && user.isAdmin) ||
+            (this.selectedRole === 'student' && user.isStudent) ||
+            (this.selectedRole === 'participant' && user.isParticipant) ||
+            (this.selectedRole === 'reviewer' && user.isReviewer);
+        return matchesSearch && matchesRole;
+      });
+    },
   },
   methods: {
     fetchUsers() {
@@ -81,10 +113,43 @@ export default {
 </script>
 
 <style scoped>
-@import "~vue-multiselect/dist/vue-multiselect.min.css";
-
 .admin-container {
   padding: 20px;
+}
+
+.filter-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+input[type="text"], select {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+.filter-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 1rem; /* Optional: Add spacing between elements */
+}
+
+.search-input,
+.role-select {
+  flex: 1;
+  max-width: 50%; /* Ensure they don't exceed half the width */
+  box-sizing: border-box; /* Include padding/border in width calculation */
+}
+
+.search-input {
+  padding: 0.5rem; /* Add some padding for aesthetics */
+}
+
+.role-select {
+  padding: 0.4rem; /* Slightly smaller padding for a dropdown */
 }
 
 table {
@@ -99,68 +164,5 @@ th, td {
 
 button {
   margin-right: 5px;
-}
-
-.admin-view {
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-h1 {
-  text-align: center;
-  color: #333;
-  margin-bottom: 20px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-}
-
-th, td {
-  border: 1px solid #ddd;
-  padding: 12px;
-  text-align: left;
-}
-
-th {
-  background-color: #f2f2f2;
-  color: #333;
-}
-
-td input[type="text"],
-td input[type="email"],
-td input[type="password"],
-td select {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-button {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 20px;
-  margin: 5px 0;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #45a049;
-}
-
-button + button {
-  background-color: #f44336;
-}
-
-button + button:hover {
-  background-color: #e53935;
 }
 </style>
