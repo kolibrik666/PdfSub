@@ -2,10 +2,16 @@ from flask import Flask, jsonify, request
 from pymongo import MongoClient
 from flask_pymongo import pymongo
 from flask_cors import CORS
-import bcrypt
+from flask_bcrypt import Bcrypt
+import jwt
+from bson import ObjectId
+from functools import wraps
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 CORS(app)
+bcrypt = Bcrypt(app)
+secret = "***************"
 
 @app.route('/')
 def hello():
@@ -25,15 +31,29 @@ def login():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
+    res_data = {}
 
     user = users_collection.find_one({'email': email})
-    if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
+    if user and bcrypt.check_password_hash(user['password'], password):
+        time = datetime.utcnow() + timedelta(hours=24)
+        token = jwt.encode({
+            "user": {
+                "email": f"{user['email']}",
+                "id": f"{user['_id']}",
+                "isAdmin": user['isAdmin'],
+                "isStudent": user['isStudent'],
+                "isParticipant": user['isParticipant'],
+                "isReviewer": user['isReviewer']
+            },
+            "exp": time
+        }, secret)
         return jsonify({
             'message': 'Login successful',
             'isAdmin': user['isAdmin'],
             'isStudent': user['isStudent'],
             'isParticipant': user['isParticipant'],
-            'isReviewer': user['isReviewer']
+            'isReviewer': user['isReviewer'],
+            'token': token
         }), 200
     else:
         return jsonify({'message': 'Invalid credentials'}), 401

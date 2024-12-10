@@ -9,9 +9,7 @@ const apiClient = axios.create({
         'Content-Type': 'application/json',
     },
 });
-const api = axios.create({
-    baseURL: 'http://localhost:5000/api',
-});
+
 export default {
     getPublications() {
         return apiClient.get('/publications');
@@ -29,9 +27,9 @@ export default {
         return apiClient.post('/register', user);
     },
     updateUser(email, data) {
-        return api.put(`/users/${email}`, data);
+        return apiClient.put(`/users/${email}`, data);
     },
     deleteUser(email) {
-        return api.delete(`/users/${email}`);
+        return apiClient.delete(`/users/${email}`);
     },
 };
