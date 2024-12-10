@@ -69,9 +69,9 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const userRole = localStorage.getItem('userRole');
+  const isAdmin = localStorage.getItem('isAdmin') === 'true';
   if (to.matched.some(record => record.meta.requiresAdmin)) {
-    if (userRole === 'admin') {
+    if (isAdmin) {
       next();
     } else {
       next({ name: 'home' });

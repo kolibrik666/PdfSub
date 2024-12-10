@@ -1,33 +1,32 @@
 <template>
-  <div class="admin-view">
-    <h1>Admin Panel</h1>
+  <div class="admin-container">
+    <h1>Manage Users</h1>
     <table>
       <thead>
-        <tr>
-          <th>Surname</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Password</th>
-          <th>Role</th>
-          <th>Actions</th>
-        </tr>
+      <tr>
+        <th>Email</th>
+        <th>Name</th>
+        <th>Surname</th>
+        <th>Roles</th>
+        <th>Actions</th>
+      </tr>
       </thead>
       <tbody>
-        <tr v-for="user in users" :key="user.email">
-          <td><input type="text" v-model="user.surname" /></td>
-          <td><input type="text" v-model="user.name" /></td>
-          <td><input type="email" v-model="user.email" /></td>
-          <td><input type="password" v-model="user.password" /></td>
-          <td>
-            <select v-model="user.role">
-              <option v-for="role in roles" :key="role" :value="role">{{ role }}</option>
-            </select>
-          </td>
-          <td>
-            <button @click="updateUser(user)">Update</button>
-            <button @click="deleteUser(user.email)">Delete</button>
-          </td>
-        </tr>
+      <tr v-for="user in users" :key="user.email">
+        <td>{{ user.email }}</td>
+        <td><input v-model="user.name" /></td>
+        <td><input v-model="user.surname" /></td>
+        <td>
+          <label><input type="checkbox" v-model="user.isAdmin" /> Admin</label>
+          <label><input type="checkbox" v-model="user.isStudent" /> Student</label>
+          <label><input type="checkbox" v-model="user.isParticipant" /> Participant</label>
+          <label><input type="checkbox" v-model="user.isReviewer" /> Reviewer</label>
+        </td>
+        <td>
+          <button @click="updateUser(user)">Update</button>
+          <button @click="deleteUser(user.email)">Delete</button>
+        </td>
+      </tr>
       </tbody>
     </table>
   </div>
@@ -40,11 +39,7 @@ export default {
   data() {
     return {
       users: [],
-      roles: ['Participant', 'Admin', 'Reviewer'],
     };
-  },
-  created() {
-    this.fetchUsers();
   },
   methods: {
     fetchUsers() {
@@ -53,18 +48,57 @@ export default {
       });
     },
     updateUser(user) {
-      console.log('Updating user:', user);
-      // Implement update logic here
+      api.updateUser(user.email, {
+        name: user.name,
+        surname: user.surname,
+        isAdmin: user.isAdmin,
+        isStudent: user.isStudent,
+        isParticipant: user.isParticipant,
+        isReviewer: user.isReviewer,
+      }).then(() => {
+        alert('User updated successfully');
+      }).catch(error => {
+        console.error('Update failed', error);
+        alert('Update failed');
+      });
     },
     deleteUser(email) {
-      console.log('Deleting user with email:', email);
-      this.users = this.users.filter(user => user.email !== email);
+      api.deleteUser(email).then(() => {
+        this.users = this.users.filter(user => user.email !== email);
+        alert('User deleted successfully');
+      }).catch(error => {
+        console.error('Delete failed', error);
+        alert('Delete failed');
+      });
     },
+  },
+  mounted() {
+    this.fetchUsers();
   },
 };
 </script>
 
 <style scoped>
+@import "~vue-multiselect/dist/vue-multiselect.min.css";
+
+.admin-container {
+  padding: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+button {
+  margin-right: 5px;
+}
+
 .admin-view {
   padding: 20px;
   background-color: #f9f9f9;

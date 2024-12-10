@@ -28,10 +28,15 @@ def login():
 
     user = users_collection.find_one({'email': email})
     if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
-        return jsonify({'message': 'Login successful', 'role': user['role']}), 200
+        return jsonify({
+            'message': 'Login successful',
+            'isAdmin': user['isAdmin'],
+            'isStudent': user['isStudent'],
+            'isParticipant': user['isParticipant'],
+            'isReviewer': user['isReviewer']
+        }), 200
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
-
 
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -47,15 +52,40 @@ def register():
         'password': hashed_password.decode('utf-8'),
         'name': name,
         'surname': surname,
-        'role': 'student'  # default role
+        'isAdmin': False,
+        'isStudent': True,  # default role
+        'isParticipant': False,
+        'isReviewer': False
     }
 
     users_collection.insert_one(user)
     return jsonify({'message': 'User registered successfully'}), 201
 
+@app.route('/api/users/<string:email>', methods=['PUT'])
+def update_user(email):
+    data = request.get_json()
+    update_fields = {key: value for key, value in data.items() if key in ['name', 'surname', 'isAdmin', 'isStudent', 'isParticipant', 'isReviewer']}
+    users_collection.update_one({'email': email}, {'$set': update_fields})
+    return jsonify({'message': 'User updated successfully'}), 200
+
+@app.route('/api/users/<string:email>', methods=['DELETE'])
+def delete_user(email):
+    users_collection.delete_one({'email': email})
+    return jsonify({'message': 'User deleted successfully'}),
+
 @app.route('/api/users', methods=['GET'])
 def get_users():
-    users = list(users_collection.find({}, {'_id': 0, 'surname': 1, 'name': 1, 'email': 1, 'password': 1, 'role': 1}))
+    users = list(users_collection.find({}, {
+        '_id': 0,
+        'surname': 1,
+        'name': 1,
+        'email': 1,
+        'password': 1,
+        'isAdmin': 1,
+        'isStudent': 1,
+        'isParticipant': 1,
+        'isReviewer': 1
+    }))
     return jsonify(users)
 
 @app.route('/api/publications', methods=['GET'])

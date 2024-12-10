@@ -31,14 +31,23 @@ export default {
     return {
       isLoggedIn: false,
       isAdmin: false,
+      isStudent: false,
+      isParticipant: false,
+      isReviewer: false,
     };
   },
   methods: {
     logout() {
       this.isLoggedIn = false;
       this.isAdmin = false;
+      this.isStudent = false;
+      this.isParticipant = false;
+      this.isReviewer = false;
       localStorage.removeItem('userToken');
-      localStorage.removeItem('userRole');
+      localStorage.removeItem('isAdmin');
+      localStorage.removeItem('isStudent');
+      localStorage.removeItem('isParticipant');
+      localStorage.removeItem('isReviewer');
       this.$router.push('/login');
       EventBus.emit('user-logged-out');
     },
@@ -47,23 +56,26 @@ export default {
     const userToken = localStorage.getItem('userToken');
     if (userToken) {
       this.isLoggedIn = true;
-      const userRole = localStorage.getItem('userRole');
-      if (userRole === 'admin') {
-        this.isAdmin = true;
-      }
+      this.isAdmin = localStorage.getItem('isAdmin') === 'true';
+      this.isStudent = localStorage.getItem('isStudent') === 'true';
+      this.isParticipant = localStorage.getItem('isParticipant') === 'true';
+      this.isReviewer = localStorage.getItem('isReviewer') === 'true';
     }
 
     EventBus.on('user-logged-in', () => {
       this.isLoggedIn = true;
-      const userRole = localStorage.getItem('userRole');
-      if (userRole === 'admin') {
-        this.isAdmin = true;
-      }
+      this.isAdmin = localStorage.getItem('isAdmin') === 'true';
+      this.isStudent = localStorage.getItem('isStudent') === 'true';
+      this.isParticipant = localStorage.getItem('isParticipant') === 'true';
+      this.isReviewer = localStorage.getItem('isReviewer') === 'true';
     });
 
     EventBus.on('user-logged-out', () => {
       this.isLoggedIn = false;
       this.isAdmin = false;
+      this.isStudent = false;
+      this.isParticipant = false;
+      this.isReviewer = false;
     });
   },
 };
