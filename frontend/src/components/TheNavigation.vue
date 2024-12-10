@@ -25,6 +25,7 @@
 
 <script>
 import { EventBus } from '../services/eventBus';
+import jwtDecode from 'jwt-decode';
 
 export default {
   data() {
@@ -55,11 +56,16 @@ export default {
   mounted() {
     const userToken = localStorage.getItem('userToken');
     if (userToken) {
-      this.isLoggedIn = true;
-      this.isAdmin = localStorage.getItem('isAdmin') === 'true';
-      this.isStudent = localStorage.getItem('isStudent') === 'true';
-      this.isParticipant = localStorage.getItem('isParticipant') === 'true';
-      this.isReviewer = localStorage.getItem('isReviewer') === 'true';
+        try {
+            const decodedToken = jwtDecode(userToken);
+            this.isLoggedIn = true;
+            this.isAdmin = decodedToken.isAdmin;
+            this.isStudent = decodedToken.isStudent;
+            this.isParticipant = decodedToken.isParticipant;
+            this.isReviewer = decodedToken.isReviewer;
+        } catch (error) {
+            console.error('Failed to decode token in mounted():', error);
+        }
     }
 
     EventBus.on('user-logged-in', () => {
