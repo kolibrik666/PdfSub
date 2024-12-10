@@ -4,6 +4,7 @@ from flask_pymongo import pymongo
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 import jwt
+
 from bson import ObjectId
 from functools import wraps
 from datetime import datetime, timedelta
@@ -65,7 +66,8 @@ def register():
     password = data.get('password')
     name = data.get('name')
     surname = data.get('surname')
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    #hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    hashed_password = bcrypt.generate_password_hash(password)
 
     user = {
         'email': email,
