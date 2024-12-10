@@ -27,12 +27,14 @@ const routes = [
   {
     path: '/admin',
     name: 'admin',
-    component: AdminView
+    component: AdminView,
+    meta: { requiresAdmin: true }
   },
   {
     path: '/manage-publications',
     name: 'manage-publications',
     component: ManagePublicationsView,
+    meta: { requiresAdmin: true }
   },
   {
     path: '/publication/:id',
@@ -65,5 +67,18 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 })
+
+router.beforeEach((to, from, next) => {
+  const userRole = localStorage.getItem('userRole');
+  if (to.matched.some(record => record.meta.requiresAdmin)) {
+    if (userRole === 'admin') {
+      next();
+    } else {
+      next({ name: 'home' });
+    }
+  } else {
+    next();
+  }
+});
 
 export default router

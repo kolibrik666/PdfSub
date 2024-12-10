@@ -1,7 +1,8 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from pymongo import MongoClient
 from flask_pymongo import pymongo
 from flask_cors import CORS
+import bcrypt
 
 app = Flask(__name__)
 CORS(app)
@@ -18,6 +19,39 @@ client = MongoClient(CONNECTION_STRING, ssl=True)
 
 db = client.get_database("test")
 users_collection = pymongo.collection.Collection(db, "users")
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    user = users_collection.find_one({'email': email})
+    if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
+        return jsonify({'message': 'Login successful', 'role': user['role']}), 200
+    else:
+        return jsonify({'message': 'Invalid credentials'}), 401
+
+
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+    name = data.get('name')
+    surname = data.get('surname')
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+    user = {
+        'email': email,
+        'password': hashed_password.decode('utf-8'),
+        'name': name,
+        'surname': surname,
+        'role': 'student'  # default role
+    }
+
+    users_collection.insert_one(user)
+    return jsonify({'message': 'User registered successfully'}), 201
 
 @app.route('/api/users', methods=['GET'])
 def get_users():

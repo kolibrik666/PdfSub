@@ -24,6 +24,8 @@
 </template>
 
 <script>
+import { EventBus } from '../services/eventBus';
+
 export default {
   data() {
     return {
@@ -36,19 +38,33 @@ export default {
       this.isLoggedIn = false;
       this.isAdmin = false;
       localStorage.removeItem('userToken');
+      localStorage.removeItem('userRole');
       this.$router.push('/login');
+      EventBus.emit('user-logged-out');
     },
   },
   mounted() {
     const userToken = localStorage.getItem('userToken');
     if (userToken) {
       this.isLoggedIn = true;
-      // Assuming user role is stored in localStorage
       const userRole = localStorage.getItem('userRole');
       if (userRole === 'admin') {
         this.isAdmin = true;
       }
     }
+
+    EventBus.on('user-logged-in', () => {
+      this.isLoggedIn = true;
+      const userRole = localStorage.getItem('userRole');
+      if (userRole === 'admin') {
+        this.isAdmin = true;
+      }
+    });
+
+    EventBus.on('user-logged-out', () => {
+      this.isLoggedIn = false;
+      this.isAdmin = false;
+    });
   },
 };
 </script>

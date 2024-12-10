@@ -20,4 +20,10 @@ export default {
     getUsers() {
         return apiClient.get('/users');
     },
+    login(credentials) {
+        return apiClient.post('/login', credentials);
+    },
+    register(user) {
+        return apiClient.post('/register', user);
+    },
 };
