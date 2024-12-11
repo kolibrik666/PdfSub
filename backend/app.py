@@ -10,7 +10,7 @@ from functools import wraps
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "http://192.168.1.23:8080"}})
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:8080"}})
 bcrypt = Bcrypt(app)
 secret = "***************"
 
