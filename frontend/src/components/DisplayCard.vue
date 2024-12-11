@@ -123,10 +123,6 @@ export default {
             .then(response => {
               console.log("Logging in with", this.form);
               localStorage.setItem('userToken', response.data.token);
-              localStorage.setItem('isAdmin', response.data.isAdmin);
-              localStorage.setItem('isStudent', response.data.isStudent);
-              localStorage.setItem('isParticipant', response.data.isParticipant);
-              localStorage.setItem('isReviewer', response.data.isReviewer);
               EventBus.emit('user-logged-in');
               if (response.data.isAdmin) {
                 this.$router.push('/admin');
@@ -136,7 +132,7 @@ export default {
             })
             .catch(error => {
               console.error("Login failed", error);
-              alert("Invalid credentials");
+              alert("Invalid credentials" + error);
             });
       }
     },

@@ -32,4 +32,7 @@ export default {
     deleteUser(email) {
         return apiClient.delete(`/users/${email}`);
     },
+    decode_token(data) {
+        return apiClient.post('/decode-token', data);
+    }
 };

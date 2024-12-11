@@ -10,7 +10,7 @@ from functools import wraps
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "http://192.168.1.23:8080"}})
 bcrypt = Bcrypt(app)
 secret = "***************"
 
@@ -27,6 +27,24 @@ client = MongoClient(CONNECTION_STRING, ssl=True)
 db = client.get_database("test")
 users_collection = pymongo.collection.Collection(db, "users")
 
+@app.route('/api/decode-token', methods=['POST'])
+def decode_token():
+    try:
+        data = request.get_json()
+        token = data.get('token')
+        if not token:
+            return jsonify({"error": "Token is missing"}), 400
+
+        decoded_data = jwt.decode(token, secret, algorithms=["HS256"])
+        return jsonify(decoded_data), 200
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({"error": "Token has expired"}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({"error": "Invalid token"}), 401
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -41,10 +59,10 @@ def login():
             "user": {
                 "email": f"{user['email']}",
                 "id": f"{user['_id']}",
-                "isAdmin": user['isAdmin'],
-                "isStudent": user['isStudent'],
-                "isParticipant": user['isParticipant'],
-                "isReviewer": user['isReviewer']
+                "isAdmin": f"{user['isAdmin']}",
+                "isStudent": f"{user['isStudent']}",
+                "isParticipant": f"{user['isParticipant']}",
+                "isReviewer": f"{user['isReviewer']}"
             },
             "exp": time
         }, secret)
