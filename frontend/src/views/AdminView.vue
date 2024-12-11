@@ -30,9 +30,9 @@
         <td><input v-model="user.name" /></td>
         <td><input v-model="user.surname" /></td>
         <td>
-          <label><input type="checkbox" v-model="user.isAdmin" /> Admin</label>
-          <label><input type="checkbox" v-model="user.isParticipant" /> Participant</label>
-          <label><input type="checkbox" v-model="user.isReviewer" /> Reviewer</label>
+          <label><input type="checkbox" v-model="user.roles.isAdmin" /> Admin</label>
+          <label><input type="checkbox" v-model="user.roles.isParticipant" /> Participant</label>
+          <label><input type="checkbox" v-model="user.roles.isReviewer" /> Reviewer</label>
         </td>
         <td>
           <button @click="updateUser(user)">Update</button>
@@ -63,9 +63,9 @@ export default {
             user.name.toLowerCase().includes(searchLower) ||
             user.surname.toLowerCase().includes(searchLower);
         const matchesRole = !this.selectedRole ||
-            (this.selectedRole === 'admin' && user.isAdmin) ||
-            (this.selectedRole === 'participant' && user.isParticipant) ||
-            (this.selectedRole === 'reviewer' && user.isReviewer);
+            (this.selectedRole === 'admin' && user.roles.isAdmin) ||
+            (this.selectedRole === 'participant' && user.roles.isParticipant) ||
+            (this.selectedRole === 'reviewer' && user.roles.isReviewer);
         return matchesSearch && matchesRole;
       });
     },
@@ -80,9 +80,11 @@ export default {
       api.updateUser(user.email, {
         name: user.name,
         surname: user.surname,
-        isAdmin: user.isAdmin,
-        isParticipant: user.isParticipant,
-        isReviewer: user.isReviewer,
+        roles: {
+          isAdmin: user.roles.isAdmin,
+          isParticipant: user.roles.isParticipant,
+          isReviewer: user.roles.isReviewer,
+        }
       }).then(() => {
         alert('User updated successfully');
       }).catch(error => {
