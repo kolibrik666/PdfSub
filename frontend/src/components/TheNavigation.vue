@@ -25,8 +25,7 @@
 
 <script>
 import { EventBus } from '../services/eventBus';
-import jwtDecode from 'jwt-decode';
-
+import api from '../services/api';
 export default {
   data() {
     return {
@@ -45,35 +44,32 @@ export default {
       this.isParticipant = false;
       this.isReviewer = false;
       localStorage.removeItem('userToken');
-      localStorage.removeItem('isAdmin');
-      localStorage.removeItem('isStudent');
-      localStorage.removeItem('isParticipant');
-      localStorage.removeItem('isReviewer');
       this.$router.push('/login');
       EventBus.emit('user-logged-out');
     },
-  },
-  mounted() {
-    const userToken = localStorage.getItem('userToken');
-    if (userToken) {
-        try {
-            const decodedToken = jwtDecode(userToken);
-            this.isLoggedIn = true;
+    decodeTokenUpdateData(token) {
+      api.decode_token({ token })
+          .then(response => {
+            const decodedToken = response.data.user;
             this.isAdmin = decodedToken.isAdmin;
             this.isStudent = decodedToken.isStudent;
             this.isParticipant = decodedToken.isParticipant;
             this.isReviewer = decodedToken.isReviewer;
-        } catch (error) {
-            console.error('Failed to decode token in mounted():', error);
-        }
-    }
+          })
+          .catch(error => {
+            console.error("Token decoding failed", error.response ? error.response.data : error.message);
+            alert("Token decoding failed: " + (error.response ? error.response.data : error.message));
+          });
+    },
+  },
+  mounted() {
+    const userToken = localStorage.getItem('userToken');
+    if (userToken && this.isLoggedIn) this.decodeTokenUpdateData(userToken)
 
     EventBus.on('user-logged-in', () => {
+      const userToken = localStorage.getItem('userToken');
+      if (userToken) this.decodeTokenUpdateData(userToken)
       this.isLoggedIn = true;
-      this.isAdmin = localStorage.getItem('isAdmin') === 'true';
-      this.isStudent = localStorage.getItem('isStudent') === 'true';
-      this.isParticipant = localStorage.getItem('isParticipant') === 'true';
-      this.isReviewer = localStorage.getItem('isReviewer') === 'true';
     });
 
     EventBus.on('user-logged-out', () => {

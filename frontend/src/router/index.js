@@ -68,11 +68,25 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
-  const isAdmin = localStorage.getItem('isAdmin') === 'true';
+import api from '../services/api';
+
+router.beforeEach(async (to, from, next) => {
+  const token = localStorage.getItem('userToken');
   if (to.matched.some(record => record.meta.requiresAdmin)) {
-    if (isAdmin) {
-      next();
+    if (token) {
+      try {
+        const response = await api.decode_token({ token });
+        const decodedToken = response.data.user;
+        const isAdmin = decodedToken.isAdmin;
+        if (isAdmin) {
+          next();
+        } else {
+          next({ name: 'home' });
+        }
+      } catch (error) {
+        console.error("Token decoding failed", error.response ? error.response.data : error.message);
+        next({ name: 'home' });
+      }
     } else {
       next({ name: 'home' });
     }
