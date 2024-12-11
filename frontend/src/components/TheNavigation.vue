@@ -9,14 +9,13 @@
         />
         <span class="logo-text">PDFSubmit</span>
       </div>
-
       <div class="nav-links">
         <router-link to="/" class="nav-link">Home</router-link>
         <router-link to="/about" class="nav-link">About</router-link>
         <router-link to="/login" class="nav-link" v-if="!isLoggedIn">Login</router-link>
         <router-link to="/sign-up" class="nav-link" v-if="!isLoggedIn">Sign Up</router-link>
-        <router-link to="/admin" class="nav-link" v-if="isAdmin">Manage Users</router-link>
-        <router-link to="/manage-publications" class="nav-link" v-if="isAdmin">Manage Publications</router-link>
+        <router-link to="/admin" class="nav-link" v-if="isAdmin && isLoggedIn">Manage Users</router-link>
+        <router-link to="/manage-publications" class="nav-link" v-if="isAdmin && isLoggedIn">Manage Publications</router-link>
         <button v-if="isLoggedIn" @click="logout" class="nav-link logout-btn">Logout</button>
       </div>
     </div>
@@ -31,7 +30,6 @@ export default {
     return {
       isLoggedIn: false,
       isAdmin: false,
-      isStudent: false,
       isParticipant: false,
       isReviewer: false,
     };
@@ -40,7 +38,6 @@ export default {
     logout() {
       this.isLoggedIn = false;
       this.isAdmin = false;
-      this.isStudent = false;
       this.isParticipant = false;
       this.isReviewer = false;
       localStorage.removeItem('userToken');
@@ -52,9 +49,9 @@ export default {
           .then(response => {
             const decodedToken = response.data.user;
             this.isAdmin = decodedToken.isAdmin;
-            this.isStudent = decodedToken.isStudent;
             this.isParticipant = decodedToken.isParticipant;
             this.isReviewer = decodedToken.isReviewer;
+            console.error(this.isAdmin);
           })
           .catch(error => {
             console.error("Token decoding failed", error.response ? error.response.data : error.message);
@@ -68,14 +65,15 @@ export default {
 
     EventBus.on('user-logged-in', () => {
       const userToken = localStorage.getItem('userToken');
-      if (userToken) this.decodeTokenUpdateData(userToken)
-      this.isLoggedIn = true;
+      if (userToken) {
+        this.decodeTokenUpdateData(userToken)
+        this.isLoggedIn = true;
+      }
     });
 
     EventBus.on('user-logged-out', () => {
       this.isLoggedIn = false;
       this.isAdmin = false;
-      this.isStudent = false;
       this.isParticipant = false;
       this.isReviewer = false;
     });

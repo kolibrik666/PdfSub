@@ -10,7 +10,6 @@
       <select v-model="selectedRole" class="role-select">
         <option value="">All Roles</option>
         <option value="admin">Admin</option>
-        <option value="student">Student</option>
         <option value="participant">Participant</option>
         <option value="reviewer">Reviewer</option>
       </select>
@@ -32,7 +31,6 @@
         <td><input v-model="user.surname" /></td>
         <td>
           <label><input type="checkbox" v-model="user.isAdmin" /> Admin</label>
-          <label><input type="checkbox" v-model="user.isStudent" /> Student</label>
           <label><input type="checkbox" v-model="user.isParticipant" /> Participant</label>
           <label><input type="checkbox" v-model="user.isReviewer" /> Reviewer</label>
         </td>
@@ -66,7 +64,6 @@ export default {
             user.surname.toLowerCase().includes(searchLower);
         const matchesRole = !this.selectedRole ||
             (this.selectedRole === 'admin' && user.isAdmin) ||
-            (this.selectedRole === 'student' && user.isStudent) ||
             (this.selectedRole === 'participant' && user.isParticipant) ||
             (this.selectedRole === 'reviewer' && user.isReviewer);
         return matchesSearch && matchesRole;
@@ -84,7 +81,6 @@ export default {
         name: user.name,
         surname: user.surname,
         isAdmin: user.isAdmin,
-        isStudent: user.isStudent,
         isParticipant: user.isParticipant,
         isReviewer: user.isReviewer,
       }).then(() => {

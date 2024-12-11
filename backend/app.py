@@ -24,7 +24,7 @@ client = MongoClient(CONNECTION_STRING, ssl=True)
 
 # article_collection = pymongo.collection.Collection(db, "articles")
 
-db = client.get_database("test")
+db = client.get_database("pdf")
 users_collection = pymongo.collection.Collection(db, "users")
 
 @app.route('/api/decode-token', methods=['POST'])
@@ -59,19 +59,17 @@ def login():
             "user": {
                 "email": f"{user['email']}",
                 "id": f"{user['_id']}",
-                "isAdmin": f"{user['isAdmin']}",
-                "isStudent": f"{user['isStudent']}",
-                "isParticipant": f"{user['isParticipant']}",
-                "isReviewer": f"{user['isReviewer']}"
+                "isAdmin": user['roles'].get('isAdmin', False),
+                "isParticipant": user['roles'].get('isParticipant', False),
+                "isReviewer": user['roles'].get('isReviewer', False)
             },
             "exp": time
         }, secret)
         return jsonify({
             'message': 'Login successful',
-            'isAdmin': user['isAdmin'],
-            'isStudent': user['isStudent'],
-            'isParticipant': user['isParticipant'],
-            'isReviewer': user['isReviewer'],
+            'isAdmin': user['roles'].get('isAdmin', False),
+            'isParticipant': user['roles'].get('isParticipant', False),
+            'isReviewer': user['roles'].get('isReviewer', False),
             'token': token
         }), 200
     else:
@@ -84,7 +82,6 @@ def register():
     password = data.get('password')
     name = data.get('name')
     surname = data.get('surname')
-    #hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
     hashed_password = bcrypt.generate_password_hash(password)
 
     user = {
@@ -92,10 +89,9 @@ def register():
         'password': hashed_password.decode('utf-8'),
         'name': name,
         'surname': surname,
-        'isAdmin': False,
-        'isStudent': True,  # default role
-        'isParticipant': False,
-        'isReviewer': False
+        'roles': {'isAdmin': False, 'isParticipant': False, 'isReviewer': False},
+        'conferences': [],
+        'papers': []
     }
 
     users_collection.insert_one(user)
@@ -104,7 +100,7 @@ def register():
 @app.route('/api/users/<string:email>', methods=['PUT'])
 def update_user(email):
     data = request.get_json()
-    update_fields = {key: value for key, value in data.items() if key in ['name', 'surname', 'isAdmin', 'isStudent', 'isParticipant', 'isReviewer']}
+    update_fields = {key: value for key, value in data.items() if key in ['name', 'surname', 'roles.isAdmin', 'roles.isParticipant', 'roles.isReviewer']}
     users_collection.update_one({'email': email}, {'$set': update_fields})
     return jsonify({'message': 'User updated successfully'}), 200
 
@@ -124,10 +120,9 @@ def get_users():
         'name': 1,
         'email': 1,
         'password': 1,
-        'isAdmin': 1,
-        'isStudent': 1,
-        'isParticipant': 1,
-        'isReviewer': 1
+        'roles.isAdmin': 1,
+        'roles.isParticipant': 1,
+        'roles.isReviewer': 1
     }))
     return jsonify(users)
 
