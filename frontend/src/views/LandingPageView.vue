@@ -7,7 +7,7 @@
           <router-link to="/login">
             <button class="cta-button login-button">Login</button>
           </router-link>
-          <router-link to="/sign_up">
+          <router-link to="/sign-up">
             <button class="cta-button signup-button">Sign Up</button>
           </router-link>
         </div>

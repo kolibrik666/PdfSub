@@ -14,7 +14,7 @@
         <router-link to="/" class="nav-link">Home</router-link>
         <router-link to="/about" class="nav-link">About</router-link>
         <router-link to="/login" class="nav-link" v-if="!isLoggedIn">Login</router-link>
-        <router-link to="/sign_up" class="nav-link" v-if="!isLoggedIn">Sign Up</router-link>
+        <router-link to="/sign-up" class="nav-link" v-if="!isLoggedIn">Sign Up</router-link>
         <router-link to="/admin" class="nav-link" v-if="isAdmin">Manage Users</router-link>
         <router-link to="/manage-publications" class="nav-link" v-if="isAdmin">Manage Publications</router-link>
         <button v-if="isLoggedIn" @click="logout" class="nav-link logout-btn">Logout</button>

@@ -144,7 +144,7 @@ export default {
       if (this.isSignUp) {
         this.$router.push("/login");
       } else {
-        this.$router.push("/sign_up");
+        this.$router.push("/sign-up");
       }
     },
   },

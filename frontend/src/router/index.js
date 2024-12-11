@@ -6,6 +6,8 @@ import PublicationDetailView from '../views/PublicationDetailView.vue';
 import ManagePublicationsView from '../views/ManagePublicationsView.vue';
 import StudentPublicationsView from '../views/StudentPublicationsView.vue';
 import LandingPageView from '@/views/LandingPageView.vue'
+import ReviewerView from '@/views/ReviewerView.vue';
+import ReviewView from '@/views/ReviewView.vue';
 
 const routes = [
   {
@@ -20,7 +22,7 @@ const routes = [
     component: LoginView
   },
   {
-    path: '/sign_up',
+    path: '/sign-up',
     name: 'sign-up',
     component: SignUpView
   },
@@ -28,13 +30,13 @@ const routes = [
     path: '/admin',
     name: 'admin',
     component: AdminView,
-    meta: { requiresAdmin: true }
+    meta: { requiresAdmin: true }*/
   },
   {
     path: '/manage-publications',
     name: 'manage-publications',
     component: ManagePublicationsView,
-    meta: { requiresAdmin: true }
+    meta: { requiresAdmin: true }*/
   },
   {
     path: '/publication/:id',
@@ -45,6 +47,16 @@ const routes = [
     path: '/student-publications',
     name: 'student-publications',
     component: StudentPublicationsView,
+  },
+  {
+    path: '/reviewer',
+    name: 'reviewer',
+    component: ReviewerView,
+  },
+  {
+    path: '/review/:paper_id',
+    name: 'review',
+    component: ReviewView,
   },
   {
     path: '/landing-page',
