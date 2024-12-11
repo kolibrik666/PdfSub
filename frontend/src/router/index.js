@@ -30,13 +30,13 @@ const routes = [
     path: '/admin',
     name: 'admin',
     component: AdminView,
-    meta: { requiresAdmin: true }*/
+    meta: { requiresAdmin: true }
   },
   {
     path: '/manage-publications',
     name: 'manage-publications',
     component: ManagePublicationsView,
-    meta: { requiresAdmin: true }*/
+    meta: { requiresAdmin: true }
   },
   {
     path: '/publication/:id',
