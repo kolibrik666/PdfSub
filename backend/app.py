@@ -4,7 +4,6 @@ from flask_pymongo import pymongo
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 import jwt
-
 from bson import ObjectId
 from functools import wraps
 from datetime import datetime, timedelta
@@ -140,6 +139,18 @@ def get_users():
     }))
     users = [convert_to_json_compatible(user) for user in users]
     return jsonify(users)
+
+@app.route('/api/users/<string:id>', methods=['GET'])
+def get_user_by_id(id):
+    try:
+        # Validate and convert to ObjectId
+        user = users_collection.find_one({'_id': ObjectId(id)})
+        if user:
+            return jsonify(convert_to_json_compatible(user)), 200
+        else:
+            return jsonify({'message': 'User not found'}), 404
+    except Exception as e:
+        return jsonify({'error': 'Invalid User ID format or user not found'}), 400
 
 def convert_to_json_compatible(doc):
     """Convert MongoDB document to a JSON-compatible format."""
