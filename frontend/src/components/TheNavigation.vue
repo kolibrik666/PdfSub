@@ -36,6 +36,7 @@ export default {
   },
   methods: {
     logout() {
+      this.email = '';
       this.isLoggedIn = false;
       this.isAdmin = false;
       this.isParticipant = false;
@@ -52,6 +53,7 @@ export default {
             this.isAdmin = decodedToken.isAdmin;
             this.isParticipant = decodedToken.isParticipant;
             this.isReviewer = decodedToken.isReviewer;
+            
             console.error(this.isAdmin);
           })
           .catch(error => {

@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, json, jsonify, request
 from pymongo import MongoClient
 from flask_pymongo import pymongo
 from flask_cors import CORS
@@ -14,6 +14,10 @@ CORS(app, resources={r"/api/*": {"origins": "http://localhost:8080"}})
 bcrypt = Bcrypt(app)
 secret = "***************"
 
+
+
+
+
 @app.route('/')
 def hello():
     return 'Hello from Flask!'
@@ -26,6 +30,7 @@ client = MongoClient(CONNECTION_STRING, ssl=True)
 
 db = client.get_database("pdf")
 users_collection = pymongo.collection.Collection(db, "users")
+papers_collection = pymongo.collection.Collection(db, "papers")
 
 @app.route('/api/decode-token', methods=['POST'])
 def decode_token():
@@ -128,7 +133,7 @@ def delete_user(email):
 @app.route('/api/users', methods=['GET'])
 def get_users():
     users = list(users_collection.find({}, {
-        '_id': 0,
+        '_id': 1,
         'surname': 1,
         'name': 1,
         'email': 1,
@@ -137,24 +142,53 @@ def get_users():
         'roles.isParticipant': 1,
         'roles.isReviewer': 1
     }))
+
+    users = [convert_to_json_compatible(user) for user in users]
+
     return jsonify(users)
+
+
+
+def convert_to_json_compatible(doc):
+    """Convert MongoDB document to a JSON-compatible format."""
+    if isinstance(doc, list):
+        # Recursively handle each element in the list
+        return [convert_to_json_compatible(item) for item in doc]
+    elif isinstance(doc, dict):
+        # Process each key-value pair
+        return {key: convert_to_json_compatible(value) for key, value in doc.items()}
+    elif isinstance(doc, ObjectId):
+        # Convert ObjectId to string
+        return str(doc)
+    elif isinstance(doc, datetime):
+        # Convert datetime to ISO8601 string
+        return doc.isoformat()
+    else:
+        # Return the value as is for other types
+        return doc
+
+
 
 @app.route('/api/publications', methods=['GET'])
 def get_publications():
-    publications = [
-        {'id': 1, 'title': 'Publication 1', 'authors': ['Author 1', 'Author 2'], 'reviewer': 'Reviewer 1', 'abstract': 'Abstract 1', 'status': 'drafted'},
-        {'id': 2, 'title': 'Publication 2', 'authors': ['Author 3'], 'reviewer': 'Reviewer 2', 'abstract': 'Abstract 2', 'status': 'submitted'},
-    ]
+    publications = list(papers_collection.find({}, {
+        '_id': 1,
+        'title': 1,
+        'authors': 1,
+        'review_status': 1,
+        'submit_status': 1,
+        'rating': 1
+    }))
+
+    publications = [convert_to_json_compatible(pub) for pub in publications]
+
+        
+
     return jsonify(publications)
 
-@app.route('/api/publications/<int:id>', methods=['GET'])
-def get_publication(id):
-    publications = [
-        {'id': 1, 'title': 'Publication 1', 'authors': ['Author 1', 'Author 2'], 'reviewer': 'Reviewer 1', 'abstract': 'Abstract 1', 'status': 'drafted'},
-        {'id': 2, 'title': 'Publication 2', 'authors': ['Author 3'], 'reviewer': 'Reviewer 2', 'abstract': 'Abstract 2', 'status': 'submitted'},
-    ]
-    publication = next((pub for pub in publications if pub['id'] == id), None)
-    return jsonify(publication)
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
