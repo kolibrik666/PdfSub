@@ -4,7 +4,6 @@ import SignUpView from '../views/SignUpView.vue'
 import AdminView from '../views/AdminView.vue'
 import PublicationDetailView from '../views/PublicationDetailView.vue';
 import LandingPageView from '@/views/LandingPageView.vue'
-import ReviewerView from '@/views/ReviewerView.vue';
 import ReviewView from '@/views/ReviewView.vue';
 import PublicationsView from "@/views/PublicationsView.vue";
 
@@ -14,7 +13,6 @@ const routes = [
     name: 'home',
     component: LandingPageView
   },
- 
   {
     path: '/login',
     name: 'login',
@@ -40,11 +38,6 @@ const routes = [
     path: '/publications',
     name: 'publications',
     component: PublicationsView,
-  },
-  {
-    path: '/reviewer',
-    name: 'reviewer',
-    component: ReviewerView,
   },
   {
     path: '/review/:paper_id',
