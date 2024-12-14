@@ -3,11 +3,10 @@ import LoginView from '../views/LoginView.vue'
 import SignUpView from '../views/SignUpView.vue'
 import AdminView from '../views/AdminView.vue'
 import PublicationDetailView from '../views/PublicationDetailView.vue';
-import ManagePublicationsView from '../views/ManagePublicationsView.vue';
-import StudentPublicationsView from '../views/StudentPublicationsView.vue';
 import LandingPageView from '@/views/LandingPageView.vue'
 import ReviewerView from '@/views/ReviewerView.vue';
 import ReviewView from '@/views/ReviewView.vue';
+import PublicationsView from "@/views/PublicationsView.vue";
 
 const routes = [
   {
@@ -33,20 +32,14 @@ const routes = [
     meta: { requiresAdmin: true }
   },
   {
-    path: '/manage-publications',
-    name: 'manage-publications',
-    component: ManagePublicationsView,
-    meta: { requiresAdmin: true }
-  },
-  {
     path: '/publication/:id',
     name: 'publication-detail',
     component: PublicationDetailView,
   },
   {
-    path: '/student-publications',
-    name: 'student-publications',
-    component: StudentPublicationsView,
+    path: '/publications',
+    name: 'publications',
+    component: PublicationsView,
   },
   {
     path: '/reviewer',
