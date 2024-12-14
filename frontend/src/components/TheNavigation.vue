@@ -24,6 +24,8 @@
 <script>
 import { EventBus } from '../services/eventBus';
 import api from '../services/api';
+import { decodeTokenUpdateData } from '../services/tokenUtils';
+
 export default {
   data() {
     return {
@@ -45,31 +47,18 @@ export default {
       this.$router.push('/login');
       EventBus.emit('user-logged-out');
     },
-    decodeTokenUpdateData(token) {
-      api.decode_token({ token })
-          .then(response => {
-            const decodedToken = response.data.user;
-            this.email = decodedToken.email;
-            this.isAdmin = decodedToken.isAdmin;
-            this.isParticipant = decodedToken.isParticipant;
-            this.isReviewer = decodedToken.isReviewer;
-            
-            console.error(this.isAdmin);
-          })
-          .catch(error => {
-            console.error("Token decoding failed", error.response ? error.response.data : error.message);
-            alert("Token decoding failed: " + (error.response ? error.response.data : error.message));
-          });
+    decodeTokenData(token) {
+      decodeTokenUpdateData(token, this);
     },
   },
   mounted() {
     const userToken = localStorage.getItem('userToken');
-    if (userToken && this.isLoggedIn) this.decodeTokenUpdateData(userToken)
+    if (userToken && this.isLoggedIn) this.decodeTokenData(userToken)
 
     EventBus.on('user-logged-in', () => {
       const userToken = localStorage.getItem('userToken');
       if (userToken) {
-        this.decodeTokenUpdateData(userToken)
+        this.decodeTokenData(userToken)
         this.isLoggedIn = true;
       }
     });

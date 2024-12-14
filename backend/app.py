@@ -194,5 +194,29 @@ def get_publication(id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/publications/<string:id>/comments', methods=['POST'])
+def add_comment(id):
+    try:
+        reviewer_id = request.json.get('reviewerId')  # Required
+        comments = request.json.get('comments')      # Required
+
+        if not reviewer_id or not comments:
+            return jsonify({"error": "ReviewerId and comments are required"}), 400
+
+        new_comment = {
+            "reviewerId": reviewer_id,
+            "comments": comments,
+            "submittedAt": datetime.utcnow().isoformat()
+        }
+
+        publications_collection.update_one(
+            {"_id": ObjectId(id)},
+            {"$push": {"feedback": new_comment}}
+        )
+
+        return jsonify({"message": "Feedback added successfully", "feedback": new_comment}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
 if __name__ == '__main__':
     app.run(debug=True)
