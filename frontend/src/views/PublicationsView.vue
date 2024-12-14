@@ -1,11 +1,7 @@
 <template>
-
-
-
 <div v-if="isReviewer">
   <div class="publications">
     <h1>For Review</h1>
-
     <!-- Displaying a list of publications -->
     <table>
       <thead>
@@ -24,12 +20,9 @@
             {{ publication.title }}
           </router-link>
         </td>
-        
-           
+
         <td>{{ publication.authors.join(", ") }}</td>
         <td>{{ publication.review_status }}</td>
-        
-
         
         <td>
           <button v-if="isReviewer && publication.review_status === 'pending'" @click="editPublication(publication)">Review</button>
@@ -40,14 +33,12 @@
       </tbody>
     </table>
 
-   
   </div>
   </div>
 
 <div v-if="isAdmin">
   <div class="publications">
     <h1>Assign Reviewer</h1>
-
     <!-- Displaying a list of publications -->
     <table>
       <thead>
@@ -60,37 +51,26 @@
       </thead>
       <tbody>
       <tr v-for="publication in publications" :key="publication._id">
-        
+
         <td>
           <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
             {{ publication.title }}
           </router-link>
         </td>
-        
-           
         <td>{{ publication.authors.join(", ") }}</td>
         <td>{{ publication.submit_status }}</td>
-        
-
-        
         <td>
           <button v-if="(isAdmin) && publication.submit_status.includes('submitted') && publication.review_status === 'pending'" @click="assignReviewer(publication)">Assign Reviewer</button>
           <button @click="downloadPublication(publication.fileUrl)">Download</button>
         </td>
-      
       </tr>
       </tbody>
     </table>
-
   </div>
   </div>
-
-
-
   <div v-if="isParticipant">
   <div class="publications">
     <h1>My Publications</h1>
-
     <!-- Displaying a list of publications -->
     <table>
       <thead>
@@ -103,19 +83,13 @@
       </thead>
       <tbody>
       <tr v-for="publication in publications" :key="publication._id">
-        
         <td>
           <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
             {{ publication.title }}
           </router-link>
         </td>
-        
-           
         <td>{{ publication.authors.join(", ") }}</td>
         <td>{{ publication.submit_status }}</td>
-        
-
-        
         <td>
   <button 
     v-if="isParticipant && !isPastDeadline('2024-12-30T23:59:59Z')" 
@@ -124,7 +98,6 @@
   </button>
   <button @click="downloadPublication(publication.fileUrl)">Download</button>
 </td>
-
       </tr>
       </tbody>
     </table>

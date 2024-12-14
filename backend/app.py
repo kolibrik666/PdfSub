@@ -14,10 +14,6 @@ CORS(app, resources={r"/api/*": {"origins": "http://localhost:8080"}})
 bcrypt = Bcrypt(app)
 secret = "***************"
 
-
-
-
-
 @app.route('/')
 def hello():
     return 'Hello from Flask!'
@@ -142,12 +138,8 @@ def get_users():
         'roles.isParticipant': 1,
         'roles.isReviewer': 1
     }))
-
     users = [convert_to_json_compatible(user) for user in users]
-
     return jsonify(users)
-
-
 
 def convert_to_json_compatible(doc):
     """Convert MongoDB document to a JSON-compatible format."""
@@ -167,8 +159,6 @@ def convert_to_json_compatible(doc):
         # Return the value as is for other types
         return doc
 
-
-
 @app.route('/api/publications', methods=['GET'])
 def get_publications():
     publications = list(papers_collection.find({}, {
@@ -179,16 +169,19 @@ def get_publications():
         'submit_status': 1,
         'rating': 1
     }))
-
     publications = [convert_to_json_compatible(pub) for pub in publications]
-
-        
-
     return jsonify(publications)
 
-
-
-
+@app.route('/api/publications/<string:id>', methods=['GET'])
+def get_publication(id):
+    try:
+        publication = papers_collection.find_one({'_id': ObjectId(id)})
+        if publication:
+            return jsonify(convert_to_json_compatible(publication)), 200
+        else:
+            return jsonify({'message': 'Publication not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
