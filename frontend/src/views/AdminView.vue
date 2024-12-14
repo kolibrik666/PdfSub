@@ -93,7 +93,7 @@ export default {
       });
     },
     deleteUser(email) {
-      api.delete(`/api/users/${email}`)
+      api.deleteUser(email)
           .then(() => {
             this.users = this.users.filter(user => user.email !== email);
             alert('User deleted successfully');
