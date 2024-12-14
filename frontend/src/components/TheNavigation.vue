@@ -11,12 +11,11 @@
       </div>
       <div class="nav-links">
         <router-link to="/" class="nav-link">Home</router-link>
-        <router-link to="/about" class="nav-link">About</router-link>
         <router-link to="/login" class="nav-link" v-if="!isLoggedIn">Login</router-link>
         <router-link to="/sign-up" class="nav-link" v-if="!isLoggedIn">Sign Up</router-link>
         <router-link to="/publications" class="nav-link" v-if="isLoggedIn">Publications</router-link>
         <router-link to="/admin" class="nav-link" v-if="isAdmin && isLoggedIn">Manage Users</router-link>
-        <button v-if="isLoggedIn" @click="logout" class="nav-link logout-btn">Logout</button>
+        <button v-if="isLoggedIn" @click="logout" class="nav-link logout-btn">Logout ({{ email }})</button>
       </div>
     </div>
   </nav>
@@ -28,6 +27,7 @@ import api from '../services/api';
 export default {
   data() {
     return {
+      email: '', 
       isLoggedIn: false,
       isAdmin: false,
       isParticipant: false,
@@ -48,6 +48,7 @@ export default {
       api.decode_token({ token })
           .then(response => {
             const decodedToken = response.data.user;
+            this.email = decodedToken.email;
             this.isAdmin = decodedToken.isAdmin;
             this.isParticipant = decodedToken.isParticipant;
             this.isReviewer = decodedToken.isReviewer;
@@ -72,6 +73,7 @@ export default {
     });
 
     EventBus.on('user-logged-out', () => {
+      this.email = '';
       this.isLoggedIn = false;
       this.isAdmin = false;
       this.isParticipant = false;
