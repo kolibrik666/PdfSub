@@ -100,7 +100,20 @@ def register():
 @app.route('/api/users/<string:email>', methods=['PUT'])
 def update_user(email):
     data = request.get_json()
-    update_fields = {key: value for key, value in data.items() if key in ['name', 'surname', 'roles.isAdmin', 'roles.isParticipant', 'roles.isReviewer']}
+    update_fields = {}
+
+    if 'name' in data:
+        update_fields['name'] = data['name']
+    if 'surname' in data:
+        update_fields['surname'] = data['surname']
+    if 'roles' in data:
+        if 'isAdmin' in data['roles']:
+            update_fields['roles.isAdmin'] = data['roles']['isAdmin']
+        if 'isParticipant' in data['roles']:
+            update_fields['roles.isParticipant'] = data['roles']['isParticipant']
+        if 'isReviewer' in data['roles']:
+            update_fields['roles.isReviewer'] = data['roles']['isReviewer']
+
     users_collection.update_one({'email': email}, {'$set': update_fields})
     return jsonify({'message': 'User updated successfully'}), 200
 
