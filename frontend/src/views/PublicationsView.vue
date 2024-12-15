@@ -112,6 +112,7 @@
 </template>
 <script>
 import api from '../services/api';
+import { decodeTokenUpdateData } from '../services/tokenUtils';
 
 export default {
   data() {
@@ -171,26 +172,10 @@ export default {
     setUserRole() {
       const token = localStorage.getItem('userToken');
       if (token) {
-        this.decodeTokenUpdateData(token);
+        decodeTokenUpdateData(token, this);
+        this.isLoggedIn = true;
       }
     },
-    decodeTokenUpdateData(token) {
-      api.decode_token({ token })
-        .then(response => {
-          const decodedToken = response.data.user;
-          this.isAdmin = decodedToken.isAdmin;
-          this.isParticipant = decodedToken.isParticipant;
-          this.isReviewer = decodedToken.isReviewer;
-          this.isLoggedIn = true;
-          this.user_id = decodedToken.id;
-        })
-        .catch(error => {
-          console.error("Token decoding failed", error.response ? error.response.data : error.message);
-        });
-    },
-    goToReviewPage(publicationId) {
-    this.$router.push({ name: 'review', params: { id: publicationId } });
-  },
     submitPublication(publication) {
       if (this.isBeforeDeadline()) {
         publication.submit_status = 'submitted';

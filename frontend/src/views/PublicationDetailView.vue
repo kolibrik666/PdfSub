@@ -12,8 +12,8 @@
     <!-- Comments Section -->
     <div class="comments-section">
       <h2>Feedback</h2>
-      <ul v-if="feedback && feedback.length">
-        <li v-for="(comment, index) in feedback" :key="index">
+      <ul v-if="commentsWithNames.length">
+        <li v-for="(comment, index) in commentsWithNames" :key="index">
           <p><strong>{{ comment.reviewerName }}:</strong> {{ comment.comments }}</p>
           <small>{{ formatDate(comment.submittedAt) }}</small>
         </li>
@@ -21,20 +21,15 @@
       <p v-else>No comments yet. Be the first to comment!</p>
 
       <!-- Comment Form -->
-      <h3>Add a Comment</h3>
+      <h3 v-if="isAdmin" >Add a Comment</h3>
       <form @submit.prevent="submitComment">
-        <input
-            v-model="newComment.reviewerId"
-            type="text"
-            placeholder="Your reviewer ID"
-            class="input-field"
-        />
         <textarea
             v-model="newComment.comments"
             placeholder="Write your comment..."
             class="input-field"
+            :disabled="!isAuthorized"
         ></textarea>
-        <button type="submit">Submit Comment</button>
+        <button type="submit" :disabled="!isAuthorized">Submit Comment</button>
       </form>
     </div>
   </div>
@@ -45,15 +40,19 @@
 
 <script>
 import api from "../services/api";
+import { decodeTokenUpdateData } from '../services/tokenUtils';
 
 export default {
   data() {
     return {
+      user_id: null,
       publication: null,
       author: null,
       co_authors: null,
+      reviewerId: null,
       reviewer: null,
       feedback: [],
+      commentsWithNames: [],
       newComment: {
         reviewerId: "",
         comments: "",
@@ -63,6 +62,11 @@ export default {
   created() {
     const publicationId = this.$route.params.id;
     this.fetchPublication(publicationId);
+    const token = localStorage.getItem('userToken');
+    if (token) {
+      decodeTokenUpdateData(token, this);
+      this.isLoggedIn = true;
+    }
   },
   methods: {
     fetchPublication(id) {
@@ -70,46 +74,68 @@ export default {
           .then((response) => {
             this.publication = response.data;
             this.feedback = response.data.feedback || [];
+            this.commentsWithNames = []; // Reset the array
 
-            this.feedback.forEach((comment, index) => {
-              this.fetchReviewerName(comment.reviewerId, index);
-            });
-            if (this.publication.authorId) this.fetchUser(this.publication.authorId);
+            if (this.publication.authorId) this.fetchUserName(this.publication.authorId, 'author');
             if (this.publication.co_authors) this.co_authors = this.publication.co_authors;
-            if (this.publication.reviewer) this.fetchUser(this.publication.reviewer);
+            if (this.publication.reviewerId) this.fetchUserName(this.publication.reviewerId, 'reviewer');
+
+            Promise.all(this.feedback.map(async (comment) => {
+              const reviewerName = await this.fetchUserNameId(comment.reviewerId);
+              this.commentsWithNames.push({
+                ...comment,
+                reviewerName,
+              });
+            }));
           })
           .catch((error) => {
             console.error("Failed to fetch publication", error);
           });
     },
-    fetchUser(authorId) {
-      api.getUserById(authorId)
+    fetchUserName(userId, property) {
+      api.getUserById(userId)
           .then((response) => {
-            this.author = response.data.name 
+            this[property] = response.data.name;
           })
           .catch(() => {
-            this.author = "Unknown";
+            this[property] = "Unknown";
           });
     },
-    fetchReviewerName(reviewerId, index) {
-      api.getUserById(reviewerId)
-          .then((response) => {
-            this.feedback[index].reviewerName =
-                response.data.name 
-          })
-          .catch(() => {
-            this.feedback[index].reviewerName = "Unknown Reviewer";
-          });
+    async fetchUserNameId(userId) {
+      try {
+        const response = await api.getUserById(userId);
+        console.log(response.data); // See what data you're getting
+        return response.data.name || "Unknown";
+      } catch (error) {
+        if (error.response) {
+          console.error('Server error:', error.response);
+        } else if (error.request) {
+          console.error('No response received:', error.request);
+        } else {
+          console.error('Error', error.message);
+        }
+        return "Unknown";
+      }
     },
     submitComment() {
-      if (!this.newComment.comments || !this.newComment.reviewerId) {
-        alert("Both reviewer ID and comment are required!");
+      if (!this.newComment.comments) {
+        alert("Comment is required!");
         return;
       }
 
       const publicationId = this.$route.params.id;
 
-      api.addCommentToPublication(publicationId, this.newComment)
+      if (this.user_id !== this.publication.authorId && this.user_id !== this.publication.reviewer) {
+        alert("You are not authorized to comment on this publication.");
+        return;
+      }
+
+      const commentData = {
+        reviewerId: this.user_id, // Use saved user ID
+        comments: this.newComment.comments,
+      };
+
+      api.addCommentToPublication(publicationId, commentData)
           .then((response) => {
             const newFeedback = response.data.feedback;
             this.feedback.push({
@@ -119,7 +145,6 @@ export default {
 
             // Reset form
             this.newComment.comments = "";
-            this.newComment.reviewerId = "";
           })
           .catch((error) => {
             console.error("Failed to add comment", error);

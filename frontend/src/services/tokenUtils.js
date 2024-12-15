@@ -9,8 +9,8 @@ export function decodeTokenUpdateData(token, context) {
             context.isAdmin = decodedToken.isAdmin;
             context.isParticipant = decodedToken.isParticipant;
             context.isReviewer = decodedToken.isReviewer;
-
-            console.error(context.isAdmin);
+            context.user_id = decodedToken.id;
+            console.log(context.isAdmin);
         })
         .catch(error => {
             console.error("Token decoding failed", error.response ? error.response.data : error.message);
