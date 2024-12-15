@@ -11,7 +11,7 @@
     <button @click="downloadPublication(publication.fileUrl)">Download</button>
     <!-- Comments Section -->
     <div class="comments-section">
-      <h2>Feedback</h2>
+      <h2>Comments</h2>
       <ul v-if="commentsWithNames.length">
         <li v-for="(comment, index) in commentsWithNames" :key="index">
           <p><strong>{{ comment.reviewerName }}:</strong> {{ comment.comments }}</p>
@@ -21,7 +21,7 @@
       <p v-else>No comments yet. Be the first to comment!</p>
 
       <!-- Comment Form -->
-      <h3 v-if="isAdmin" >Add a Comment</h3>
+      <h3>Add a Comment</h3>
       <form @submit.prevent="submitComment">
         <textarea
             v-model="newComment.comments"
