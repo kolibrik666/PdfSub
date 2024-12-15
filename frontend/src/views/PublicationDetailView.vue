@@ -12,8 +12,8 @@
     <!-- Comments Section -->
     <div class="comments-section">
       <h2>Feedback</h2>
-      <ul v-if="commentsWithNames.length">
-        <li v-for="(comment, index) in commentsWithNames" :key="index">
+      <ul v-if="feedback && feedback.length">
+        <li v-for="(comment, index) in feedback" :key="index">
           <p><strong>{{ comment.reviewerName }}:</strong> {{ comment.comments }}</p>
           <small>{{ formatDate(comment.submittedAt) }}</small>
         </li>
@@ -21,15 +21,20 @@
       <p v-else>No comments yet. Be the first to comment!</p>
 
       <!-- Comment Form -->
-      <h3 v-if="isAdmin" >Add a Comment</h3>
+      <h3>Add a Comment</h3>
       <form @submit.prevent="submitComment">
+        <input
+            v-model="newComment.reviewerId"
+            type="text"
+            placeholder="Your reviewer ID"
+            class="input-field"
+        />
         <textarea
             v-model="newComment.comments"
             placeholder="Write your comment..."
             class="input-field"
-            :disabled="!isAuthorized"
         ></textarea>
-        <button type="submit" :disabled="!isAuthorized">Submit Comment</button>
+        <button type="submit">Submit Comment</button>
       </form>
     </div>
   </div>
@@ -40,19 +45,15 @@
 
 <script>
 import api from "../services/api";
-import { decodeTokenUpdateData } from '../services/tokenUtils';
 
 export default {
   data() {
     return {
-      user_id: null,
       publication: null,
       author: null,
       co_authors: null,
-      reviewerId: null,
       reviewer: null,
       feedback: [],
-      commentsWithNames: [],
       newComment: {
         reviewerId: "",
         comments: "",
@@ -62,11 +63,6 @@ export default {
   created() {
     const publicationId = this.$route.params.id;
     this.fetchPublication(publicationId);
-    const token = localStorage.getItem('userToken');
-    if (token) {
-      decodeTokenUpdateData(token, this);
-      this.isLoggedIn = true;
-    }
   },
   methods: {
     fetchPublication(id) {
@@ -74,68 +70,46 @@ export default {
           .then((response) => {
             this.publication = response.data;
             this.feedback = response.data.feedback || [];
-            this.commentsWithNames = []; // Reset the array
 
-            if (this.publication.authorId) this.fetchUserName(this.publication.authorId, 'author');
+            this.feedback.forEach((comment, index) => {
+              this.fetchReviewerName(comment.reviewerId, index);
+            });
+            if (this.publication.author) this.fetchUser(this.publication.author);
             if (this.publication.co_authors) this.co_authors = this.publication.co_authors;
-            if (this.publication.reviewerId) this.fetchUserName(this.publication.reviewerId, 'reviewer');
-
-            Promise.all(this.feedback.map(async (comment) => {
-              const reviewerName = await this.fetchUserNameId(comment.reviewerId);
-              this.commentsWithNames.push({
-                ...comment,
-                reviewerName,
-              });
-            }));
+            if (this.publication.reviewer) this.fetchUser(this.publication.reviewer);
           })
           .catch((error) => {
             console.error("Failed to fetch publication", error);
           });
     },
-    fetchUserName(userId, property) {
-      api.getUserById(userId)
+    fetchUser(authorId) {
+      api.getUserById(authorId)
           .then((response) => {
-            this[property] = response.data.name;
+            this.author = response.data.name + " " + response.data.surname;
           })
           .catch(() => {
-            this[property] = "Unknown";
+            this.author = "Unknown";
           });
     },
-    async fetchUserNameId(userId) {
-      try {
-        const response = await api.getUserById(userId);
-        console.log(response.data); // See what data you're getting
-        return response.data.name || "Unknown";
-      } catch (error) {
-        if (error.response) {
-          console.error('Server error:', error.response);
-        } else if (error.request) {
-          console.error('No response received:', error.request);
-        } else {
-          console.error('Error', error.message);
-        }
-        return "Unknown";
-      }
+    fetchReviewerName(reviewerId, index) {
+      api.getUserById(reviewerId)
+          .then((response) => {
+            this.feedback[index].reviewerName =
+                response.data.name + " " + response.data.surname;
+          })
+          .catch(() => {
+            this.feedback[index].reviewerName = "Unknown Reviewer";
+          });
     },
     submitComment() {
-      if (!this.newComment.comments) {
-        alert("Comment is required!");
+      if (!this.newComment.comments || !this.newComment.reviewerId) {
+        alert("Both reviewer ID and comment are required!");
         return;
       }
 
       const publicationId = this.$route.params.id;
 
-      if (this.user_id !== this.publication.authorId && this.user_id !== this.publication.reviewer) {
-        alert("You are not authorized to comment on this publication.");
-        return;
-      }
-
-      const commentData = {
-        reviewerId: this.user_id, // Use saved user ID
-        comments: this.newComment.comments,
-      };
-
-      api.addCommentToPublication(publicationId, commentData)
+      api.addCommentToPublication(publicationId, this.newComment)
           .then((response) => {
             const newFeedback = response.data.feedback;
             this.feedback.push({
@@ -145,6 +119,7 @@ export default {
 
             // Reset form
             this.newComment.comments = "";
+            this.newComment.reviewerId = "";
           })
           .catch((error) => {
             console.error("Failed to add comment", error);
@@ -183,8 +158,7 @@ button, .button-link {
   margin-top: 20px;
   margin-right: 10px;
   padding: 10px 20px;
-  background-color: #000708;
-  border-radius: 5px;
+  background-color: #734ae8;
   color: white;
   border: none;
   cursor: pointer;
@@ -206,6 +180,6 @@ li {
 }
 
 .button-link:hover, button:hover {
-  background-color: #26e7aa;
+  background-color: #5a3bb5;
 }
 </style>

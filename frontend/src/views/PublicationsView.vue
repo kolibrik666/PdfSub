@@ -20,7 +20,7 @@
           </td>
           <td>{{ publication.review_status }}</td>
           <td>
-            <button v-if="isReviewer && publication.review_status === 'pending'"   @click="goToReviewPage(publication._id)">Review</button>
+            <button v-if="isReviewer && publication.review_status === 'pending'" @click="editPublication(publication)">Review</button>
             <button @click="downloadPublication(publication.fileUrl)">Download</button>
           </td>
         </tr>
