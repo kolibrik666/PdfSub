@@ -23,7 +23,6 @@
 
 <script>
 import { EventBus } from '../services/eventBus';
-import api from '../services/api';
 import { decodeTokenUpdateData } from '../services/tokenUtils';
 
 export default {
