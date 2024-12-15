@@ -1,12 +1,42 @@
 <template>
   <div class="publication-detail" v-if="publication">
     <h1>{{ publication.title }}</h1>
-    <p><strong>Author:</strong> {{ /*authors.join(', ') */author }}</p>
+    <p><strong>Author:</strong> {{ author }}</p>
+    <p><strong>Co-Authors:</strong> {{ co_authors }}</p>
     <p><strong>Reviewer:</strong> {{ reviewer ? reviewer : 'No assigned reviewer' }}</p>
-    <p><strong>Abstract:</strong> {{ publication.abstract }}</p>
     <p><strong>Status:</strong> {{ publication.review_status }}</p>
+    <p><strong>Rating:</strong> {{ publication.rating }}</p>
+
     <router-link to="/publications" class="button-link">Back to Publications</router-link>
     <button @click="downloadPublication(publication.fileUrl)">Download</button>
+    <!-- Comments Section -->
+    <div class="comments-section">
+      <h2>Feedback</h2>
+      <ul v-if="feedback && feedback.length">
+        <li v-for="(comment, index) in feedback" :key="index">
+          <p><strong>{{ comment.reviewerName }}:</strong> {{ comment.comments }}</p>
+          <small>{{ formatDate(comment.submittedAt) }}</small>
+        </li>
+      </ul>
+      <p v-else>No comments yet. Be the first to comment!</p>
+
+      <!-- Comment Form -->
+      <h3>Add a Comment</h3>
+      <form @submit.prevent="submitComment">
+        <input
+            v-model="newComment.reviewerId"
+            type="text"
+            placeholder="Your reviewer ID"
+            class="input-field"
+        />
+        <textarea
+            v-model="newComment.comments"
+            placeholder="Write your comment..."
+            class="input-field"
+        ></textarea>
+        <button type="submit">Submit Comment</button>
+      </form>
+    </div>
   </div>
   <div v-else>
     <p>Loading publication details...</p>
@@ -14,13 +44,20 @@
 </template>
 
 <script>
-import api from '../services/api';
+import api from "../services/api";
+
 export default {
   data() {
     return {
       publication: null,
       author: null,
+      co_authors: null,
       reviewer: null,
+      feedback: [],
+      newComment: {
+        reviewerId: "",
+        comments: "",
+      },
     };
   },
   created() {
@@ -30,59 +67,71 @@ export default {
   methods: {
     fetchPublication(id) {
       api.getPublication(id)
-          .then(response => {
+          .then((response) => {
             this.publication = response.data;
-            if (this.publication.author) {
-              this.fetchAuthor(this.publication.authorId);
-            } else {
-              console.error("Author ID is undefined");
-            }
-            if (this.publication.reviewer) {
-              this.fetchReviewer(this.publication.reviewer);
-            }
+            this.feedback = response.data.feedback || [];
+
+            this.feedback.forEach((comment, index) => {
+              this.fetchReviewerName(comment.reviewerId, index);
+            });
+            if (this.publication.author) this.fetchUser(this.publication.author);
+            if (this.publication.co_authors) this.co_authors = this.publication.co_authors;
+            if (this.publication.reviewer) this.fetchUser(this.publication.reviewer);
           })
-          .catch(error => {
+          .catch((error) => {
             console.error("Failed to fetch publication", error);
-            this.publication = {
-              title: "Unknown",
-              author: "Noone",
-              abstract: "No abstract available",
-              reviewer: "Unknown",
-              rating: "FX",
-              review_status: "Unknown",
-              fileUrl: "#"
-            };
           });
     },
-    fetchAuthor(authorId) {
-      if (!authorId) {
-        console.error("Author ID is undefined");
-        this.author = "Unknown";
-        return;
-      }
+    fetchUser(authorId) {
       api.getUserById(authorId)
-          .then(response => {
-            this.author = response.data.name;
+          .then((response) => {
+            this.author = response.data.name + " " + response.data.surname;
           })
-          .catch(error => {
-            console.error("Failed to fetch author", error);
+          .catch(() => {
             this.author = "Unknown";
           });
     },
-    fetchReviewer(reviewerId) {
+    fetchReviewerName(reviewerId, index) {
       api.getUserById(reviewerId)
-          .then(response => {
-            this.reviewer = response.data.name;
+          .then((response) => {
+            this.feedback[index].reviewerName =
+                response.data.name + " " + response.data.surname;
           })
-          .catch(error => {
-            console.error("Failed to fetch reviewer", error);
-            this.reviewer = null;
+          .catch(() => {
+            this.feedback[index].reviewerName = "Unknown Reviewer";
           });
     },
+    submitComment() {
+      if (!this.newComment.comments || !this.newComment.reviewerId) {
+        alert("Both reviewer ID and comment are required!");
+        return;
+      }
+
+      const publicationId = this.$route.params.id;
+
+      api.addCommentToPublication(publicationId, this.newComment)
+          .then((response) => {
+            const newFeedback = response.data.feedback;
+            this.feedback.push({
+              ...newFeedback,
+              reviewerName: "You", // Placeholder until fetched
+            });
+
+            // Reset form
+            this.newComment.comments = "";
+            this.newComment.reviewerId = "";
+          })
+          .catch((error) => {
+            console.error("Failed to add comment", error);
+          });
+    },
+    formatDate(date) {
+      return new Date(date).toLocaleString();
+    },
     downloadPublication(fileUrl) {
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = fileUrl;
-      link.download = fileUrl.split('/').pop();
+      link.download = fileUrl.split("/").pop();
       link.click();
     },
   },
@@ -90,6 +139,17 @@ export default {
 </script>
 
 <style scoped>
+.comments-section {
+  margin-top: 30px;
+}
+.input-field {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+  font-size: 14px;
+}
+
 .publication-detail {
   padding: 20px;
 }
@@ -106,6 +166,17 @@ button, .button-link {
   display: inline-block;
   text-align: center;
   font-size: 16px;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  margin-bottom: 15px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
 }
 
 .button-link:hover, button:hover {

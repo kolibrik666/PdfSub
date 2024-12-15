@@ -17,6 +17,9 @@ export default {
     getPublication(id) {
         return apiClient.get(`/publications/${id}`);
     },
+    addCommentToPublication(id, commentData) {
+        return axios.post(`/api/publications/${id}/comments`, commentData);
+    },
     getUsers() {
         return apiClient.get('/users');
     },
