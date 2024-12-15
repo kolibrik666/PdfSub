@@ -18,7 +18,7 @@ export default {
         return apiClient.get(`/publications/${id}`);
     },
     addCommentToPublication(id, commentData) {
-        return axios.post(`/api/publications/${id}/comments`, commentData);
+        return apiClient.post(`/publications/${id}/comments`, commentData);
     },
     updatePublication(id, data) {
         return axios.put(`/api/publications/${id}`, data);

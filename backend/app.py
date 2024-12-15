@@ -196,11 +196,18 @@ def get_publication(id):
 @app.route('/api/publications/<string:id>/comments', methods=['POST'])
 def add_comment(id):
     try:
-        reviewer_id = request.json.get('reviewerId')  # Required
-        comments = request.json.get('comments')      # Required
+        data = request.json
+        print("Received data:", data)
+        reviewer_id = data.get('reviewerId')
+        comments = data.get('comments')
 
         if not reviewer_id or not comments:
             return jsonify({"error": "ReviewerId and comments are required"}), 400
+
+        try:
+            reviewer_id = reviewer_id
+        except Exception as e:
+            return jsonify({"error": "Invalid reviewerId format"}), 400
 
         new_comment = {
             "reviewerId": reviewer_id,
@@ -208,16 +215,15 @@ def add_comment(id):
             "submittedAt": datetime.utcnow().isoformat()
         }
 
-        publications_collection.update_one(
+        papers_collection.update_one(
             {"_id": ObjectId(id)},
             {"$push": {"feedback": new_comment}}
         )
 
         return jsonify({"message": "Feedback added successfully", "feedback": new_comment}), 201
     except Exception as e:
+        print("Error:", str(e))  # Log any exceptions
         return jsonify({"error": str(e)}), 400
-    
-
 
 @app.route('/reviews', methods=['POST'])
 def submit_review():
