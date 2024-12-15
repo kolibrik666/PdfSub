@@ -74,7 +74,7 @@ export default {
             this.feedback.forEach((comment, index) => {
               this.fetchReviewerName(comment.reviewerId, index);
             });
-            if (this.publication.author) this.fetchUser(this.publication.author);
+            if (this.publication.authorId) this.fetchUser(this.publication.authorId);
             if (this.publication.co_authors) this.co_authors = this.publication.co_authors;
             if (this.publication.reviewer) this.fetchUser(this.publication.reviewer);
           })
@@ -85,7 +85,7 @@ export default {
     fetchUser(authorId) {
       api.getUserById(authorId)
           .then((response) => {
-            this.author = response.data.name + " " + response.data.surname;
+            this.author = response.data.name 
           })
           .catch(() => {
             this.author = "Unknown";
@@ -95,7 +95,7 @@ export default {
       api.getUserById(reviewerId)
           .then((response) => {
             this.feedback[index].reviewerName =
-                response.data.name + " " + response.data.surname;
+                response.data.name 
           })
           .catch(() => {
             this.feedback[index].reviewerName = "Unknown Reviewer";
