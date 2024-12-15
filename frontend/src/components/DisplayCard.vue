@@ -14,10 +14,7 @@
           <label for="name"><b>Name</b></label>
           <input type="text" v-model="form.name" placeholder="Enter Name" required />
         </div>
-        <div class="input-group">
-          <label for="surname"><b>Surname</b></label>
-          <input type="text" v-model="form.surname" placeholder="Enter Surname" required />
-        </div>
+       
       </div>
 
       <div class="input-group">
@@ -83,7 +80,6 @@ export default {
     return {
       form: {
         name: "",
-        surname: "",
         username: "",
         email: "",
         password: "",
@@ -107,7 +103,6 @@ export default {
           email: this.form.email,
           password: this.form.password,
           name: this.form.name,
-          surname: this.form.surname
         })
             .then(() => {
               console.log("Registered with", this.form);

@@ -5,7 +5,7 @@
       <input
           v-model="searchQuery"
           class="search-input"
-          placeholder="Search by email, name, or surname"
+          placeholder="Search by email or name"
       />
       <select v-model="selectedRole" class="role-select">
         <option value="">All Roles</option>
@@ -19,7 +19,6 @@
       <tr>
         <th>Email</th>
         <th>Name</th>
-        <th>Surname</th>
         <th>Roles</th>
         <th>Actions</th>
       </tr>
@@ -28,7 +27,6 @@
       <tr v-for="user in filteredUsers" :key="user.email">
         <td>{{ user.email }}</td>
         <td><input v-model="user.name" /></td>
-        <td><input v-model="user.surname" /></td>
         <td>
           <label><input type="checkbox" v-model="user.roles.isAdmin" /> Admin</label>
           <label><input type="checkbox" v-model="user.roles.isParticipant" /> Participant</label>
@@ -60,8 +58,7 @@ export default {
       return this.users.filter(user => {
         const searchLower = this.searchQuery.toLowerCase();
         const matchesSearch = user.email.toLowerCase().includes(searchLower) ||
-            user.name.toLowerCase().includes(searchLower) ||
-            user.surname.toLowerCase().includes(searchLower);
+            user.name.toLowerCase().includes(searchLower)
         const matchesRole = !this.selectedRole ||
             (this.selectedRole === 'admin' && user.roles.isAdmin) ||
             (this.selectedRole === 'participant' && user.roles.isParticipant) ||
@@ -79,7 +76,6 @@ export default {
     updateUser(user) {
       api.updateUser(user.email, {
         name: user.name,
-        surname: user.surname,
         roles: {
           isAdmin: user.roles.isAdmin,
           isParticipant: user.roles.isParticipant,

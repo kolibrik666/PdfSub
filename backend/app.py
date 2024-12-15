@@ -81,14 +81,12 @@ def register():
     email = data.get('email')
     password = data.get('password')
     name = data.get('name')
-    surname = data.get('surname')
     hashed_password = bcrypt.generate_password_hash(password)
 
     user = {
         'email': email,
         'password': hashed_password.decode('utf-8'),
         'name': name,
-        'surname': surname,
         'roles': {'isAdmin': False, 'isParticipant': False, 'isReviewer': False},
         'conferences': [],
         'papers': []
@@ -104,8 +102,7 @@ def update_user(email):
 
     if 'name' in data:
         update_fields['name'] = data['name']
-    if 'surname' in data:
-        update_fields['surname'] = data['surname']
+
     if 'roles' in data:
         if 'isAdmin' in data['roles']:
             update_fields['roles.isAdmin'] = data['roles']['isAdmin']
@@ -129,7 +126,7 @@ def delete_user(email):
 def get_users():
     users = list(users_collection.find({}, {
         '_id': 1,
-        'surname': 1,
+
         'name': 1,
         'email': 1,
         'password': 1,
@@ -175,8 +172,10 @@ def get_publications():
     publications = list(papers_collection.find({}, {
         '_id': 1,
         'title': 1,
-        'authors': 1,
+        'authorId': 1,
+        'co_authors': 1,
         'review_status': 1,
+        'reviewerId': 1,
         'submit_status': 1,
         'rating': 1
     }))

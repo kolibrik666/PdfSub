@@ -1,134 +1,127 @@
 <template>
-<div v-if="isReviewer">
-  <div class="publications">
-    <h1>For Review</h1>
-    <!-- Displaying a list of publications -->
-    <table>
-      <thead>
-      <tr>
-        <th>Title</th>
-        <th>Authors</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr v-for="publication in publications" :key="publication._id">
-        
-        <td>
-          <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
-            {{ publication.title }}
-          </router-link>
-        </td>
-
-        <td>{{ publication.authors.join(", ") }}</td>
-        <td>{{ publication.review_status }}</td>
-        
-        <td>
-          <button v-if="isReviewer && publication.review_status === 'pending'" @click="editPublication(publication)">Review</button>
-          <button @click="downloadPublication(publication.fileUrl)">Download</button>
-        </td>
-      
-      </tr>
-      </tbody>
-    </table>
-
-  </div>
+  <div v-if="isReviewer">
+    <div class="publications">
+      <h1>For Review</h1>
+      <!-- Displaying a list of publications -->
+      <table>
+        <thead>
+        <tr>
+          <th>Title</th>
+          <th>Review Status</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="publication in filteredPublications" :key="publication._id">
+          <td>
+            <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
+              {{ publication.title }}
+            </router-link>
+          </td>
+          <td>{{ publication.review_status }}</td>
+          <td>
+            <button v-if="isReviewer && publication.review_status === 'pending'" @click="editPublication(publication)">Review</button>
+            <button @click="downloadPublication(publication.fileUrl)">Download</button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
-<div v-if="isAdmin">
-  <div class="publications">
-    <h1>Assign Reviewer</h1>
-    <!-- Displaying a list of publications -->
-    <table>
-      <thead>
-      <tr>
-        <th>Title</th>
-        <th>Authors</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr v-for="publication in publications" :key="publication._id">
+  <div v-if="isAdmin">
+    <div class="publications">
+      <h1>Assign Reviewer</h1>
+      <table>
+        <thead>
+        <tr>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Co-Authors</th>
+          <th>Date of Submission</th>
+          <th>Reviewer</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="publication in filteredPublications" :key="publication._id">
+          <td>
+            <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
+              {{ publication.title }}
+            </router-link>
+          </td>
+          <td>{{ getUserName(publication.authorId) }}</td>
+          <td>{{ publication.co_authors }}</td>
+          <td>{{ publication.submit_status }}</td>
+          <td>{{ getUserName(publication.reviewerId) || 'No reviewer assigned' }}</td>
+          <td>
+            <button v-if="isAdmin && publication.review_status === 'pending'" @click="assignReviewer(publication)">Assign Reviewer</button>
+            <button @click="downloadPublication(publication.fileUrl)">Download</button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-        <td>
-          <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
-            {{ publication.title }}
-          </router-link>
-        </td>
-        <td>{{ publication.authors.join(", ") }}</td>
-        <td>{{ publication.submit_status }}</td>
-        <td>
-          <button v-if="(isAdmin) && publication.submit_status.includes('submitted') && publication.review_status === 'pending'" @click="assignReviewer(publication)">Assign Reviewer</button>
-          <button @click="downloadPublication(publication.fileUrl)">Download</button>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
-  </div>
   <div v-if="isParticipant">
-  <div class="publications">
-    <h1>My Publications</h1>
-    <!-- Displaying a list of publications -->
-    <table>
-      <thead>
-      <tr>
-        <th>Title</th>
-        <th>Authors</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr v-for="publication in publications" :key="publication._id">
-        <td>
-          <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
-            {{ publication.title }}
-          </router-link>
-        </td>
-        <td>{{ publication.authors.join(", ") }}</td>
-        <td>{{ publication.submit_status }}</td>
-        <td>
-  <button 
-    v-if="isParticipant && !isPastDeadline('2024-12-30T23:59:59Z')" 
-    @click="submitPublication(publication)">
-    Re-submit
-  </button>
-  <button @click="downloadPublication(publication.fileUrl)">Download</button>
-</td>
-      </tr>
-      </tbody>
-    </table>
+    <div class="publications">
+      <h1>My Publications</h1>
+      <table>
+        <thead>
+        <tr>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Co-Authors</th>
+          <th>Date of Submission</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="publication in filteredPublications" :key="publication._id">
+          <td>
+            <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
+              {{ publication.title }}
+            </router-link>
+          </td>
+          <td>{{ getUserName(publication.authorId) }}</td>
+          <td>{{ publication.co_authors }}</td>
+          <td>{{ publication.submit_status }}</td>
+          <td>
+            <button v-if="isParticipant && isBeforeDeadline()" @click="submitPublication(publication)">Re-submit</button>
+            <button @click="downloadPublication(publication.fileUrl)">Download</button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
 
-    <!-- Upload New Publication (only for students) -->
-    <div v-if="isParticipant">
-      <h2>Add Publication</h2>
-      <form @submit.prevent="uploadPublication">
-        <input type="text" v-model="newPublication.title" placeholder="Title" required />
-        <input type="text" v-model="newPublication.authors" placeholder="Authors (comma separated)" required />
-        <input type="file" @change="handleFileUpload" accept=".pdf,.docx" required />
-        <button type="submit">Upload</button>
-      </form>
-      <div v-if="uploadError" class="error-message">
-        <p>{{ uploadError }}</p>
+      <div v-if="isParticipant">
+        <h2>Add Publication</h2>
+        <form @submit.prevent="uploadPublication">
+          <input type="text" v-model="newPublication.title" placeholder="Title" required />
+          <input type="text" v-model="newPublication.authorId" placeholder="Author" required />
+          <input type="file" @change="handleFileUpload" accept=".pdf,.docx" required />
+          <button type="submit">Upload</button>
+        </form>
+        <div v-if="uploadError" class="error-message">
+          <p>{{ uploadError }}</p>
+        </div>
       </div>
     </div>
   </div>
-  </div>
 </template>
-
 <script>
 import api from '../services/api';
 
 export default {
   data() {
     return {
+      user_id: '',
       publications: [],
+      users: {}, // Store users data here
       newPublication: {
         title: '',
-        authors: '',
+        authorId: '',
         file: null,
       },
       uploadError: null,
@@ -146,9 +139,9 @@ export default {
       if (this.isAdmin) {
         return this.publications;
       } else if (this.isReviewer) {
-        return this.publications.filter(pub => pub.submit_status !== 'drafted');
+        return this.publications.filter(pub => pub.reviewerId === this.user_id);
       } else if (this.isParticipant) {
-        return this.publications.filter(pub => pub.authors.includes('Student 1')); // Example filter for student
+        return this.publications.filter(pub => pub.authorId === this.user_id);
       }
       return [];
     },
@@ -157,7 +150,23 @@ export default {
     fetchPublications() {
       api.getPublications().then(response => {
         this.publications = response.data;
+        const userIds = [...new Set(this.publications.flatMap(pub => [pub.authorId, pub.reviewerId]))];
+        this.fetchUsers(userIds);
       });
+    },
+    fetchUsers(userIds) {
+      Promise.all(userIds.map(id => api.getUserById(id).catch(() => null)))
+        .then(responses => {
+          responses.forEach(user => {
+            if (user && user.data) {
+              this.users[user.data._id] = `${user.data.name}`;
+            }
+          });
+        })
+        .catch(error => console.error("Failed to fetch users", error));
+    },
+    getUserName(userId) {
+      return this.users[userId] || "Unknown";
     },
     setUserRole() {
       const token = localStorage.getItem('userToken');
@@ -167,49 +176,24 @@ export default {
     },
     decodeTokenUpdateData(token) {
       api.decode_token({ token })
-          .then(response => {
-            const decodedToken = response.data.user;
-            this.isAdmin = decodedToken.isAdmin;
-            this.isParticipant = decodedToken.isParticipant;
-            this.isReviewer = decodedToken.isReviewer;
-            this.isLoggedIn = true;
-          })
-          .catch(error => {
-            console.error("Token decoding failed", error.response ? error.response.data : error.message);
-            alert("Token decoding failed: " + (error.response ? error.response.data : error.message));
-          });
+        .then(response => {
+          const decodedToken = response.data.user;
+          this.isAdmin = decodedToken.isAdmin;
+          this.isParticipant = decodedToken.isParticipant;
+          this.isReviewer = decodedToken.isReviewer;
+          this.isLoggedIn = true;
+          this.user_id = decodedToken.id;
+        })
+        .catch(error => {
+          console.error("Token decoding failed", error.response ? error.response.data : error.message);
+        });
     },
     submitPublication(publication) {
       if (this.isBeforeDeadline()) {
         publication.submit_status = 'submitted';
-        console.log(`Publication ${publication.title} submitted.`);
       } else {
         alert('Deadline has passed. You cannot submit the publication.');
       }
-    },
-    isPastDeadline(deadline) {
-    if (!deadline) return false; // If no deadline, allow submission
-    const now = new Date(); // Get the current date and time
-    const deadlineDate = new Date(deadline); // Convert deadline to a Date object
-    return now > deadlineDate; // Check if the current date is past the deadline
-  },
-    handleFileUpload(event) {
-      this.newPublication.file = event.target.files[0];
-    },
-    uploadPublication() {
-      if (!this.newPublication.file) {
-        this.uploadError = 'Please select a file to upload.';
-        return;
-      }
-      const newPub = {
-        ...this.newPublication,
-        id: this.publications.length + 1,
-        submit_status: 'drafted',
-        fileUrl: URL.createObjectURL(this.newPublication.file),
-      };
-      this.publications.push(newPub);
-      this.newPublication = { title: '', authors: '', file: null };
-      this.uploadError = null;
     },
     downloadPublication(fileUrl) {
       const link = document.createElement('a');
@@ -219,8 +203,7 @@ export default {
     },
     isBeforeDeadline() {
       const deadline = new Date('2024-12-31');
-      const currentDate = new Date();
-      return currentDate <= deadline;
+      return new Date() <= deadline;
     },
   },
   mounted() {
@@ -228,53 +211,52 @@ export default {
   },
 };
 </script>
-
 <style scoped>
-.publications {
-  padding: 20px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  border: 1px solid #ddd;
-  padding: 8px;
-}
-
-th {
-  background-color: #f2f2f2;
-}
-
-button {
-  margin-right: 5px;
-}
-
-form {
-  margin-top: 20px;
-}
-
-input[type="text"] {
-  display: block;
-  margin-bottom: 10px;
-  padding: 8px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-input[type="file"] {
-  display: block;
-  margin-bottom: 10px;
-}
-
-button[type="submit"] {
-  padding: 10px 20px;
-}
-
-.error-message {
-  color: red;
-  margin-top: 20px;
-}
-</style>
+  .publications {
+    padding: 20px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  th {
+    background-color: #f2f2f2;
+  }
+  
+  button {
+    margin-right: 5px;
+  }
+  
+  form {
+    margin-top: 20px;
+  }
+  
+  input[type="text"] {
+    display: block;
+    margin-bottom: 10px;
+    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  input[type="file"] {
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+  button[type="submit"] {
+    padding: 10px 20px;
+  }
+  
+  .error-message {
+    color: red;
+    margin-top: 20px;
+  }
+  </style>

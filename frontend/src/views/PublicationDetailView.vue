@@ -33,7 +33,7 @@ export default {
           .then(response => {
             this.publication = response.data;
             if (this.publication.author) {
-              this.fetchAuthor(this.publication.author);
+              this.fetchAuthor(this.publication.authorId);
             } else {
               console.error("Author ID is undefined");
             }
