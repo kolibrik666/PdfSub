@@ -21,7 +21,7 @@ export default {
         return apiClient.post(`/publications/${id}/comments`, commentData);
     },
     updatePublication(id, data) {
-        return axios.put(`/api/publications/${id}`, data);
+        return apiClient.put(`/publications/${id}`, data);
     },
     getUsers() {
         return apiClient.get('/users');

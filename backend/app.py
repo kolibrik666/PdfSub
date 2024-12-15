@@ -192,6 +192,18 @@ def get_publication(id):
             return jsonify({'message': 'Publication not found'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@app.route('/api/publications/<string:id>', methods=['PUT'])
+def update_publication(id):
+    data = request.get_json()
+    update_fields = {}
+
+    if 'reviewerId' in data:
+        print("Sme na Reviewer ID:", data['reviewerId'])
+        update_fields['reviewerId'] = data['reviewerId']
+
+    papers_collection.update_one({'_id': ObjectId(id)}, {'$set': update_fields})
+    return jsonify({'message': 'Publication updated successfully'}), 200
 
 @app.route('/api/publications/<string:id>/comments', methods=['POST'])
 def add_comment(id):
