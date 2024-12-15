@@ -15,7 +15,7 @@
         <router-link to="/sign-up" class="nav-link" v-if="!isLoggedIn">Sign Up</router-link>
         <router-link to="/publications" class="nav-link" v-if="isLoggedIn">Publications</router-link>
         <router-link to="/admin" class="nav-link" v-if="isAdmin && isLoggedIn">Manage Users</router-link>
-        <button v-if="isLoggedIn" @click="logout" class="nav-link logout-btn">Logout ({{ email }})</button>
+        <button v-if="isLoggedIn" @click="logout" class="logout-button">Logout ({{ email }})</button>
       </div>
     </div>
   </nav>
@@ -75,7 +75,7 @@ export default {
 
 <style scoped>
 .navbar {
-  background-color: #734ae8;
+  background-color: #57939f;
   padding: 10px 20px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
@@ -119,19 +119,24 @@ export default {
 }
 
 .nav-link:hover {
-  color: #89d4cf;
+  color: #26e7aa;
 }
 
-.logout-btn {
+.logout-button {
+  all: unset; /* Resets all default button styles */
   background-color: transparent;
+  display: inline-block;
   border: none;
   color: white;
   font-size: 16px;
   cursor: pointer;
+  font-family: Poppins, sans-serif;
+  margin: 0 0 0 40px;
+  font-weight: 600;
 }
 
-.logout-btn:hover {
-  color: #f44336;
+.logout-button:hover {
+  color: #26e7aa;
 }
 
 @media screen and (max-width: 768px) {

@@ -40,7 +40,7 @@ const routes = [
     component: PublicationsView,
   },
   {
-    path: '/review/:paper_id',
+    path: '/review/:id',
     name: 'review',
     component: ReviewView,
   },

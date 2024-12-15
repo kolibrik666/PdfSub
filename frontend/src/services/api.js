@@ -20,6 +20,9 @@ export default {
     addCommentToPublication(id, commentData) {
         return axios.post(`/api/publications/${id}/comments`, commentData);
     },
+    updatePublication(id, data) {
+        return axios.put(`/api/publications/${id}`, data);
+    },
     getUsers() {
         return apiClient.get('/users');
     },
@@ -40,5 +43,9 @@ export default {
     },
     decode_token(data) {
         return apiClient.post('/decode-token', data);
-    }
+    },
+    submitReview(data) {
+        return axios.post(`/reviews`, data); 
+      },
+ 
 };

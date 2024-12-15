@@ -143,13 +143,9 @@ export default {
 </script>
   
   <style scoped>
-  * {
-    font-family: 'Merriweather', serif;
-  }
+
   
   body {
-    background-color: #734ae8;
-    background-image: linear-gradient(315deg, #734ae8 0%, #89d4cf 74%);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-attachment: fixed;
@@ -179,7 +175,7 @@ export default {
   }
   
   button {
-    background-color: black;
+    background-color: #57939f;
     color: white;
     padding: 14px 20px;
     margin: 8px 0;
@@ -190,11 +186,11 @@ export default {
   }
   
   button:hover {
-    background-color: rgb(4, 169, 169);
+    background-color: #26e7aa;
   }
   
   .cancelbtn {
-    background-color: #f44336;
+    background-color: #000c09e5;
   }
   
   .imgcontainer {

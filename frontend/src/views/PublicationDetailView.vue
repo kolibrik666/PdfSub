@@ -158,7 +158,8 @@ button, .button-link {
   margin-top: 20px;
   margin-right: 10px;
   padding: 10px 20px;
-  background-color: #734ae8;
+  background-color: #000708;
+  border-radius: 5px;
   color: white;
   border: none;
   cursor: pointer;
@@ -180,6 +181,6 @@ li {
 }
 
 .button-link:hover, button:hover {
-  background-color: #5a3bb5;
+  background-color: #26e7aa;
 }
 </style>

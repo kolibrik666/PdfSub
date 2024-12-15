@@ -20,7 +20,7 @@
           </td>
           <td>{{ publication.review_status }}</td>
           <td>
-            <button v-if="isReviewer && publication.review_status === 'pending'" @click="editPublication(publication)">Review</button>
+            <button v-if="isReviewer && publication.review_status === 'pending'"   @click="goToReviewPage(publication._id)">Review</button>
             <button @click="downloadPublication(publication.fileUrl)">Download</button>
           </td>
         </tr>
@@ -188,6 +188,9 @@ export default {
           console.error("Token decoding failed", error.response ? error.response.data : error.message);
         });
     },
+    goToReviewPage(publicationId) {
+    this.$router.push({ name: 'review', params: { id: publicationId } });
+  },
     submitPublication(publication) {
       if (this.isBeforeDeadline()) {
         publication.submit_status = 'submitted';

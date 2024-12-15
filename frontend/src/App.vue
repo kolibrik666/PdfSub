@@ -26,24 +26,13 @@ export default {
   },
 };
 </script>
-
 <style>
-/* Add global styles if needed */
-
-
 #header {
   flex-shrink: 0;
 }
 
 #footer {
   flex-shrink: 0;
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
 }
 
 #app {
@@ -56,7 +45,7 @@ html, body {
 #content {
   flex-grow: 1;
   width: 100%;
-  padding: 0; /* Ensure no internal padding */
+  padding: 0; 
 }
-
 </style>
+

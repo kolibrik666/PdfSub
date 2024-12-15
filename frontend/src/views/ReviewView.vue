@@ -57,6 +57,8 @@
   </template>
   
   <script>
+  import api from '../services/api';
+
   export default {
     data() {
       return {
@@ -87,47 +89,26 @@
       };
     },
     methods: {
-      submitReview() {
-        console.log('Review submitted:', this.review);
-        // Handle the form submission logic here, like sending it to the backend
-      },
-    },
+  submitReview() {
+    const reviewData = {
+      publicationId: this.$route.params.id, // Get the ID from the route
+      review: this.review,
+    };
+
+    // Call the API to submit the review
+    api.submitReview(reviewData)
+      .then(() => {
+        alert('Review submitted successfully!');
+        this.$router.push('/publications'); // Redirect back to the main page or another desired page
+      })
+      .catch(error => {
+        console.error('Error submitting review:', error);
+        alert('Failed to submit review.');
+      });
+  },
+},
+
   };
   </script>
   
-  <style scoped>
-  .review-view {
-    padding: 20px;
-  }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-  }
-  
-  th {
-    background-color: #f2f2f2;
-  }
-  
-  button {
-    margin-top: 20px;
-  }
-  
-  
-textarea {
-  width: 96%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  resize: vertical; 
-}
-  
-  label {
-    margin-right: 10px;
-  }
-  </style>
   
