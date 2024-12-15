@@ -5,25 +5,26 @@
       <!-- Displaying a list of publications -->
       <table>
         <thead>
-        <tr>
-          <th>Title</th>
-          <th>Review Status</th>
-          <th>Actions</th>
-        </tr>
+          <tr>
+            <th>Title</th>
+            <th>Review Status</th>
+            <th>Actions</th>
+          </tr>
         </thead>
         <tbody>
-        <tr v-for="publication in filteredPublications" :key="publication._id">
-          <td>
-            <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
-              {{ publication.title }}
-            </router-link>
-          </td>
-          <td>{{ publication.review_status }}</td>
-          <td>
-            <button v-if="isReviewer && publication.review_status === 'pending'" @click="editPublication(publication)">Review</button>
-            <button @click="downloadPublication(publication.fileUrl)">Download</button>
-          </td>
-        </tr>
+          <tr v-for="publication in filteredPublications" :key="publication._id">
+            <td>
+              <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
+                {{ publication.title }}
+              </router-link>
+            </td>
+            <td>{{ publication.review_status }}</td>
+            <td>
+              <button v-if="isReviewer && publication.review_status === 'pending'"
+                @click="editPublication(publication)">Review</button>
+              <button @click="downloadPublication(publication.fileUrl)">Download</button>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -34,47 +35,39 @@
       <h1>Assign Reviewer</h1>
       <table>
         <thead>
-        <tr>
-          <th>Title</th>
-          <th>Author</th>
-          <th>Co-Authors</th>
-          <th>Date of Submission</th>
-          <th>Reviewer</th>
-          <th>Actions</th>
-        </tr>
+          <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Co-Authors</th>
+            <th>Date of Submission</th>
+            <th>Reviewer</th>
+            <th>Actions</th>
+          </tr>
         </thead>
         <tbody>
-        <tr v-for="publication in filteredPublications" :key="publication._id">
-          <td>
-            <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
-              {{ publication.title }}
-            </router-link>
-          </td>
-          <td>{{ getUserName(publication.authorId) }}</td>
-          <td>{{ publication.co_authors }}</td>
-          <td>{{ publication.submit_status }}</td>
-          <td>{{ getUserName(publication.reviewerId) || 'No reviewer assigned' }}</td>
-       
+          <tr v-for="publication in filteredPublications" :key="publication._id">
+            <td>
+              <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
+                {{ publication.title }}
+              </router-link>
+            </td>
+            <td>{{ getUserName(publication.authorId) }}</td>
+            <td>{{ publication.co_authors }}</td>
+            <td>{{ publication.submit_status }}</td>
+            <td>{{ getUserName(publication.reviewerId) || 'No reviewer assigned' }}</td>
+            <td>
 
-
-          <td>
-
-
-    
-<select 
-  v-model="selectedReviewer[publication._id]"
->
-<option value=""  selected>Select Reviewer</option>
-
-  <!-- List of all reviewers -->
-    <option v-for="user in reviewers" :key="user._id" :value="user._id">
-      {{ user.name }}
-    </option>
-</select>
-          <button v-if="isAdmin && publication.review_status === 'pending'" @click="assignReviewer(publication)">Assign Reviewer</button>
-            <button @click="downloadPublication(publication.fileUrl)">Download</button>
-          </td>
-        </tr>
+              <select v-model="selectedReviewer[publication._id]">
+                <!-- List of all reviewers -->
+                <option v-for="user in reviewers" :key="user._id" :value="user._id">
+                  {{ user.name }}
+                </option>
+              </select>
+              <button v-if="isAdmin && publication.review_status === 'pending'"
+                @click="assignReviewer(publication)">Assign Reviewer</button>
+              <button @click="downloadPublication(publication.fileUrl)">Download</button>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -85,29 +78,30 @@
       <h1>My Publications</h1>
       <table>
         <thead>
-        <tr>
-          <th>Title</th>
-          <th>Author</th>
-          <th>Co-Authors</th>
-          <th>Date of Submission</th>
-          <th>Actions</th>
-        </tr>
+          <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Co-Authors</th>
+            <th>Date of Submission</th>
+            <th>Actions</th>
+          </tr>
         </thead>
         <tbody>
-        <tr v-for="publication in filteredPublications" :key="publication._id">
-          <td>
-            <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
-              {{ publication.title }}
-            </router-link>
-          </td>
-          <td>{{ getUserName(publication.authorId) }}</td>
-          <td>{{ publication.co_authors }}</td>
-          <td>{{ publication.submit_status }}</td>
-          <td>
-            <button v-if="isParticipant && isBeforeDeadline()" @click="submitPublication(publication)">Re-submit</button>
-            <button @click="downloadPublication(publication.fileUrl)">Download</button>
-          </td>
-        </tr>
+          <tr v-for="publication in filteredPublications" :key="publication._id">
+            <td>
+              <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
+                {{ publication.title }}
+              </router-link>
+            </td>
+            <td>{{ getUserName(publication.authorId) }}</td>
+            <td>{{ publication.co_authors }}</td>
+            <td>{{ publication.submit_status }}</td>
+            <td>
+              <button v-if="isParticipant && isBeforeDeadline()"
+                @click="submitPublication(publication)">Re-submit</button>
+              <button @click="downloadPublication(publication.fileUrl)">Download</button>
+            </td>
+          </tr>
         </tbody>
       </table>
 
@@ -135,9 +129,9 @@ export default {
     return {
       user_id: '',
       publications: [],
-      selectedReviewer: {}, // Tracks selected reviewer for each publication
-      reviewers: [], // Store reviewers data here
-      users: {}, // Store users data here
+      selectedReviewer: {},
+      reviewers: [],
+      users: {},
       newPublication: {
         title: '',
         authorId: '',
@@ -175,51 +169,50 @@ export default {
 
       });
     },
-   
-  fetchReviewers() {
-    api.getUsers() // Or the endpoint to fetch users
-      .then(response => {
-        this.reviewers = response.data.filter(user => user.roles.isReviewer);
-        console.log(this.reviewers); // Log the reviewers to check the list
-      })
-      .catch(error => {
-        console.error('Error fetching reviewers:', error);
-      });
-  },
-  async assignReviewer(publication) {
-  const reviewerId = this.selectedReviewer[publication._id];
-  
-  if (!reviewerId) {
-    alert("Please select a reviewer.");
-    console.log("No reviewer selected for publication:", publication);
-    return;
-  }
 
-  try {
-    // 1. Make the API call to update the publication with the selected reviewer
-    const publicationUpdateResponse = await api.updatePublication(publication._id, { reviewerId });
+    fetchReviewers() {
+      api.getUsers() // Or the endpoint to fetch users
+        .then(response => {
+          this.reviewers = response.data.filter(user => user.roles.isReviewer);
+          console.log(this.reviewers); // Log the reviewers to check the list
+        })
+        .catch(error => {
+          console.error('Error fetching reviewers:', error);
+        });
+    },
+    async assignReviewer(publication) {
+      const reviewerId = this.selectedReviewer[publication._id];
 
-    console.log("Publication updated successfully:", publicationUpdateResponse);
+      if (!reviewerId) {
+        alert("Please select a reviewer.");
+        console.log("No reviewer selected for publication:", publication);
+        return;
+      }
 
-    // 2. Update the local publication data for immediate UI update
-    publication.reviewerId = reviewerId;
+      try {
+        // 1. Make the API call to update the publication with the selected reviewer
+        const publicationUpdateResponse = await api.updatePublication(publication._id, { reviewerId });
 
-    // 3. You may want to reset the selected reviewer value for the UI
-    this.selectedReviewer[publication._id] = ""; // Optionally reset the reviewer selection field
+        console.log("Publication updated successfully:", publicationUpdateResponse);
 
-    alert("Reviewer updated successfully!");
-  } catch (error) {
-    console.error("Error assigning reviewer:", error);
-    if (error.response) {
-      console.error("Error response data:", error.response.data);
-      console.error("Error response status:", error.response.status);
-    } else {
-      console.error("No response received from server.");
-    }
-    alert("An error occurred while assigning the reviewer. Please try again.");
-  }
-},
+        // 2. Update the local publication data for immediate UI update
+        publication.reviewerId = reviewerId;
 
+        // 3. You may want to reset the selected reviewer value for the UI
+        this.selectedReviewer[publication._id] = ""; // Optionally reset the reviewer selection field
+
+        alert("Reviewer updated successfully!");
+      } catch (error) {
+        console.error("Error assigning reviewer:", error);
+        if (error.response) {
+          console.error("Error response data:", error.response.data);
+          console.error("Error response status:", error.response.status);
+        } else {
+          console.error("No response received from server.");
+        }
+        alert("An error occurred while assigning the reviewer. Please try again.");
+      }
+    },
     fetchUsers(userIds) {
       Promise.all(userIds.map(id => api.getUserById(id).catch(() => null)))
         .then(responses => {
@@ -265,51 +258,52 @@ export default {
 };
 </script>
 <style scoped>
-  .publications {
-    padding: 20px;
-  }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-  }
-  
-  th {
-    background-color: #f2f2f2;
-  }
-  
-  button {
-    margin-right: 5px;
-  }
-  
-  form {
-    margin-top: 20px;
-  }
-  
-  input[type="text"] {
-    display: block;
-    margin-bottom: 10px;
-    padding: 8px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  
-  input[type="file"] {
-    display: block;
-    margin-bottom: 10px;
-  }
-  
-  button[type="submit"] {
-    padding: 10px 20px;
-  }
-  
-  .error-message {
-    color: red;
-    margin-top: 20px;
-  }
-  </style>
+.publications {
+  padding: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+button {
+  margin-right: 5px;
+}
+
+form {
+  margin-top: 20px;
+}
+
+input[type="text"] {
+  display: block;
+  margin-bottom: 10px;
+  padding: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input[type="file"] {
+  display: block;
+  margin-bottom: 10px;
+}
+
+button[type="submit"] {
+  padding: 10px 20px;
+}
+
+.error-message {
+  color: red;
+  margin-top: 20px;
+}
+</style>
