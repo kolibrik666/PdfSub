@@ -148,6 +148,7 @@ export default {
 
             // Reset form
             this.newComment.comments = "";
+            this.fetchPublication(publicationId);
           })
           .catch((error) => {
             console.error("Failed to add comment", error);
