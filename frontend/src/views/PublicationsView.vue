@@ -20,8 +20,9 @@
             </td>
             <td>{{ publication.review_status }}</td>
             <td>
-              <button v-if="isReviewer && publication.review_status === 'pending'"
-                @click="editPublication(publication)">Review</button>
+              <router-link :to="{ name: 'review', params: { id: publication._id } }">
+                <button v-if="isReviewer && publication.review_status === 'pending'">
+              Review</button></router-link>
               <button @click="downloadPublication(publication.fileUrl)">Download</button>
             </td>
           </tr>
@@ -198,9 +199,8 @@ export default {
         // 2. Update the local publication data for immediate UI update
         publication.reviewerId = reviewerId;
 
-        // 3. You may want to reset the selected reviewer value for the UI
-        this.selectedReviewer[publication._id] = ""; // Optionally reset the reviewer selection field
-
+        // 3. Reset the selected reviewer value for the UI
+        this.selectedReviewer[publication._id] = "";
         alert("Reviewer updated successfully!");
       } catch (error) {
         console.error("Error assigning reviewer:", error);
