@@ -1,123 +1,151 @@
 <template>
-    <div class="container">
-      <form @submit.prevent="handleSubmit">
-        <div class="imgcontainer">
-          <img
+  <div class="container">
+    <form @submit.prevent="handleSubmit">
+      <div class="imgcontainer">
+        <img
             src="https://cdn-icons-png.flaticon.com/512/6596/6596121.png"
             alt="Avatar"
             class="avatar"
-          />
-        </div>
-  
-        <div v-if="isSignUp">
-          <div class="input-group">
-            <label for="username"><b>Username</b></label>
-            <input type="text" v-model="form.username" placeholder="Enter Username" required />
-          </div>
-        </div>
-  
+        />
+      </div>
+
+      <div v-if="isSignUp">
         <div class="input-group">
-          <label for="email"><b>Email</b></label>
-          <input type="email" v-model="form.email" placeholder="Enter Email" required />
+          <label for="name"><b>Name</b></label>
+          <input type="text" v-model="form.name" placeholder="Enter Name" required />
         </div>
-  
-        <div class="input-group">
-          <label for="password"><b>Password</b></label>
-          <input
+       
+      </div>
+
+      <div class="input-group">
+        <label for="email"><b>Email</b></label>
+        <input type="email" v-model="form.email" placeholder="Enter Email" required />
+      </div>
+
+      <div class="input-group">
+        <label for="password"><b>Password</b></label>
+        <input
             type="password"
             v-model="form.password"
             placeholder="Enter Password"
             required
-          />
-        </div>
-  
-        <div v-if="isSignUp">
-          <div class="input-group">
-            <label for="password2"><b>Repeat Password</b></label>
-            <input
+        />
+      </div>
+
+      <div v-if="isSignUp">
+        <div class="input-group">
+          <label for="password2"><b>Repeat Password</b></label>
+          <input
               type="password"
               v-model="form.password2"
               placeholder="Repeat Password"
               required
-            />
-          </div>
+          />
         </div>
-  
-        <button type="submit">{{ buttonText }}</button>
-  
-        <button
+      </div>
+
+      <button type="submit">{{ buttonText }}</button>
+
+      <button
           type="button"
           @click="redirectToOtherForm"
           v-if="isSignUp"
           class="cancelbtn"
-        >
-          Already have an account? Login
-        </button>
-        <button
+      >
+        Already have an account? Login
+      </button>
+      <button
           type="button"
           @click="redirectToOtherForm"
           v-if="!isSignUp"
           class="cancelbtn"
-        >
-          Don't have an account? Sign Up
-        </button>
-      </form>
-    </div>
-  </template>
-  
-  <script>
-  export default {
-    props: {
-      isSignUp: {
-        type: Boolean,
-        required: true,
+      >
+        Don't have an account? Sign Up
+      </button>
+    </form>
+  </div>
+</template>
+<script>
+import api from '../services/api';
+import { EventBus } from '../services/eventBus';
+
+export default {
+  props: {
+    isSignUp: {
+      type: Boolean,
+      required: true,
+    },
+  },
+  data() {
+    return {
+      form: {
+        name: "",
+        username: "",
+        email: "",
+        password: "",
+        password2: "",
       },
+    };
+  },
+  computed: {
+    buttonText() {
+      return this.isSignUp ? "Register" : "Login";
     },
-    data() {
-      return {
-        form: {
-          username: "",
-          email: "",
-          password: "",
-          password2: "",
-        },
-      };
-    },
-    computed: {
-      buttonText() {
-        return this.isSignUp ? "Register" : "Login";
-      },
-    },
-    methods: {
-      handleSubmit() {
-        if (this.isSignUp) {
-          // handle sign up logic here
-          console.log("Registering with", this.form);
-        } else {
-          // handle login logic here
-          console.log("Logging in with", this.form);
+  },
+  methods: {
+    handleSubmit() {
+      if (this.isSignUp) {
+        if (this.form.password !== this.form.password2) {
+          alert("Passwords do not match");
+          return;
         }
-      },
-      redirectToOtherForm() {
-        // Here, you would handle the redirection to either login or signup based on the current view
-        if (this.isSignUp) {
-          this.$router.push("/login");
-        } else {
-          this.$router.push("/sign_up");
-        }
-      },
+        api.register({
+          email: this.form.email,
+          password: this.form.password,
+          name: this.form.name,
+        })
+            .then(() => {
+              console.log("Registered with", this.form);
+              alert("Registration successful");
+              this.$router.push('/login');
+            })
+            .catch(error => {
+              console.error("Registration failed", error);
+              alert("Registration failed");
+            });
+      } else {
+        api.login({ email: this.form.email, password: this.form.password })
+            .then(response => {
+              console.log("Logging in with", this.form);
+              localStorage.setItem('userToken', response.data.token);
+              EventBus.emit('user-logged-in');
+              if (response.data.isAdmin) {
+                this.$router.push('/admin');
+              } else {
+                this.$router.push('/');
+              }
+            })
+            .catch(error => {
+              console.error("Login failed", error);
+              alert("Invalid credentials" + error);
+            });
+      }
     },
-  };
-  </script>
+    redirectToOtherForm() {
+      if (this.isSignUp) {
+        this.$router.push("/login");
+      } else {
+        this.$router.push("/sign-up");
+      }
+    },
+  },
+};
+</script>
   
   <style scoped>
-  * {
-    font-family: 'Merriweather', serif;
-  }
+
   
   body {
-    background-color: #734ae8;
-    background-image: linear-gradient(315deg, #734ae8 0%, #89d4cf 74%);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-attachment: fixed;
@@ -147,7 +175,7 @@
   }
   
   button {
-    background-color: black;
+    background-color: #57939f;
     color: white;
     padding: 14px 20px;
     margin: 8px 0;
@@ -158,11 +186,11 @@
   }
   
   button:hover {
-    background-color: rgb(4, 169, 169);
+    background-color: #26e7aa;
   }
   
   .cancelbtn {
-    background-color: #f44336;
+    background-color: #000c09e5;
   }
   
   .imgcontainer {

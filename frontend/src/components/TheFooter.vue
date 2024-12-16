@@ -14,17 +14,12 @@
   
   <style scoped>
   .footer {
-    background-color: #734ae8;
+    background-color: #57939f;
     color: white;
     text-align: center;
     padding: 10px 0;
-    font-family: 'Merriweather', serif;
     font-size: 14px;
-  }
-  
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
+    margin-top: 40px;
   }
   </style>
   

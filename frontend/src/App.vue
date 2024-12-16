@@ -26,24 +26,26 @@ export default {
   },
 };
 </script>
-
 <style>
-/* Add global styles if needed */
-#app {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
 #header {
   flex-shrink: 0;
-}
-
-#content {
-  flex-grow: 1;
 }
 
 #footer {
   flex-shrink: 0;
 }
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+#content {
+  flex-grow: 1;
+  width: 100%;
+  padding: 0; 
+}
 </style>
+
