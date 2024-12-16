@@ -8,7 +8,7 @@
     <p><strong>Rating:</strong> {{ publication.rating }}</p>
 
     <router-link to="/publications" class="button-link">Back to Publications</router-link>
-    <button @click="downloadPublication(publication.fileUrl)">Download</button>
+    <button @click="downloadPublication(publication.fileId, publication.title + '.pdf')">Download</button>
     <!-- Comments Section -->
     <div class="comments-section">
       <h2>Comments</h2>
@@ -157,11 +157,37 @@ export default {
     formatDate(date) {
       return new Date(date).toLocaleString();
     },
-    downloadPublication(fileUrl) {
-      const link = document.createElement("a");
-      link.href = fileUrl;
-      link.download = fileUrl.split("/").pop();
-      link.click();
+    async downloadPublication(fileId, filename) {
+      console.log("Downloading publication:", fileId, filename);
+      try {
+        const response = await fetch(
+            `http://localhost:5000/api/publications/file/${fileId}`,
+            {
+              method: "GET",
+            }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to download the file");
+        }
+
+        // Create a blob from the response
+        const blob = await response.blob();
+
+        // Create a link element to trigger the download
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = filename; // Use the provided filename
+        document.body.appendChild(link);
+        link.click();
+
+        // Clean up
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+      } catch (error) {
+        console.error("Error downloading publication:", error.message);
+        alert("An error occurred while downloading the file.");
+      }
     },
   },
 };
