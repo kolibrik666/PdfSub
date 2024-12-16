@@ -226,6 +226,7 @@ export default {
         selectedFile: null,
         co_authors: "",
         submissionDate: "",
+        conferenceId: "",
       },
 
       uploadError: null,
@@ -349,6 +350,7 @@ export default {
       formData.append("authorId", this.user_id);
       formData.append("co_authors", this.newPublication.co_authors);
       formData.append("file", this.newPublication.selectedFile);
+      formData.append("conferenceId", this.newPublication.conferenceId);
 
       try {
         console.log("Uploading:", this.newPublication);
