@@ -160,28 +160,14 @@ export default {
     async downloadPublication(fileId, filename) {
       console.log("Downloading publication:", fileId, filename);
       try {
-        const response = await fetch(
-            `http://localhost:5000/api/publications/file/${fileId}`,
-            {
-              method: "GET",
-            }
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to download the file");
-        }
-
-        // Create a blob from the response
-        const blob = await response.blob();
-
-        // Create a link element to trigger the download
+        const response = await api.downloadPublication(fileId);
+        const blob = new Blob([response.data], { type: response.headers['content-type'] });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = filename; // Use the provided filename
+        link.download = filename;
         document.body.appendChild(link);
         link.click();
 
-        // Clean up
         document.body.removeChild(link);
         URL.revokeObjectURL(link.href);
       } catch (error) {

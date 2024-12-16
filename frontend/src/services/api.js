@@ -26,16 +26,16 @@ export default {
     deletePublication(id) {
         return apiClient.delete(`/publications/${id}`);
     },
+    downloadPublication(fileId) {
+        return apiClient.get(`/publications/file/${fileId}`, {
+            responseType: 'blob',
+        });
+    },
     uploadPublication(formData) {
         return apiClient.post('/publications/upload', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
-        });
-    },
-    getPublicationFile(fileId) {
-        return apiClient.get(`/publications/file/${fileId}`, {
-            responseType: 'blob', // Ensures the file is downloaded as a binary blob
         });
     },
     getUsers() {
@@ -77,5 +77,4 @@ export default {
     deleteConference(id) {
         return apiClient.delete(`/conferences/${id}`);
     },
- 
 };
