@@ -13,7 +13,7 @@
         </thead>
         <tbody>
           <tr
-            v-for="publication in filteredPublications"
+            v-for="publication in reviewerPublications"
             :key="publication._id"
           >
             <td>
@@ -69,10 +69,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="publication in filteredPublications"
-            :key="publication._id"
-          >
+          <tr v-for="publication in allPublications" :key="publication._id">
             <td>
               <router-link
                 :to="{
@@ -140,7 +137,7 @@
         </thead>
         <tbody>
           <tr
-            v-for="publication in filteredPublications"
+            v-for="publication in participantPublications"
             :key="publication._id"
           >
             <td>
@@ -240,14 +237,22 @@ export default {
     this.setUserRole();
   },
   computed: {
-    filteredPublications() {
+    allPublications() {
       if (this.isAdmin) {
         return this.publications;
-      } else if (this.isReviewer) {
+      }
+      return [];
+    },
+    reviewerPublications() {
+      if (this.isReviewer) {
         return this.publications.filter(
           (pub) => pub.reviewerId === this.user_id
         );
-      } else if (this.isParticipant) {
+      }
+      return [];
+    },
+    participantPublications() {
+      if (this.isParticipant) {
         return this.publications.filter((pub) => pub.authorId === this.user_id);
       }
       return [];
@@ -263,12 +268,12 @@ export default {
           ),
         ];
         this.fetchUsers(userIds);
-        this.fetchReviewers(); // Ensure reviewers list is populated
+        this.fetchReviewers(); 
       });
     },
     fetchReviewers() {
       api
-        .getUsers() // Or the endpoint to fetch users
+        .getUsers() 
         .then((response) => {
           this.reviewers = response.data.filter(
             (user) => user.roles.isReviewer
@@ -354,7 +359,7 @@ export default {
         console.log("Uploading:", this.newPublication);
         await api.uploadPublication(formData);
         alert("Publication uploaded successfully!");
-        this.newPublication = { title: "", authorId: "", selectedFile: null }; 
+        this.newPublication = { title: "", authorId: "", selectedFile: null };
         this.uploadError = null;
       } catch (error) {
         this.uploadError = error.response?.data?.error || "Upload failed";
@@ -364,7 +369,9 @@ export default {
       console.log("Downloading publication:", fileId, filename);
       try {
         const response = await api.downloadPublication(fileId);
-        const blob = new Blob([response.data], { type: response.headers['content-type'] });
+        const blob = new Blob([response.data], {
+          type: response.headers["content-type"],
+        });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
         link.download = filename;
@@ -379,26 +386,26 @@ export default {
       }
     },
     async deletePublication(publication) {
-    try {
-      const confirmation = window.confirm(
-        `Are you sure you want to delete the publication titled "${publication.title}"?`
-      );
+      try {
+        const confirmation = window.confirm(
+          `Are you sure you want to delete the publication titled "${publication.title}"?`
+        );
 
-      if (!confirmation) return;
+        if (!confirmation) return;
 
-      await api.deletePublication(publication._id);
+        await api.deletePublication(publication._id);
 
-      // Update the local list by filtering out the deleted publication
-      this.publications = this.publications.filter(
-        (pub) => pub._id !== publication._id
-      );
+        // Update the local list by filtering out the deleted publication
+        this.publications = this.publications.filter(
+          (pub) => pub._id !== publication._id
+        );
 
-      alert('Publication deleted successfully!');
-    } catch (error) {
-      console.error('Error deleting publication:', error);
-      alert('An error occurred while deleting the publication.');
-    }
-  },
+        alert("Publication deleted successfully!");
+      } catch (error) {
+        console.error("Error deleting publication:", error);
+        alert("An error occurred while deleting the publication.");
+      }
+    },
     isBeforeDeadline() {
       const deadline = new Date("2024-12-31");
       return new Date() <= deadline;
