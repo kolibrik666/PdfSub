@@ -159,9 +159,9 @@
             <td>
               <button
                 v-if="isParticipant && isBeforeDeadline()"
-                @click="submitPublication(publication)"
+                @click="deletePublication(publication)"
               >
-                Re-submit
+                Delete
               </button>
 
               <button
@@ -266,7 +266,6 @@ export default {
         this.fetchReviewers(); // Ensure reviewers list is populated
       });
     },
-
     fetchReviewers() {
       api
         .getUsers() // Or the endpoint to fetch users
@@ -300,7 +299,6 @@ export default {
           "Publication updated successfully:",
           publicationUpdateResponse
         );
-
         // 2. Update the local publication data for immediate UI update
         publication.reviewerId = reviewerId;
 
@@ -356,7 +354,7 @@ export default {
         console.log("Uploading:", this.newPublication);
         await api.uploadPublication(formData);
         alert("Publication uploaded successfully!");
-        this.newPublication = { title: "", authorId: "", selectedFile: null }; // Reset form
+        this.newPublication = { title: "", authorId: "", selectedFile: null }; 
         this.uploadError = null;
       } catch (error) {
         this.uploadError = error.response?.data?.error || "Upload failed";
@@ -380,6 +378,27 @@ export default {
         alert("An error occurred while downloading the file.");
       }
     },
+    async deletePublication(publication) {
+    try {
+      const confirmation = window.confirm(
+        `Are you sure you want to delete the publication titled "${publication.title}"?`
+      );
+
+      if (!confirmation) return;
+
+      await api.deletePublication(publication._id);
+
+      // Update the local list by filtering out the deleted publication
+      this.publications = this.publications.filter(
+        (pub) => pub._id !== publication._id
+      );
+
+      alert('Publication deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting publication:', error);
+      alert('An error occurred while deleting the publication.');
+    }
+  },
     isBeforeDeadline() {
       const deadline = new Date("2024-12-31");
       return new Date() <= deadline;

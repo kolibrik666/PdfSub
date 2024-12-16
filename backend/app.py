@@ -54,7 +54,6 @@ def login():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
-    res_data = {}
 
     user = users_collection.find_one({'email': email})
     if user and bcrypt.check_password_hash(user['password'], password):
