@@ -12,18 +12,41 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="publication in filteredPublications" :key="publication._id">
+          <tr
+            v-for="publication in filteredPublications"
+            :key="publication._id"
+          >
             <td>
-              <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
+              <router-link
+                :to="{
+                  name: 'publication-detail',
+                  params: { id: publication._id },
+                }"
+              >
                 {{ publication.title }}
               </router-link>
             </td>
             <td>{{ publication.review_status }}</td>
             <td>
-              <router-link :to="{ name: 'review', params: { id: publication._id } }">
-                <button v-if="isReviewer && publication.review_status === 'pending'">
-              Review</button></router-link>
-              <button @click="downloadPublication(publication.fileUrl)">Download</button>
+              <router-link
+                :to="{ name: 'review', params: { id: publication._id } }"
+              >
+                <button
+                  v-if="isReviewer && publication.review_status === 'pending'"
+                >
+                  Review
+                </button></router-link
+              >
+              <button
+                @click="
+                  downloadPublication(
+                    publication.fileId,
+                    publication.title + '.pdf'
+                  )
+                "
+              >
+                Download
+              </button>
             </td>
           </tr>
         </tbody>
@@ -46,27 +69,55 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="publication in filteredPublications" :key="publication._id">
+          <tr
+            v-for="publication in filteredPublications"
+            :key="publication._id"
+          >
             <td>
-              <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
+              <router-link
+                :to="{
+                  name: 'publication-detail',
+                  params: { id: publication._id },
+                }"
+              >
                 {{ publication.title }}
               </router-link>
             </td>
             <td>{{ getUserName(publication.authorId) }}</td>
             <td>{{ publication.co_authors }}</td>
-            <td>{{ publication.submit_status }}</td>
-            <td>{{ getUserName(publication.reviewerId) || 'No reviewer assigned' }}</td>
+            <td>{{ publication.submissionDate }}</td>
             <td>
-
+              {{
+                getUserName(publication.reviewerId) || "No reviewer assigned"
+              }}
+            </td>
+            <td>
               <select v-model="selectedReviewer[publication._id]">
                 <!-- List of all reviewers -->
-                <option v-for="user in reviewers" :key="user._id" :value="user._id">
+                <option
+                  v-for="user in reviewers"
+                  :key="user._id"
+                  :value="user._id"
+                >
                   {{ user.name }}
                 </option>
               </select>
-              <button v-if="isAdmin && publication.review_status === 'pending'"
-                @click="assignReviewer(publication)">Assign Reviewer</button>
-              <button @click="downloadPublication(publication.fileUrl)">Download</button>
+              <button
+                v-if="isAdmin && publication.review_status === 'pending'"
+                @click="assignReviewer(publication)"
+              >
+                Assign Reviewer
+              </button>
+              <button
+                @click="
+                  downloadPublication(
+                    publication.fileId,
+                    publication.title + '.pdf'
+                  )
+                "
+              >
+                Download
+              </button>
             </td>
           </tr>
         </tbody>
@@ -88,19 +139,41 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="publication in filteredPublications" :key="publication._id">
+          <tr
+            v-for="publication in filteredPublications"
+            :key="publication._id"
+          >
             <td>
-              <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
+              <router-link
+                :to="{
+                  name: 'publication-detail',
+                  params: { id: publication._id },
+                }"
+              >
                 {{ publication.title }}
               </router-link>
             </td>
             <td>{{ getUserName(publication.authorId) }}</td>
             <td>{{ publication.co_authors }}</td>
-            <td>{{ publication.submit_status }}</td>
+            <td>{{ publication.submissionDate }}</td>
             <td>
-              <button v-if="isParticipant && isBeforeDeadline()"
-                @click="submitPublication(publication)">Re-submit</button>
-              <button @click="downloadPublication(publication.fileUrl)">Download</button>
+              <button
+                v-if="isParticipant && isBeforeDeadline()"
+                @click="submitPublication(publication)"
+              >
+                Re-submit
+              </button>
+
+              <button
+                @click="
+                  downloadPublication(
+                    publication.fileId,
+                    publication.title + '.pdf'
+                  )
+                "
+              >
+                Download file
+              </button>
             </td>
           </tr>
         </tbody>
@@ -109,9 +182,23 @@
       <div v-if="isParticipant">
         <h2>Add Publication</h2>
         <form @submit.prevent="uploadPublication">
-          <input type="text" v-model="newPublication.title" placeholder="Title" required />
-          <input type="text" v-model="newPublication.authorId" placeholder="Author" required />
-          <input type="file" @change="handleFileUpload" accept=".pdf,.docx" required />
+          <input
+            type="text"
+            v-model="newPublication.title"
+            placeholder="Title"
+            required
+          />
+          <input
+            type="text"
+            v-model="newPublication.co_authors"
+            placeholder="Co-authors"
+          />
+          <input
+            type="file"
+            @change="handleFileUpload"
+            accept=".pdf,.docx"
+            required
+          />
           <button type="submit">Upload</button>
         </form>
         <div v-if="uploadError" class="error-message">
@@ -122,22 +209,25 @@
   </div>
 </template>
 <script>
-import api from '../services/api';
-import { decodeTokenUpdateData } from '../services/tokenUtils';
+import api from "../services/api";
+import { decodeTokenUpdateData } from "../services/tokenUtils";
 
 export default {
   data() {
     return {
-      user_id: '',
+      user_id: "",
       publications: [],
       selectedReviewer: {},
       reviewers: [],
       users: {},
       newPublication: {
-        title: '',
-        authorId: '',
-        file: null,
+        title: "",
+        authorId: "",
+        selectedFile: null,
+        co_authors: "",
+        submissionDate: "",
       },
+
       uploadError: null,
       isLoggedIn: false,
       isAdmin: false,
@@ -153,32 +243,40 @@ export default {
       if (this.isAdmin) {
         return this.publications;
       } else if (this.isReviewer) {
-        return this.publications.filter(pub => pub.reviewerId === this.user_id);
+        return this.publications.filter(
+          (pub) => pub.reviewerId === this.user_id
+        );
       } else if (this.isParticipant) {
-        return this.publications.filter(pub => pub.authorId === this.user_id);
+        return this.publications.filter((pub) => pub.authorId === this.user_id);
       }
       return [];
     },
   },
   methods: {
     fetchPublications() {
-      api.getPublications().then(response => {
+      api.getPublications().then((response) => {
         this.publications = response.data;
-        const userIds = [...new Set(this.publications.flatMap(pub => [pub.authorId, pub.reviewerId]))];
+        const userIds = [
+          ...new Set(
+            this.publications.flatMap((pub) => [pub.authorId, pub.reviewerId])
+          ),
+        ];
         this.fetchUsers(userIds);
         this.fetchReviewers(); // Ensure reviewers list is populated
-
       });
     },
 
     fetchReviewers() {
-      api.getUsers() // Or the endpoint to fetch users
-        .then(response => {
-          this.reviewers = response.data.filter(user => user.roles.isReviewer);
+      api
+        .getUsers() // Or the endpoint to fetch users
+        .then((response) => {
+          this.reviewers = response.data.filter(
+            (user) => user.roles.isReviewer
+          );
           console.log(this.reviewers); // Log the reviewers to check the list
         })
-        .catch(error => {
-          console.error('Error fetching reviewers:', error);
+        .catch((error) => {
+          console.error("Error fetching reviewers:", error);
         });
     },
     async assignReviewer(publication) {
@@ -192,9 +290,15 @@ export default {
 
       try {
         // 1. Make the API call to update the publication with the selected reviewer
-        const publicationUpdateResponse = await api.updatePublication(publication._id, { reviewerId });
+        const publicationUpdateResponse = await api.updatePublication(
+          publication._id,
+          { reviewerId }
+        );
 
-        console.log("Publication updated successfully:", publicationUpdateResponse);
+        console.log(
+          "Publication updated successfully:",
+          publicationUpdateResponse
+        );
 
         // 2. Update the local publication data for immediate UI update
         publication.reviewerId = reviewerId;
@@ -210,45 +314,86 @@ export default {
         } else {
           console.error("No response received from server.");
         }
-        alert("An error occurred while assigning the reviewer. Please try again.");
+        alert(
+          "An error occurred while assigning the reviewer. Please try again."
+        );
       }
     },
     fetchUsers(userIds) {
-      Promise.all(userIds.map(id => api.getUserById(id).catch(() => null)))
-        .then(responses => {
-          responses.forEach(user => {
+      Promise.all(userIds.map((id) => api.getUserById(id).catch(() => null)))
+        .then((responses) => {
+          responses.forEach((user) => {
             if (user && user.data) {
               this.users[user.data._id] = `${user.data.name}`;
             }
           });
         })
-        .catch(error => console.error("Failed to fetch users", error));
+        .catch((error) => console.error("Failed to fetch users", error));
     },
     getUserName(userId) {
       return this.users[userId] || "Unknown";
     },
     setUserRole() {
-      const token = localStorage.getItem('userToken');
+      const token = localStorage.getItem("userToken");
       if (token) {
         decodeTokenUpdateData(token, this);
         this.isLoggedIn = true;
       }
     },
-    submitPublication(publication) {
-      if (this.isBeforeDeadline()) {
-        publication.submit_status = 'submitted';
-      } else {
-        alert('Deadline has passed. You cannot submit the publication.');
+    handleFileUpload(event) {
+      this.newPublication.selectedFile = event.target.files[0]; // Store the selected file
+    },
+    async uploadPublication() {
+      const formData = new FormData();
+      formData.append("title", this.newPublication.title);
+      formData.append("authorId", this.user_id);
+      formData.append("co_authors", this.newPublication.co_authors);
+      formData.append("file", this.newPublication.selectedFile);
+
+      try {
+        console.log("Uploading:", this.newPublication);
+        await api.uploadPublication(formData);
+        alert("Publication uploaded successfully!");
+        this.newPublication = { title: "", authorId: "", selectedFile: null }; // Reset form
+        this.uploadError = null;
+      } catch (error) {
+        this.uploadError = error.response?.data?.error || "Upload failed";
       }
     },
-    downloadPublication(fileUrl) {
-      const link = document.createElement('a');
-      link.href = fileUrl;
-      link.download = fileUrl.split('/').pop();
-      link.click();
+    async downloadPublication(fileId, filename) {
+      console.log("Downloading publication:", fileId, filename);
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/publications/file/${fileId}`,
+          {
+            method: "GET",
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to download the file");
+        }
+
+        // Create a blob from the response
+        const blob = await response.blob();
+
+        // Create a link element to trigger the download
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = filename; // Use the provided filename
+        document.body.appendChild(link);
+        link.click();
+
+        // Clean up
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+      } catch (error) {
+        console.error("Error downloading publication:", error.message);
+        alert("An error occurred while downloading the file.");
+      }
     },
     isBeforeDeadline() {
-      const deadline = new Date('2024-12-31');
+      const deadline = new Date("2024-12-31");
       return new Date() <= deadline;
     },
   },

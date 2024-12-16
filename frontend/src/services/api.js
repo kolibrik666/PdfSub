@@ -23,6 +23,21 @@ export default {
     updatePublication(id, data) {
         return apiClient.put(`/publications/${id}`, data);
     },
+    deletePublication(id) {
+        return apiClient.delete(`/publications/${id}`);
+    },
+    uploadPublication(formData) {
+        return apiClient.post('/publications/upload', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+    },
+    getPublicationFile(fileId) {
+        return apiClient.get(`/publications/file/${fileId}`, {
+            responseType: 'blob', // Ensures the file is downloaded as a binary blob
+        });
+    },
     getUsers() {
         return apiClient.get('/users');
     },

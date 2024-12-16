@@ -6,7 +6,10 @@ from flask_bcrypt import Bcrypt
 import jwt
 from bson import ObjectId
 from functools import wraps
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from gridfs import GridFS
+from werkzeug.utils import secure_filename
+
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:8080"}})
@@ -24,6 +27,7 @@ client = MongoClient(CONNECTION_STRING, ssl=True)
 # article_collection = pymongo.collection.Collection(db, "articles")
 
 db = client.get_database("pdf")
+fs = GridFS(db)
 users_collection = pymongo.collection.Collection(db, "users")
 papers_collection = pymongo.collection.Collection(db, "papers")
 
@@ -167,6 +171,8 @@ def convert_to_json_compatible(doc):
         # Return the value as is for other types
         return doc
 
+
+
 @app.route('/api/publications', methods=['GET'])
 def get_publications():
     publications = list(papers_collection.find({}, {
@@ -177,7 +183,9 @@ def get_publications():
         'review_status': 1,
         'reviewerId': 1,
         'submit_status': 1,
-        'rating': 1
+        'submissionDate': 1,
+        'rating': 1,
+        'fileId': 1,
     }))
     publications = [convert_to_json_compatible(pub) for pub in publications]
     return jsonify(publications)
@@ -204,6 +212,19 @@ def update_publication(id):
 
     papers_collection.update_one({'_id': ObjectId(id)}, {'$set': update_fields})
     return jsonify({'message': 'Publication updated successfully'}), 200
+
+@app.route('/api/publications/file/<string:file_id>', methods=['GET'])
+def get_publication_file(file_id):
+    try:
+        # Retrieve the file from GridFS
+        file = fs.get(ObjectId(file_id))
+        return app.response_class(
+            file.read(),
+            mimetype=file.content_type,
+            headers={"Content-Disposition": f"attachment;filename={file.filename}"}
+        )
+    except Exception as e:
+        return jsonify({'error': 'File not found or invalid ID'}), 404
 
 @app.route('/api/publications/<string:id>/comments', methods=['POST'])
 def add_comment(id):
@@ -262,6 +283,59 @@ def submit_review():
         return jsonify({"message": "Review submitted successfully."}), 200
     else:
         return jsonify({"error": "Publication not found"}), 404
+    
+
+@app.route('/api/publications/upload', methods=['POST'])
+def upload_publication():
+    try:
+        title = request.form.get('title')
+        author_id = request.form.get('authorId')
+        file = request.files.get('file')
+        co_authors = request.form.get('co_authors')
+
+        if not (title and author_id and file):
+            return jsonify({'error': 'Missing title, authorId, or file'}), 400
+
+        file_id = fs.put(file, filename=file.filename, content_type=file.content_type)
+
+        publication = {
+            'title': title,
+            'authorId': ObjectId(author_id),
+            'fileId': str(file_id),  # Save file ID as a string
+            'co_authors': co_authors,
+            'submissionDate': datetime.utcnow().strftime('%B %d, %Y'),
+            'review_status': 'pending',
+        }
+        papers_collection.insert_one(publication)
+
+        # Convert ObjectId fields to strings for JSON serialization
+        publication['_id'] = str(publication.get('_id', ''))
+        publication['authorId'] = str(publication['authorId'])
+
+        return jsonify({'message': 'Upload successful', 'publication': publication}), 201
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/publications/<string:id>', methods=['DELETE'])
+def delete_publication(id):
+    try:
+        # Find the publication
+        publication = papers_collection.find_one({'_id': ObjectId(id)})
+        if not publication:
+            return jsonify({'error': 'Publication not found'}), 404
+
+        # Delete the file from GridFS
+        fs.delete(ObjectId(publication['fileId']))
+
+        # Delete the publication from the database
+        papers_collection.delete_one({'_id': ObjectId(id)})
+
+        return jsonify({'message': 'Publication deleted successfully'}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
