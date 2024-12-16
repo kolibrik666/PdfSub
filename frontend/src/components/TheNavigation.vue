@@ -52,8 +52,10 @@ export default {
   },
   mounted() {
     const userToken = localStorage.getItem('userToken');
-    if (userToken && this.isLoggedIn) this.decodeTokenData(userToken)
-
+    if (userToken) {
+      this.decodeTokenData(userToken);
+      this.isLoggedIn = true;
+    }
     EventBus.on('user-logged-in', () => {
       const userToken = localStorage.getItem('userToken');
       if (userToken) {
