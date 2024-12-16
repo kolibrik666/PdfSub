@@ -3,7 +3,7 @@
     <div class="navbar-container">
       <div class="logo">
         <img
-            src="https://static.vecteezy.com/system/resources/previews/001/201/180/original/brain-png.png"
+            src="logo-img.ico"
             alt="Logo"
             class="logo-img"
         />
