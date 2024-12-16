@@ -60,7 +60,16 @@ export default {
         return apiClient.post('/decode-token', data);
     },
     submitReview(data) {
-        return axios.post(`/reviews`, data); 
-      },
+        return axios.post(`/reviews`, data);
+    },
+    createConference(conferenceData) {
+        return apiClient.post('/conferences', conferenceData);
+    },
+    getConferences() {
+        return apiClient.get('/conferences');
+    },
+    getConferenceDetails(id) {
+        return apiClient.get(`/conferences/${id}`);
+    },
  
 };

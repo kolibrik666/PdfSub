@@ -6,7 +6,8 @@ import PublicationDetailView from '../views/PublicationDetailView.vue';
 import LandingPageView from '@/views/LandingPageView.vue'
 import ReviewView from '@/views/ReviewView.vue';
 import PublicationsView from "@/views/PublicationsView.vue";
-
+import ConferencesView from "@/views/ConferencesView.vue";
+import ConferenceDetailView from "@/views/ConferenceDetailView.vue";
 const routes = [
   {
     path: '/',
@@ -49,7 +50,16 @@ const routes = [
     name: 'landing-page',
     component: LandingPageView,
   },
-
+  {
+    path: "/conferences",
+    name: "Conferences",
+    component: ConferencesView
+  },
+  {
+    path: "/conference/:id",
+    name: "ConferenceDetailView",
+    component: ConferenceDetailView
+  },
 ]
 
 const router = createRouter({

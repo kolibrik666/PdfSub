@@ -336,5 +336,56 @@ def delete_publication(id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/conferences', methods=['GET'])
+def get_conferences():
+    try:
+        conferences = list(db['conferences'].find({}))
+        for conf in conferences:
+            conf['_id'] = str(conf['_id'])  # Convert ObjectId to string
+            conf['start_date'] = conf['start_date'].strftime("%Y-%m-%d")  # Format to YYYY-MM-DD
+            conf['end_date'] = conf['end_date'].strftime("%Y-%m-%d")  # Format to YYYY-MM-DD
+
+        return jsonify(conferences), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/conferences/<string:id>', methods=['GET'])
+def get_conference_details(id):
+    try:
+        conference = db['conferences'].find_one({'_id': ObjectId(id)})
+        if conference:
+            return jsonify(convert_to_json_compatible(conference)), 200
+        else:
+            return jsonify({'message': 'Conference not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/conferences', methods=['POST'])
+def create_conference():
+    try:
+        data = request.get_json()
+        name = data.get('name')
+        start_date = data.get('start_date')
+        end_date = data.get('end_date')
+
+        # Validate required fields
+        if not name or not start_date or not end_date:
+            return jsonify({"error": "Name, start_date, and end_date are required"}), 400
+
+        # Convert date strings to datetime objects
+        start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")
+        end_date_obj = datetime.strptime(end_date, "%Y-%m-%d")
+
+        new_conference = {
+            'name': name,
+            'start_date': start_date_obj,
+            'end_date': end_date_obj,
+        }
+
+        db['conferences'].insert_one(new_conference)
+        return jsonify({"message": "Conference created successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True)
