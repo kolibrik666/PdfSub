@@ -14,6 +14,20 @@
         <option value="reviewer">Reviewer</option>
       </select>
     </div>
+    <form @submit.prevent="createUser" class="create-user-form">
+      <div class="form-group">
+        <label for="username">Username:</label>
+        <input type="text" v-model="newUser.username" placeholder="Enter Name" required />      </div>
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" v-model="newUser.email" placeholder="Enter Email" required />
+      </div>
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" v-model="newUser.password" placeholder="Enter Password" required />
+      </div>
+      <button type="submit">Create User</button>
+    </form>
     <table>
       <thead>
       <tr>
@@ -51,6 +65,11 @@ export default {
       users: [],
       searchQuery: '',
       selectedRole: '',
+      newUser: {
+        username: '',
+        email: '',
+        password: ''
+      }
     };
   },
   computed: {
@@ -72,6 +91,22 @@ export default {
       api.getUsers().then(response => {
         this.users = response.data;
       });
+    },
+    createUser() {
+      api.register({
+        email: this.newUser.email,
+        password: this.newUser.password,
+        name: this.newUser.username,
+      })
+          .then(() => {
+            alert('User created successfully');
+            this.newUser = { username: '', email: '', password: '' };
+            this.fetchUsers();
+          })
+          .catch(error => {
+            console.error('Error creating user:', error);
+            alert('Failed to create user.');
+          });
     },
     updateUser(user) {
       api.updateUser(user.email, {
@@ -123,27 +158,23 @@ input[type="text"], select {
   border: 1px solid #ddd;
   border-radius: 4px;
 }
-.filter-container {
+
+.create-user-form {
   display: flex;
-  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 20px;
   align-items: center;
-  width: 100%;
-  gap: 1rem; /* Optional: Add spacing between elements */
 }
 
-.search-input,
-.role-select {
-  flex: 1;
-  max-width: 50%; /* Ensure they don't exceed half the width */
-  box-sizing: border-box; /* Include padding/border in width calculation */
+.create-user-form .form-group {
+  display: flex;
+  flex-direction: column;
 }
 
-.search-input {
-  padding: 0.5rem; /* Add some padding for aesthetics */
-}
-
-.role-select {
-  padding: 0.4rem; /* Slightly smaller padding for a dropdown */
+.create-user-form input {
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 table {

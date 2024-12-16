@@ -130,7 +130,6 @@ def delete_user(email):
 def get_users():
     users = list(users_collection.find({}, {
         '_id': 1,
-
         'name': 1,
         'email': 1,
         'password': 1,
