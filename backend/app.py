@@ -342,23 +342,22 @@ def get_conferences():
         conferences = list(db['conferences'].find({}))
         for conf in conferences:
             conf['_id'] = str(conf['_id'])  # Convert ObjectId to string
-            conf['start_date'] = conf['start_date'].strftime("%Y-%m-%d")  # Format to YYYY-MM-DD
-            conf['end_date'] = conf['end_date'].strftime("%Y-%m-%d")  # Format to YYYY-MM-DD
+            start_date = conf.get('start_date')
+            if isinstance(start_date, datetime):
+                conf['start_date'] = start_date.strftime("%Y-%m-%d")
+            else:
+                conf['start_date'] = "No Start Date"
+
+            end_date = conf.get('end_date')
+            if isinstance(end_date, datetime):
+                conf['end_date'] = end_date.strftime("%Y-%m-%d")
+            else:
+                conf['end_date'] = "No End Date"
 
         return jsonify(conferences), 200
     except Exception as e:
+        print(f"Error during GET /api/conferences: {str(e)}")  # Log error for debugging
         return jsonify({"error": str(e)}), 500
-
-@app.route('/api/conferences/<string:id>', methods=['GET'])
-def get_conference_details(id):
-    try:
-        conference = db['conferences'].find_one({'_id': ObjectId(id)})
-        if conference:
-            return jsonify(convert_to_json_compatible(conference)), 200
-        else:
-            return jsonify({'message': 'Conference not found'}), 404
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/conferences', methods=['POST'])
 def create_conference():
@@ -386,6 +385,39 @@ def create_conference():
         return jsonify({"message": "Conference created successfully"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/api/conferences/<string:id>', methods=['PUT'])
+def update_conference(id):
+    try:
+        data = request.get_json()
+        update_fields = {}
+
+        if 'name' in data:
+            update_fields['name'] = data['name']
+        if 'start_date' in data:
+            update_fields['start_date'] = datetime.strptime(data['start_date'], "%Y-%m-%d")
+        if 'end_date' in data:
+            update_fields['end_date'] = datetime.strptime(data['end_date'], "%Y-%m-%d")
+
+        result = db['conferences'].update_one({'_id': ObjectId(id)}, {'$set': update_fields})
+
+        if result.matched_count == 1:
+            return jsonify({'message': 'Conference updated successfully'}), 200
+        else:
+            return jsonify({'message': 'Conference not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/conferences/<string:id>', methods=['DELETE'])
+def delete_conference(id):
+    try:
+        result = db['conferences'].delete_one({'_id': ObjectId(id)})
+        if result.deleted_count == 1:
+            return jsonify({'message': 'Conference deleted successfully'}), 200
+        else:
+            return jsonify({'message': 'Conference not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

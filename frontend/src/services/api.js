@@ -71,5 +71,11 @@ export default {
     getConferenceDetails(id) {
         return apiClient.get(`/conferences/${id}`);
     },
+    updateConference(id, data) {
+        return apiClient.put(`/conferences/${id}`, data);
+    },
+    deleteConference(id) {
+        return apiClient.delete(`/conferences/${id}`);
+    },
  
 };

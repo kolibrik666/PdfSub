@@ -7,7 +7,6 @@ import LandingPageView from '@/views/LandingPageView.vue'
 import ReviewView from '@/views/ReviewView.vue';
 import PublicationsView from "@/views/PublicationsView.vue";
 import ConferencesView from "@/views/ConferencesView.vue";
-import ConferenceDetailView from "@/views/ConferenceDetailView.vue";
 const routes = [
   {
     path: '/',
@@ -28,22 +27,25 @@ const routes = [
     path: '/admin',
     name: 'admin',
     component: AdminView,
-    meta: { requiresAdmin: true }
+    meta: { requiresAdmin: true , requiresAuth: true }
   },
   {
     path: '/publication/:id',
     name: 'publication-detail',
     component: PublicationDetailView,
+    meta: { requiresAuth: true }
   },
   {
     path: '/publications',
     name: 'publications',
     component: PublicationsView,
+    meta: { requiresAuth: true }
   },
   {
     path: '/review/:id',
     name: 'review',
     component: ReviewView,
+    meta: { requiresAuth: true }
   },
   {
     path: '/landing-page',
@@ -53,12 +55,8 @@ const routes = [
   {
     path: "/conferences",
     name: "Conferences",
-    component: ConferencesView
-  },
-  {
-    path: "/conference/:id",
-    name: "ConferenceDetailView",
-    component: ConferenceDetailView
+    component: ConferencesView,
+    meta: { requiresAdmin: true, requiresAuth: true }
   },
 ]
 
@@ -88,6 +86,18 @@ router.beforeEach(async (to, from, next) => {
       }
     } else {
       next({ name: 'home' });
+    }
+  } else if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (token) {
+      try {
+        await api.decode_token({ token });
+        next();
+      } catch (error) {
+        console.error("Token decoding failed", error.response ? error.response.data : error.message);
+        next({ name: 'login' });
+      }
+    } else {
+      next({ name: 'login' });
     }
   } else {
     next();
