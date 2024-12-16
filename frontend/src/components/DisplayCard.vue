@@ -122,7 +122,7 @@ export default {
               if (response.data.isAdmin) {
                 this.$router.push('/admin');
               } else {
-                this.$router.push('/');
+                this.$router.push('/publications');
               }
             })
             .catch(error => {
