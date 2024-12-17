@@ -6,6 +6,13 @@
     <p><strong>Reviewer:</strong> {{ reviewer ? reviewer : 'No assigned reviewer' }}</p>
     <p><strong>Status:</strong> {{ publication.review_status }}</p>
 
+    <p v-if="!this.publication?.review_data"><strong>Review: </strong>Not reviewed yet</p>
+    <router-link to="/publications" class="button-link">Back to Publications</router-link>
+    <button @click="downloadPublication(publication.fileId, publication.title + '.pdf')">Download</button>
+    <button v-if="this.publication?.review_data" @click="toggleReviewDetails" class="fold-button">
+      {{ reviewDetailsVisible ? 'Hide Review Details' : 'Show Review Details' }}
+    </button>
+
     <!-- Review Data -->
     <div class="review-data">
       <div v-if="reviewDetailsVisible">
@@ -25,12 +32,6 @@
         </table>
       </div>
     </div>
-    
-    <button @click="toggleReviewDetails" class="fold-button">
-      {{ reviewDetailsVisible ? 'Hide Review Details' : 'Show Review Details' }}
-    </button>
-    <router-link to="/publications" class="button-link">Back to Publications</router-link>
-    <button @click="downloadPublication(publication.fileId, publication.title + '.pdf')">Download</button>
 
     <!-- Comments Section -->
     <div class="comments-section">
@@ -82,7 +83,7 @@ export default {
         reviewerId: "",
         comments: "",
       },
-      reviewDetailsVisible: false, // Track visibility of review details
+      reviewDetailsVisible: false,
     };
   },
   computed: {

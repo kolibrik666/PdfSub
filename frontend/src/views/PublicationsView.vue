@@ -26,8 +26,8 @@
                 {{ publication.title }}
               </router-link>
             </td>
-            <td>{{ publication.review_status }}</td>
-            <td>
+                <td>{{ publication.review_status }}</td>
+                <td>
               <router-link
                 :to="{ name: 'review', params: { id: publication._id } }"
               >
@@ -407,7 +407,7 @@ export default {
       }
     },
     isBeforeDeadline() {
-      const deadline = new Date("2024-12-31");
+      const deadline = new Date("2024-12-31"); // Pridať z conferences či ten end date
       return new Date() <= deadline;
     },
   },
