@@ -12,11 +12,25 @@ nav {
   font-family: Roboto, sans-serif;
 }
 
-button {
+button, .button-link {
   font-family: Roboto, sans-serif;
   font-weight: 500;
+  margin-top: 20px;
+  margin-right: 10px;
+  padding: 10px 20px;
+  background-color: #000000;
+  border-radius: 5px;
+  color: white;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  font-size: 16px;
 }
-
+.button-link:hover, button:hover {
+  background-color: #26e7aa;
+}
 p {
   font-family: Roboto, sans-serif;
 }

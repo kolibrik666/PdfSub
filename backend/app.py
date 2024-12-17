@@ -184,6 +184,7 @@ def get_publications():
         'submissionDate': 1,
         'rating': 1,
         'fileId': 1,
+         'conferenceId': 1,
     }))
     publications = [convert_to_json_compatible(pub) for pub in publications]
     return jsonify(publications)
