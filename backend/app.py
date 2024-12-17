@@ -205,8 +205,9 @@ def update_publication(id):
     update_fields = {}
 
     if 'reviewerId' in data:
-        print("Sme na Reviewer ID:", data['reviewerId'])
         update_fields['reviewerId'] = data['reviewerId']
+    if 'review_data' in data:
+        update_fields['review_data'] = data['review_data']
 
     papers_collection.update_one({'_id': ObjectId(id)}, {'$set': update_fields})
     return jsonify({'message': 'Publication updated successfully'}), 200
@@ -256,31 +257,7 @@ def add_comment(id):
         print("Error:", str(e))  # Log any exceptions
         return jsonify({"error": str(e)}), 400
 
-@app.route('/reviews', methods=['POST'])
-def submit_review():
-    data = request.json  # Get the data from the client
-    publication_id = data.get('publicationId')
-    review = data.get('review')
 
-    if not publication_id or not review:
-        return jsonify({"error": "Publication ID and review are required"}), 400
-
-    # Example: Update the review status and details for the publication in MongoDB
-    
-    result = papers_collection.update_one(
-        {"_id": ObjectId(publication_id)},  # Convert the string to ObjectId
-        {
-            "$set": {
-                "review_status": "done",
-               # "review_details": review,  # Store the review details
-            }
-        }
-    )
-
-    if result.matched_count == 1:  # Check if a document was updated
-        return jsonify({"message": "Review submitted successfully."}), 200
-    else:
-        return jsonify({"error": "Publication not found"}), 404
     
 
 @app.route('/api/publications/upload', methods=['POST'])
