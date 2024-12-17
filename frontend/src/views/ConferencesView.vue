@@ -17,6 +17,7 @@
         <input type="date" v-model="newConference.end_date" id="end_date" required />
       </div>
       <button type="submit" class="btn">Create Conference</button>
+      <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
     </form>
 
     <!-- Table to Display Conferences -->
@@ -56,6 +57,7 @@ export default {
         start_date: "",
         end_date: "",
       },
+      errorMessage: null,
     };
   },
   methods: {
@@ -69,17 +71,29 @@ export default {
           });
     },
     addConference() {
+      if (this.isDateRangeOverlapping(this.newConference.start_date, this.newConference.end_date)) {
+        this.errorMessage = "Conference dates overlap with an existing conference.";
+        return;
+      }
+
       api.createConference(this.newConference)
           .then(() => {
             alert("Conference created successfully!");
             this.fetchConferences();
             this.newConference = { name: "", start_date: "", end_date: "" };
+            this.errorMessage = null;
           })
           .catch((error) => {
             console.error("Error creating conference:", error);
+            this.errorMessage = error.response?.data?.error || "Failed to create conference.";
           });
     },
     updateConference(conference) {
+      if (this.isDateRangeOverlapping(conference.start_date, conference.end_date, conference._id)) {
+        this.errorMessage = "Conference dates overlap with an existing conference.";
+        return;
+      }
+
       api.updateConference(conference._id, {
         name: conference.name,
         start_date: conference.start_date,
@@ -87,10 +101,11 @@ export default {
       })
           .then(() => {
             alert("Conference updated successfully");
+            this.errorMessage = null; // Reset error message on successful update
           })
           .catch((error) => {
             console.error("Update failed", error);
-            alert("Update failed");
+            this.errorMessage = error.response?.data?.error || "Update failed";
           });
     },
     deleteConference(id) {
@@ -104,6 +119,19 @@ export default {
             alert("Delete failed");
           });
     },
+    isDateRangeOverlapping(startDate, endDate, excludeId = null) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+
+      return this.conferences.some(conference => {
+        if (excludeId && conference._id === excludeId) {
+          return false;
+        }
+        const confStart = new Date(conference.start_date);
+        const confEnd = new Date(conference.end_date);
+        return (start <= confEnd && end >= confStart);
+      });
+    },
   },
   created() {
     this.fetchConferences();
@@ -112,6 +140,12 @@ export default {
 </script>
 
 <style scoped>
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+}
+
 .conferences-container {
   padding: 20px;
   max-width: 800px;

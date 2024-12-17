@@ -184,7 +184,7 @@ def get_publications():
         'submissionDate': 1,
         'rating': 1,
         'fileId': 1,
-         'conferenceId': 1,
+        'conferenceId': 1,
     }))
     publications = [convert_to_json_compatible(pub) for pub in publications]
     return jsonify(publications)
@@ -268,6 +268,7 @@ def upload_publication():
         author_id = request.form.get('authorId')
         file = request.files.get('file')
         co_authors = request.form.get('co_authors')
+        conferenceId = request.form.get('conferenceId')
 
         if not (title and author_id and file):
             return jsonify({'error': 'Missing title, authorId, or file'}), 400
@@ -281,6 +282,7 @@ def upload_publication():
             'co_authors': co_authors,
             'submissionDate': datetime.utcnow().strftime('%B %d, %Y'),
             'review_status': 'pending',
+            'conferenceId': conferenceId,
         }
         papers_collection.insert_one(publication)
 

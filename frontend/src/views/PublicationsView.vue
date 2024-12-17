@@ -199,13 +199,11 @@ export default {
           acc[conf._id] = conf;
           return acc;
         }, {});
-        console.log(this.conferences);
       }).catch((error) => {
         console.error("Error fetching conferences:", error);
       });
     },
     getConferenceName(conferenceId) {
-      console.log("Conference ID:", conferenceId);  // Debug log for conferenceId
       const conference = this.conferences[conferenceId];
       return conference ? conference.name : "Unknown";
     },
@@ -255,11 +253,23 @@ export default {
       formData.append("authorId", this.user_id);
       formData.append("co_authors", this.newPublication.co_authors);
       formData.append("file", this.newPublication.selectedFile);
-      formData.append("conferenceId", this.newPublication.conferenceId);
+
+      // Check if current date is within any conference date range
+      const currentDate = new Date();
+      const matchingConference = Object.values(this.conferences).find(conference => {
+        const startDate = new Date(conference.start_date);
+        const endDate = new Date(conference.end_date);
+        return currentDate >= startDate && currentDate <= endDate;
+      });
+
+      if (matchingConference) {
+        formData.append("conferenceId", matchingConference._id);
+      }
+
       try {
         await api.uploadPublication(formData);
         alert("Publication uploaded successfully!");
-        this.newPublication = { title: "", authorId: "", selectedFile: null };
+        this.newPublication = { title: "", authorId: "", selectedFile: null, co_authors: "", conferenceId: "" };
         this.uploadError = null;
       } catch (error) {
         this.uploadError = error.response?.data?.error || "Upload failed";
