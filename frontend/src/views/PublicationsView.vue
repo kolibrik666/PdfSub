@@ -271,6 +271,7 @@ export default {
         alert("Publication uploaded successfully!");
         this.newPublication = { title: "", authorId: "", selectedFile: null, co_authors: "", conferenceId: "" };
         this.uploadError = null;
+        this.fetchPublications();
       } catch (error) {
         this.uploadError = error.response?.data?.error || "Upload failed";
       }
