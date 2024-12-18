@@ -13,13 +13,15 @@
   </script>
   
   <style scoped>
-  .footer {
-    background-color: #57939f;
-    color: white;
-    text-align: center;
-    padding: 10px 0;
-    font-size: 14px;
-    margin-top: 40px;
-  }
+ .footer {
+  background-color: #001e2bc5;
+  color: white;
+  text-align: center;
+  padding: 5px 0;  
+  font-size: 12px;
+  margin-top: 40px;
+  width: 100%; 
+}
+
   </style>
   

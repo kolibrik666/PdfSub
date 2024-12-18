@@ -1,14 +1,14 @@
 <template>
   <div class="publication-detail" v-if="publication">
-    <h1>{{ publication.title }}</h1>
-    <p><strong>Author:</strong> {{ author }}</p>
-    <p><strong>Co-Authors:</strong> {{ co_authors }}</p>
-    <p><strong>Reviewer:</strong> {{ reviewer ? reviewer : 'No assigned reviewer' }}</p>
-    <p><strong>Status:</strong> {{ publication.review_status }}</p>
+    <h1 class="green-text">{{ publication.title }}</h1>
+    <p><strong class="green-text">Author:</strong> {{ author }}</p>
+    <p><strong class="green-text">Co-Authors:</strong> {{ co_authors }}</p>
+    <p><strong class="green-text">Reviewer:</strong> {{ reviewer ? reviewer : 'No assigned reviewer' }}</p>
+    <p><strong class="green-text">Status:</strong> {{ publication.review_status }}</p>
 
-    <p v-if="!this.publication?.review_data"><strong>Review: </strong>Not reviewed yet</p>
+    <p v-if="!this.publication?.review_data"><strong class="green-text">Review: </strong>Not reviewed yet</p>
     <router-link to="/publications" class="button-link">Back to Publications</router-link>
-    <button @click="downloadPublication(publication.fileId, publication.title + '.pdf')">Download</button>
+    <button  class="download-button" @click="downloadPublication(publication.fileId, publication.title + '.pdf')"><i class="fa-solid fa-file-arrow-down"></i> Download</button>
     <button v-if="this.publication?.review_data" @click="toggleReviewDetails" class="fold-button">
       {{ reviewDetailsVisible ? 'Hide Review Details' : 'Show Review Details' }}
     </button>
@@ -16,7 +16,7 @@
     <!-- Review Data -->
     <div class="review-data">
       <div v-if="reviewDetailsVisible">
-        <table>
+        <table class="review-table">
           <thead>
           <tr>
             <th>Criteria</th>
@@ -38,7 +38,7 @@
       <h2>Comments</h2>
       <ul v-if="commentsWithNames.length">
         <li v-for="(comment, index) in commentsWithNames" :key="index">
-          <p><strong>{{ comment.reviewerName }}:</strong> {{ comment.comments }}</p>
+          <p><strong class="green-text">{{ comment.reviewerName }}:</strong> {{ comment.comments }}</p>
           <small>{{ formatDate(comment.submittedAt) }}</small>
         </li>
       </ul>
@@ -255,7 +255,7 @@ button, .button-link {
   margin-top: 20px;
   margin-right: 10px;
   padding: 10px 20px;
-  background-color: #000000;
+  background-color: #001e2bc5;
   border-radius: 5px;
   color: white;
   border: none;
@@ -277,7 +277,16 @@ li {
   padding-bottom: 10px;
 }
 
-.button-link:hover, button:hover {
+.button-link:hover, button:hover, .download-button:hover {
   background-color: #26e7aa;
 }
+
+.download-button {
+  background-color: #579f97;
+}
+
+.review-table {
+  margin-top: 20px;
+}
+
 </style>

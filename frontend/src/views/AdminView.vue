@@ -47,7 +47,7 @@
           <label><input type="checkbox" v-model="user.roles.isReviewer" /> Reviewer</label>
         </td>
         <td>
-          <button @click="updateUser(user)">Update</button>
+          <button @click="updateUser(user)" class="update-button">Update</button>
           <button @click="deleteUser(user.email)">Delete</button>
         </td>
       </tr>
@@ -189,5 +189,13 @@ th, td {
 
 button {
   margin-right: 5px;
+}
+
+button:hover {
+  background-color: #26e7aa;
+}
+
+.update-button {
+  background-color: #579f97;
 }
 </style>

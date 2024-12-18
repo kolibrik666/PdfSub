@@ -187,21 +187,21 @@ h1 {
   padding: 10px 15px;
   border: none;
   border-radius: 4px;
-  background-color: #007bff;
+  background-color: #579f97;
   color: white;
   cursor: pointer;
 }
 
 .btn:hover {
-  background-color: #0056b3;
+  background-color: #26e7aa;
 }
 
 .btn-danger {
-  background-color: #dc3545;
+  background-color: #001e2bc5;
 }
 
 .btn-danger:hover {
-  background-color: #c82333;
+  background-color: #26e7aa;
 }
 
 .conference-table {

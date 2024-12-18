@@ -175,7 +175,7 @@ export default {
   }
   
   button {
-    background-color: #57939f;
+    background-color: #579f97;
     color: white;
     padding: 14px 20px;
     margin: 8px 0;
@@ -190,7 +190,7 @@ export default {
   }
   
   .cancelbtn {
-    background-color: #000c09e5;
+    background-color: #001e2bc5;
   }
   
   .imgcontainer {

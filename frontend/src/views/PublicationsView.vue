@@ -24,7 +24,7 @@
             <router-link :to="{ name: 'review', params: { id: publication._id } }">
               <button v-if="isReviewer && publication.review_status === 'pending'">Review</button>
             </router-link>
-            <button @click="downloadPublication(publication.fileId, publication.title + '.pdf')">Download</button>
+            <button  class="download-button" @click="downloadPublication(publication.fileId, publication.title + '.pdf')"><i class="fa-solid fa-file-arrow-down"></i> Download</button>
           </td>
         </tr>
         </tbody>
@@ -64,9 +64,9 @@
               <option v-for="user in reviewers" :key="user._id" :value="user._id">{{ user.name }}</option>
             </select>
             <button v-if="isAdmin && publication.review_status === 'pending'" @click="assignReviewer(publication)">
-              Assign Reviewer
+              Assign
             </button>
-            <button @click="downloadPublication(publication.fileId, publication.title + '.pdf')">Download</button>
+            <button  class="download-button" @click="downloadPublication(publication.fileId, publication.title + '.pdf')"><i class="fa-solid fa-file-arrow-down"></i> Download</button>
           </td>
         </tr>
         </tbody>
@@ -99,9 +99,10 @@
           <td>{{ publication.co_authors }}</td>
           <td>{{ publication.submissionDate }}</td>
           <td>{{ getConferenceName(publication.conferenceId) }}</td>
-          <td>
+          <td>            
+            
+            <button class="download-button" @click="downloadPublication(publication.fileId, publication.title + '.pdf')"><i class="fa-solid fa-file-arrow-down"></i> Download</button>
             <button v-if="isParticipant && isBeforeDeadline()" @click="deletePublication(publication)">Delete</button>
-            <button @click="downloadPublication(publication.fileId, publication.title + '.pdf')">Download file</button>
           </td>
         </tr>
         </tbody>
@@ -363,4 +364,39 @@ button[type="submit"] {
   color: red;
   margin-top: 20px;
 }
+
+select {
+  margin-right: 0px;
+  padding: 8px;
+}
+
+.assign-reviewer-button {
+  padding: 10px 20px;
+  background-color: #579f97;
+}
+
+.assign-reviewer-button:hover, .download-button:hover {
+  background-color: #26e7aa;
+}
+
+.download-button {
+  background-color: #579f97;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-overflow: ellipsis; /* Adds an ellipsis (...) when content overflows */
+  white-space: nowrap; /* Prevents wrapping of content */
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
 </style>

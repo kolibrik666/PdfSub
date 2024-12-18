@@ -1,6 +1,6 @@
 <template>
   <div class="review-view">
-    <h1>Paper Review</h1>
+    <h1 class="green-text">Paper Review</h1>
     <form @submit.prevent="submitReview">
       <table>
         <thead>
