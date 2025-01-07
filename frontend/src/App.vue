@@ -44,8 +44,9 @@ export default {
 
 #content {
   flex-grow: 1;
-  width: 100%;
-  padding: 0; 
+  width: 90%;
+  margin: 0 auto; /* Horizontally center the content */
+  padding: 0;
 }
 </style>
 

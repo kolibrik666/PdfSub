@@ -1,3 +1,6 @@
+import os
+import signal
+
 from flask import Flask, json, jsonify, request
 from pymongo import MongoClient
 from flask_pymongo import pymongo
@@ -23,8 +26,6 @@ def hello():
 CONNECTION_STRING ="mongodb+srv://nbusr:nbusr123@cluster0.n5md3.mongodb.net/?retryWrites=true&w=majority"
 
 client = MongoClient(CONNECTION_STRING, ssl=True)
-
-# article_collection = pymongo.collection.Collection(db, "articles")
 
 db = client.get_database("pdf")
 fs = GridFS(db)
@@ -54,7 +55,6 @@ def login():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
-    res_data = {}
 
     user = users_collection.find_one({'email': email})
     if user and bcrypt.check_password_hash(user['password'], password):
@@ -185,6 +185,7 @@ def get_publications():
         'submissionDate': 1,
         'rating': 1,
         'fileId': 1,
+        'conferenceId': 1,
     }))
     publications = [convert_to_json_compatible(pub) for pub in publications]
     return jsonify(publications)
@@ -206,8 +207,13 @@ def update_publication(id):
     update_fields = {}
 
     if 'reviewerId' in data:
-        print("Sme na Reviewer ID:", data['reviewerId'])
         update_fields['reviewerId'] = data['reviewerId']
+    if 'review_data' in data:
+        update_fields['review_data'] = data['review_data']
+    if 'conferenceId' in data:
+        update_fields['conferenceId'] = data['conferenceId']
+    if 'review_status' in data:
+        update_fields['review_status'] = data['review_status']
 
     papers_collection.update_one({'_id': ObjectId(id)}, {'$set': update_fields})
     return jsonify({'message': 'Publication updated successfully'}), 200
@@ -257,31 +263,7 @@ def add_comment(id):
         print("Error:", str(e))  # Log any exceptions
         return jsonify({"error": str(e)}), 400
 
-@app.route('/reviews', methods=['POST'])
-def submit_review():
-    data = request.json  # Get the data from the client
-    publication_id = data.get('publicationId')
-    review = data.get('review')
 
-    if not publication_id or not review:
-        return jsonify({"error": "Publication ID and review are required"}), 400
-
-    # Example: Update the review status and details for the publication in MongoDB
-    
-    result = papers_collection.update_one(
-        {"_id": ObjectId(publication_id)},  # Convert the string to ObjectId
-        {
-            "$set": {
-                "review_status": "done",
-               # "review_details": review,  # Store the review details
-            }
-        }
-    )
-
-    if result.matched_count == 1:  # Check if a document was updated
-        return jsonify({"message": "Review submitted successfully."}), 200
-    else:
-        return jsonify({"error": "Publication not found"}), 404
     
 
 @app.route('/api/publications/upload', methods=['POST'])
@@ -291,6 +273,7 @@ def upload_publication():
         author_id = request.form.get('authorId')
         file = request.files.get('file')
         co_authors = request.form.get('co_authors')
+        conferenceId = request.form.get('conferenceId')
 
         if not (title and author_id and file):
             return jsonify({'error': 'Missing title, authorId, or file'}), 400
@@ -304,6 +287,7 @@ def upload_publication():
             'co_authors': co_authors,
             'submissionDate': datetime.utcnow().strftime('%B %d, %Y'),
             'review_status': 'pending',
+            'conferenceId': conferenceId,
         }
         papers_collection.insert_one(publication)
 
@@ -419,5 +403,11 @@ def delete_conference(id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 if __name__ == '__main__':
+    def handle_reload(signum, frame): #sets up signal handlers to gracefully exit the application when a reload is triggered
+        os._exit(0) #prevent WinError 10038 error when the server is reloaded
+
+    signal.signal(signal.SIGINT, handle_reload)
+    signal.signal(signal.SIGTERM, handle_reload)
     app.run(debug=True)

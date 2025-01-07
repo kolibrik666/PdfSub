@@ -3,7 +3,7 @@
     <div class="navbar-container">
       <div class="logo">
         <img
-            src="https://static.vecteezy.com/system/resources/previews/001/201/180/original/brain-png.png"
+            src="logo-img.ico"
             alt="Logo"
             class="logo-img"
         />
@@ -78,7 +78,7 @@ export default {
 
 <style scoped>
 .navbar {
-  background-color: #57939f;
+  background-color: #579f97;
   padding: 10px 20px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }

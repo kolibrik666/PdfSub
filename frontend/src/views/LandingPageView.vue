@@ -1,81 +1,144 @@
 <template>
-    <div>
-      <!-- Banner Section -->
-      <div class="banner">
-        <img src="https://images.unsplash.com/photo-1535540674795-d2e704953bf1?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Banner Image" class="banner-image" />
-         <!-- https://images.unsplash.com/photo-1535540674795-d2e704953bf1?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D -->
-        <!--  <img src="../assets/img/lecture-seats.jpg" alt="Banner Image" class="banner-image" /> -->
-        <div class="cta-buttons">
-          <router-link to="/login">
-            <button class="cta-button login-button">Login</button>
-          </router-link>
-          <router-link to="/sign-up">
-            <button class="cta-button signup-button">Sign Up</button>
-          </router-link>
-        </div>
-      </div>
-    
-  
-      <!-- Landing Page Content -->
-      <div class="landing-page">
-        <!-- Informational Row -->
-        <div class="info-row">
-          <div class="info-box">
-            <h3>Feature 1</h3>
-            <p>This is the first feature of our app, which helps you do amazing things.</p>
-          </div>
-          <div class="info-box">
-            <h3>Feature 2</h3>
-            <p>Our second feature is designed to save you time and increase productivity.</p>
-          </div>
-          <div class="info-box">
-            <h3>Feature 3</h3>
-            <p>Explore our third feature to streamline your workflow with ease.</p>
-          </div>
-          <div class="info-box">
-            <h3>Feature 4</h3>
-            <p>With our fourth feature, you can automate your processes effortlessly.</p>
-          </div>
-        </div>
-  
-        <!-- FAQ Section -->
-        <div class="faq">
-          <div v-for="(item, index) in faqItems" :key="index" class="faq-item">
-            <button class="faq-toggle" @click="toggleFaq(index)">
-              <h3>{{ item.question }}</h3>
-            </button>
-            <div v-show="item.isOpen" class="faq-answer">
-              <p>{{ item.answer }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
+  <div>
+    <!-- Banner Section -->
+    <div class="banner">
+  <img src="https://builder.bootstrapmade.com/static/img/hero-bg-2.jpg" alt="banner image" class="banner-image" />
+  <div class="cta-buttons">
+    <router-link to="/login">
+      <button class="cta-button login-button">Login</button>
+    </router-link>
+    <router-link to="/sign-up">
+      <button class="cta-button signup-button">Sign Up</button>
+    </router-link>
+  </div>
+</div>
+
+    <!-- Landing Page Content -->
+    <div class="landing-page">
+      <!-- Informational Row -->
+      <div class="info-row">
+  <div class="info-box">
+    <div class="icon-circle"><i class="fas fa-user"></i></div>
+    <h3>For Participants</h3>
+    <p>Whether you're a student, researcher, or PhD candidate, the CMS equips you with the tools to submit and present your research successfully.</p>
+  </div>
+  <div class="info-box">
+    <div class="icon-circle"><i class="fas fa-graduation-cap"></i></div>
+    <h3>For Students</h3>
+    <p>Easily submit papers, track review progress, and stay updated on deadlines. Monitor every stage, from submission to final evaluation, with notifications keeping you informed throughout.</p>
+  </div>
+  <div class="info-box">
+    <div class="icon-circle"><i class="fas fa-clipboard-check"></i></div>
+    <h3>For Reviewers</h3>
+    <p>Access assigned papers, provide detailed feedback, and efficiently manage your review tasks.</p>
+  </div>
+  <div class="info-box">
+    <div class="icon-circle"><i class="fas fa-cogs"></i></div>
+    <h3>For Administrators</h3>
+    <p>Manage conferences, oversee participants and reviewers, and generate comprehensive reports on submissions and reviews.</p>
+  </div>
+</div>
+
+
+      
     </div>
-  </template>
-  <script>
-  export default {
-    name: 'LandingPage',
-    data() {
-      return {
-        // FAQ items with toggle state
-        faqItems: [
-          { question: "What is this website about?", answer: "This website provides a simple landing page to demonstrate Vue.js capabilities.", isOpen: false },
-          { question: "How can I get started?", answer: "Click the 'Sign Up' button to create an account and start using the app.", isOpen: false },
-          { question: "Is there a mobile version?", answer: "Yes, this site is mobile-friendly and fully responsive.", isOpen: false },
-        ]
-      };
-    },
-    methods: {
-      toggleFaq(index) {
-        // Toggle the visibility of the answer
-        this.faqItems[index].isOpen = !this.faqItems[index].isOpen;
-      }
-    }
-  };
-  </script>
+  </div>
+</template>
+
 <style scoped>
-.cta-button:hover {
-  background-color: #0c01018b;
+.banner {
+  position: relative;
+  width: 100vw;
+  height: 350px;
+  /* Full screen width */
+  margin-left: calc(-50vw + 50%);
+  /* Adjust position to center */
+  overflow: hidden;
+}
+
+.banner-image{
+
+}
+
+.cta-buttons {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 20px;
+}
+
+.cta-button {
+  font-size: 20px;
+  padding: 15px 30px;
+  margin: 10px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+}
+
+
+.login-button {
+  background-color: #203641;
+  color: white;
+}
+
+.login-button:hover {
+  background-color: #26e7aa;
+}
+
+.signup-button {
+  background-color: #579f97;
+  color: white;
+}
+
+.signup-button:hover {
+  background-color: #26e7aa;
+}
+
+.banner-image {
+  width: 100%;
+  height: 500px;
+}
+
+.info-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.info-box {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  flex: 1;
+  max-width: 300px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.icon-circle {
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color:#579f97;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 20px;
+}
+
+.info-box h3 {
+  font-size: 18px;
+  margin: 10px 0;
+}
+
+.info-box p {
+  font-size: 14px;
+  color: #666;
 }
 
 </style>

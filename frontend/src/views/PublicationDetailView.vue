@@ -1,20 +1,44 @@
 <template>
   <div class="publication-detail" v-if="publication">
-    <h1>{{ publication.title }}</h1>
-    <p><strong>Author:</strong> {{ author }}</p>
-    <p><strong>Co-Authors:</strong> {{ co_authors }}</p>
-    <p><strong>Reviewer:</strong> {{ reviewer ? reviewer : 'No assigned reviewer' }}</p>
-    <p><strong>Status:</strong> {{ publication.review_status }}</p>
-    <p><strong>Rating:</strong> {{ publication.rating }}</p>
+    <h1 class="green-text">{{ publication.title }}</h1>
+    <p><strong class="green-text">Author:</strong> {{ author }}</p>
+    <p><strong class="green-text">Co-Authors:</strong> {{ co_authors }}</p>
+    <p><strong class="green-text">Reviewer:</strong> {{ reviewer ? reviewer : 'No assigned reviewer' }}</p>
+    <p><strong class="green-text">Status:</strong> {{ publication.review_status }}</p>
 
+    <p v-if="!this.publication?.review_data"><strong class="green-text">Review: </strong>Not reviewed yet</p>
     <router-link to="/publications" class="button-link">Back to Publications</router-link>
-    <button @click="downloadPublication(publication.fileId, publication.title + '.pdf')">Download</button>
+    <button  class="download-button" @click="downloadPublication(publication.fileId, publication.title + '.pdf')"><i class="fa-solid fa-file-arrow-down"></i> Download</button>
+    <button v-if="this.publication?.review_data" @click="toggleReviewDetails" class="fold-button">
+      {{ reviewDetailsVisible ? 'Hide Review Details' : 'Show Review Details' }}
+    </button>
+
+    <!-- Review Data -->
+    <div class="review-data">
+      <div v-if="reviewDetailsVisible">
+        <table class="review-table">
+          <thead>
+          <tr>
+            <th>Criteria</th>
+            <th>Rating/Comment</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="(value, criteria) in orderedReviewData" :key="criteria">
+            <td><strong>{{ criteria }}</strong></td>
+            <td>{{ value }}</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- Comments Section -->
     <div class="comments-section">
       <h2>Comments</h2>
       <ul v-if="commentsWithNames.length">
         <li v-for="(comment, index) in commentsWithNames" :key="index">
-          <p><strong>{{ comment.reviewerName }}:</strong> {{ comment.comments }}</p>
+          <p><strong class="green-text">{{ comment.reviewerName }}:</strong> {{ comment.comments }}</p>
           <small>{{ formatDate(comment.submittedAt) }}</small>
         </li>
       </ul>
@@ -52,13 +76,37 @@ export default {
       reviewerId: null,
       reviewer: null,
       isAuthorized: false,
+      review_status: null,
       feedback: [],
       commentsWithNames: [],
       newComment: {
         reviewerId: "",
         comments: "",
       },
+      reviewDetailsVisible: false,
     };
+  },
+  computed: {
+    orderedReviewData() {
+      if (!this.publication?.review_data) return {};
+
+      const reviewData = this.publication.review_data;
+
+      // Return the fields in the specific order
+      return {
+        "Aktuálnosť a náročnosť práce": reviewData["Aktuálnosť a náročnosť práce"],
+        "Rozsah a úroveň dosiahnutých výsledkov": reviewData["Rozsah a úroveň dosiahnutých výsledkov"],
+        "Analýza a interpretácia výsledkov a formulácia záveru práce": reviewData["Analýza a interpretácia výsledkov a formulácia záveru práce"],
+        "Prehľadnosť a logická štruktúra práce": reviewData["Prehľadnosť a logická štruktúra práce"],
+        "Formálna, jazyková a štylistická úprava práce": reviewData["Formálna, jazyková a štylistická úprava práce"],
+        "Chýba názov práce v slovenskom alebo anglickom jazyku": reviewData["Chýba názov práce v slovenskom alebo anglickom jazyku"],
+        "Chýba meno autora alebo školiteľa": reviewData["Chýba meno autora alebo školiteľa"],
+        "Chýba pracovná emailová adresa autora alebo školiteľa": reviewData["Chýba pracovná emailová adresa autora alebo školiteľa"],
+        "Chýba abstrakt v slovenskom alebo anglickom jazyku": reviewData["Chýba abstrakt v slovenskom alebo anglickom jazyku"],
+        "Silné stránky práce": reviewData["Silné stránky práce"],
+        "Slabé stránky práce": reviewData["Slabé stránky práce"]
+      };
+    },
   },
   created() {
     const publicationId = this.$route.params.id;
@@ -76,6 +124,7 @@ export default {
             this.publication = response.data;
             this.feedback = response.data.feedback || [];
             this.commentsWithNames = []; // Reset the array
+            this.review_status = response.data.review_status;
 
             if (this.publication.authorId) this.fetchUserName(this.publication.authorId, 'author');
             if (this.publication.co_authors) this.co_authors = this.publication.co_authors;
@@ -107,16 +156,8 @@ export default {
     async fetchUserNameId(userId) {
       try {
         const response = await api.getUserById(userId);
-        console.log(response.data); // See what data you're getting
         return response.data.name || "Unknown";
       } catch (error) {
-        if (error.response) {
-          console.error('Server error:', error.response);
-        } else if (error.request) {
-          console.error('No response received:', error.request);
-        } else {
-          console.error('Error', error.message);
-        }
         return "Unknown";
       }
     },
@@ -158,7 +199,6 @@ export default {
       return new Date(date).toLocaleString();
     },
     async downloadPublication(fileId, filename) {
-      console.log("Downloading publication:", fileId, filename);
       try {
         const response = await api.downloadPublication(fileId);
         const blob = new Blob([response.data], { type: response.headers['content-type'] });
@@ -175,14 +215,30 @@ export default {
         alert("An error occurred while downloading the file.");
       }
     },
+    toggleReviewDetails() {
+      this.reviewDetailsVisible = !this.reviewDetailsVisible;
+    },
   },
 };
 </script>
 
 <style scoped>
+
+review-data {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.review-data h2 {
+  margin: 0;
+}
+
 .comments-section {
   margin-top: 30px;
 }
+
 .input-field {
   display: block;
   width: 100%;
@@ -199,7 +255,7 @@ button, .button-link {
   margin-top: 20px;
   margin-right: 10px;
   padding: 10px 20px;
-  background-color: #000000;
+  background-color: #001e2bc5;
   border-radius: 5px;
   color: white;
   border: none;
@@ -221,7 +277,16 @@ li {
   padding-bottom: 10px;
 }
 
-.button-link:hover, button:hover {
+.button-link:hover, button:hover, .download-button:hover {
   background-color: #26e7aa;
 }
+
+.download-button {
+  background-color: #579f97;
+}
+
+.review-table {
+  margin-top: 20px;
+}
+
 </style>

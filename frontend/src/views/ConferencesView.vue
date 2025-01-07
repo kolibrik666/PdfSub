@@ -17,6 +17,7 @@
         <input type="date" v-model="newConference.end_date" id="end_date" required />
       </div>
       <button type="submit" class="btn">Create Conference</button>
+      <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
     </form>
 
     <!-- Table to Display Conferences -->
@@ -56,6 +57,7 @@ export default {
         start_date: "",
         end_date: "",
       },
+      errorMessage: null,
     };
   },
   methods: {
@@ -74,9 +76,11 @@ export default {
             alert("Conference created successfully!");
             this.fetchConferences();
             this.newConference = { name: "", start_date: "", end_date: "" };
+            this.errorMessage = null;
           })
           .catch((error) => {
             console.error("Error creating conference:", error);
+            this.errorMessage = error.response?.data?.error || "Failed to create conference.";
           });
     },
     updateConference(conference) {
@@ -87,10 +91,11 @@ export default {
       })
           .then(() => {
             alert("Conference updated successfully");
+            this.errorMessage = null; // Reset error message on successful update
           })
           .catch((error) => {
             console.error("Update failed", error);
-            alert("Update failed");
+            this.errorMessage = error.response?.data?.error || "Update failed";
           });
     },
     deleteConference(id) {
@@ -112,6 +117,12 @@ export default {
 </script>
 
 <style scoped>
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+}
+
 .conferences-container {
   padding: 20px;
   max-width: 800px;
@@ -153,21 +164,21 @@ h1 {
   padding: 10px 15px;
   border: none;
   border-radius: 4px;
-  background-color: #007bff;
+  background-color: #579f97;
   color: white;
   cursor: pointer;
 }
 
 .btn:hover {
-  background-color: #0056b3;
+  background-color: #26e7aa;
 }
 
 .btn-danger {
-  background-color: #dc3545;
+  background-color: #001e2bc5;
 }
 
 .btn-danger:hover {
-  background-color: #c82333;
+  background-color: #26e7aa;
 }
 
 .conference-table {
