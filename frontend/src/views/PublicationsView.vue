@@ -64,14 +64,15 @@
               </option>
             </select>
           </td>
-          <td>{{ getUserName(publication.reviewerId) || "No reviewer assigned" }}</td>
           <td>
-            <select v-model="selectedReviewer[publication._id]">
-              <option v-for="user in reviewers" :key="user._id" :value="user._id">{{ user.name }}</option>
+            <select v-model="publication.reviewerId" @change="assignReviewer(publication)" :disabled="publication.review_status !== 'pending'">
+              <option v-for="user in reviewers" :key="user._id" :value="user._id">
+                {{ user.name }}
+              </option>
             </select>
-            <button v-if="isAdmin && publication.review_status === 'pending'" @click="assignReviewer(publication)">
-              Assign
-            </button>
+            <span v-if="!publication.reviewerId">Reviewer not selected</span>
+          </td>
+          <td>
             <button  class="download-button" @click="downloadPublication(publication.fileId, publication.title + '.pdf')"><i class="fa-solid fa-file-arrow-down"></i> Download</button>
           </td>
         </tr>
@@ -144,7 +145,6 @@ export default {
     return {
       user_id: "",
       publications: [],
-      selectedReviewer: {},
       reviewers: [],
       users: {},
       conferences: {},
@@ -245,15 +245,12 @@ export default {
       }
     },
     async assignReviewer(publication) {
-      const reviewerId = this.selectedReviewer[publication._id];
-      if (!reviewerId) {
+      if (!publication.reviewerId) {
         alert("Please select a reviewer.");
         return;
       }
       try {
-        await api.updatePublication(publication._id, { reviewerId });
-        publication.reviewerId = reviewerId;
-        this.selectedReviewer[publication._id] = "";
+        await api.updatePublication(publication._id, { reviewerId: publication.reviewerId });
         alert("Reviewer updated successfully!");
       } catch (error) {
         console.error("Error assigning reviewer:", error);
