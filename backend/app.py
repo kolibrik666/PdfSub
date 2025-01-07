@@ -1,3 +1,6 @@
+import os
+import signal
+
 from flask import Flask, json, jsonify, request
 from pymongo import MongoClient
 from flask_pymongo import pymongo
@@ -23,8 +26,6 @@ def hello():
 CONNECTION_STRING ="mongodb+srv://nbusr:nbusr123@cluster0.n5md3.mongodb.net/?retryWrites=true&w=majority"
 
 client = MongoClient(CONNECTION_STRING, ssl=True)
-
-# article_collection = pymongo.collection.Collection(db, "articles")
 
 db = client.get_database("pdf")
 fs = GridFS(db)
@@ -209,6 +210,8 @@ def update_publication(id):
         update_fields['reviewerId'] = data['reviewerId']
     if 'review_data' in data:
         update_fields['review_data'] = data['review_data']
+    if 'conferenceId' in data:
+        update_fields['conferenceId'] = data['conferenceId']
 
     papers_collection.update_one({'_id': ObjectId(id)}, {'$set': update_fields})
     return jsonify({'message': 'Publication updated successfully'}), 200
@@ -398,5 +401,11 @@ def delete_conference(id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 if __name__ == '__main__':
+    def handle_reload(signum, frame): #sets up signal handlers to gracefully exit the application when a reload is triggered
+        os._exit(0) #prevent WinError 10038 error when the server is reloaded
+
+    signal.signal(signal.SIGINT, handle_reload)
+    signal.signal(signal.SIGTERM, handle_reload)
     app.run(debug=True)

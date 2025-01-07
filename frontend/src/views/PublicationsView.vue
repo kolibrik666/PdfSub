@@ -57,7 +57,13 @@
           <td>{{ getUserName(publication.authorId) }}</td>
           <td>{{ publication.co_authors }}</td>
           <td>{{ publication.submissionDate }}</td>
-          <td>{{ getConferenceName(publication.conferenceId) }}</td>
+          <td>
+            <select v-model="publication.conferenceId" @change="updateConference(publication._id, publication.conferenceId)">
+              <option v-for="conference in conferences" :key="conference._id" :value="conference._id">
+                {{ conference.name }}
+              </option>
+            </select>
+          </td>
           <td>{{ getUserName(publication.reviewerId) || "No reviewer assigned" }}</td>
           <td>
             <select v-model="selectedReviewer[publication._id]">
@@ -220,6 +226,23 @@ export default {
     getConferenceName(conferenceId) {
       const conference = this.conferences[conferenceId];
       return conference ? conference.name : "Unknown";
+    },
+    async updateConference(publicationId, conferenceId) {
+      if (!conferenceId) {
+        alert("Please select a conference.");
+        return;
+      }
+      try {
+        await api.updatePublication(publicationId, { conferenceId });
+        const publication = this.publications.find(pub => pub._id === publicationId);
+        if (publication) {
+          publication.conferenceId = conferenceId;
+        }
+        alert("Conference updated successfully!");
+      } catch (error) {
+        console.error("Error updating conference:", error);
+        alert("An error occurred while updating the conference. Please try again.");
+      }
     },
     async assignReviewer(publication) {
       const reviewerId = this.selectedReviewer[publication._id];
