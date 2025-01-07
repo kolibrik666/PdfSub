@@ -99,8 +99,7 @@
           <td>{{ publication.co_authors }}</td>
           <td>{{ publication.submissionDate }}</td>
           <td>{{ getConferenceName(publication.conferenceId) }}</td>
-          <td>            
-            
+          <td>
             <button class="download-button" @click="downloadPublication(publication.fileId, publication.title + '.pdf')"><i class="fa-solid fa-file-arrow-down"></i> Download</button>
             <button v-if="isParticipant && isBeforeDeadline()" @click="deletePublication(publication)">Delete</button>
           </td>
@@ -113,6 +112,12 @@
         <form @submit.prevent="uploadPublication">
           <input type="text" v-model="newPublication.title" placeholder="Title" required />
           <input type="text" v-model="newPublication.co_authors" placeholder="Co-authors" />
+          <select v-model="newPublication.conferenceId">
+            <option value="" disabled>Select a conference</option>
+            <option v-for="conference in inProgressConferences" :key="conference._id" :value="conference._id">
+              {{ conference.name }}
+            </option>
+          </select>
           <input type="file" @change="handleFileUpload" accept=".pdf,.docx" required />
           <button type="submit">Upload</button>
         </form>
@@ -173,6 +178,14 @@ export default {
         return this.publications.filter((pub) => pub.authorId === this.user_id);
       }
       return [];
+    },
+    inProgressConferences() {
+      const currentDate = new Date();
+      return Object.values(this.conferences).filter(conference => {
+        const startDate = new Date(conference.start_date);
+        const endDate = new Date(conference.end_date);
+        return currentDate >= startDate && currentDate <= endDate;
+      });
     },
   },
   methods: {
@@ -249,23 +262,17 @@ export default {
       this.newPublication.selectedFile = event.target.files[0];
     },
     async uploadPublication() {
+      if (!this.newPublication.conferenceId) {
+        this.uploadError = "Please select a valid conference.";
+        return;
+      }
+
       const formData = new FormData();
       formData.append("title", this.newPublication.title);
       formData.append("authorId", this.user_id);
       formData.append("co_authors", this.newPublication.co_authors);
+      formData.append("conferenceId", this.newPublication.conferenceId);
       formData.append("file", this.newPublication.selectedFile);
-
-      // Check if current date is within any conference date range
-      const currentDate = new Date();
-      const matchingConference = Object.values(this.conferences).find(conference => {
-        const startDate = new Date(conference.start_date);
-        const endDate = new Date(conference.end_date);
-        return currentDate >= startDate && currentDate <= endDate;
-      });
-
-      if (matchingConference) {
-        formData.append("conferenceId", matchingConference._id);
-      }
 
       try {
         await api.uploadPublication(formData);
@@ -343,7 +350,8 @@ form {
   margin-top: 20px;
 }
 
-input[type="text"] {
+input[type="text"],
+select {
   display: block;
   margin-bottom: 10px;
   padding: 8px;

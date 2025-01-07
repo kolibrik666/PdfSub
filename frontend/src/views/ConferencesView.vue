@@ -71,11 +71,6 @@ export default {
           });
     },
     addConference() {
-      if (this.isDateRangeOverlapping(this.newConference.start_date, this.newConference.end_date)) {
-        this.errorMessage = "Conference dates overlap with an existing conference.";
-        return;
-      }
-
       api.createConference(this.newConference)
           .then(() => {
             alert("Conference created successfully!");
@@ -89,11 +84,6 @@ export default {
           });
     },
     updateConference(conference) {
-      if (this.isDateRangeOverlapping(conference.start_date, conference.end_date, conference._id)) {
-        this.errorMessage = "Conference dates overlap with an existing conference.";
-        return;
-      }
-
       api.updateConference(conference._id, {
         name: conference.name,
         start_date: conference.start_date,
@@ -118,19 +108,6 @@ export default {
             console.error("Delete failed", error);
             alert("Delete failed");
           });
-    },
-    isDateRangeOverlapping(startDate, endDate, excludeId = null) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-
-      return this.conferences.some(conference => {
-        if (excludeId && conference._id === excludeId) {
-          return false;
-        }
-        const confStart = new Date(conference.start_date);
-        const confEnd = new Date(conference.end_date);
-        return (start <= confEnd && end >= confStart);
-      });
     },
   },
   created() {
