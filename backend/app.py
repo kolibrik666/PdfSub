@@ -212,6 +212,8 @@ def update_publication(id):
         update_fields['review_data'] = data['review_data']
     if 'conferenceId' in data:
         update_fields['conferenceId'] = data['conferenceId']
+    if 'review_status' in data:
+        update_fields['review_status'] = data['review_status']
 
     papers_collection.update_one({'_id': ObjectId(id)}, {'$set': update_fields})
     return jsonify({'message': 'Publication updated successfully'}), 200

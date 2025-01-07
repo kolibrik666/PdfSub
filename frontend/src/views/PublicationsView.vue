@@ -42,6 +42,7 @@
           <th>Author</th>
           <th>Co-Authors</th>
           <th>Date of Submission</th>
+          <th>Review Status</th>
           <th>Conference</th>
           <th>Reviewer</th>
           <th>Actions</th>
@@ -57,6 +58,7 @@
           <td>{{ getUserName(publication.authorId) }}</td>
           <td>{{ publication.co_authors }}</td>
           <td>{{ publication.submissionDate }}</td>
+          <td>{{ publication.review_status }}</td>
           <td>
             <select v-model="publication.conferenceId" @change="updateConference(publication._id, publication.conferenceId)">
               <option v-for="conference in conferences" :key="conference._id" :value="conference._id">

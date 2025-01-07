@@ -104,12 +104,13 @@ export default {
     },
     submitReview() {
       const review_data = JSON.parse(JSON.stringify(this.review));
-      const payload = {
+      const data = {
         reviewerId: this.reviewerId,
         review_data: review_data,
+        review_status: 'reviewed',
       };
 
-      api.updatePublication(this.$route.params.id, payload)
+      api.updatePublication(this.$route.params.id, data)
           .then(() => {
             alert('Review submitted successfully!');
             this.$router.push('/publications');
