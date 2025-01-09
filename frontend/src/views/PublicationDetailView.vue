@@ -34,7 +34,7 @@
     </div>
 
     <!-- Comments Section -->
-    <div class="comments-section">
+    <div class="comments-section" >
       <h2>Comments</h2>
       <ul v-if="commentsWithNames.length">
         <li v-for="(comment, index) in commentsWithNames" :key="index">
@@ -51,9 +51,8 @@
             v-model="newComment.comments"
             placeholder="Write your comment..."
             class="input-field"
-            :disabled="!isAuthorized"
         ></textarea>
-        <button type="submit" :disabled="!isAuthorized">Submit Comment</button>
+        <button type="submit" >Submit Comment</button>
       </form>
     </div>
   </div>
@@ -123,7 +122,7 @@ export default {
           .then((response) => {
             this.publication = response.data;
             this.feedback = response.data.feedback || [];
-            this.commentsWithNames = []; // Reset the array
+            this.commentsWithNames = [];
             this.review_status = response.data.review_status;
 
             if (this.publication.authorId) this.fetchUserName(this.publication.authorId, 'author');
@@ -136,9 +135,11 @@ export default {
                 ...comment,
                 reviewerName,
               });
-            }));
-            this.isAuthorized = this.user_id === this.publication.authorId || this.user_id === this.publication.reviewerId;
+            })).then(() => {
+              this.commentsWithNames.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt)); // od najnovšieho
+            });
 
+            this.isAuthorized = this.user_id === this.publication.authorId || this.user_id === this.publication.reviewerId;
           })
           .catch((error) => {
             console.error("Failed to fetch publication", error);
@@ -166,14 +167,7 @@ export default {
         alert("Comment is required!");
         return;
       }
-
       const publicationId = this.$route.params.id;
-
-      if (!this.isAuthorized) {
-        alert("You are not authorized to comment on this publication.");
-        return;
-      }
-
       const commentData = {
         reviewerId: this.user_id, // Use saved user ID
         comments: this.newComment.comments,

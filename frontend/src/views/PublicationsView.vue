@@ -1,7 +1,13 @@
 <template>
+
   <div v-if="isReviewer">
     <div class="publications">
       <h1>For Review</h1>
+      <PublicationsFilter
+          :conferences="conferencesList"
+          :initialFilters="{ query: filterQuery, status: filterStatus, conference: filterConference }"
+          @filter-change="updateFilters"
+      />
       <table>
         <thead>
         <tr>
@@ -12,7 +18,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="publication in reviewerPublications" :key="publication._id">
+        <tr v-for="publication in filteredReviewerPublications" :key="publication._id">
           <td>
             <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
               {{ publication.title }}
@@ -35,6 +41,11 @@
   <div v-if="isAdmin">
     <div class="publications">
       <h1>Assign Reviewer</h1>
+      <PublicationsFilter
+          :conferences="conferencesList"
+          :initialFilters="{ query: filterQuery, status: filterStatus, conference: filterConference }"
+          @filter-change="updateFilters"
+      />
       <table>
         <thead>
         <tr>
@@ -49,7 +60,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="publication in allPublications" :key="publication._id">
+        <tr v-for="publication in filteredAllPublications" :key="publication._id">
           <td>
             <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
               {{ publication.title }}
@@ -86,6 +97,11 @@
   <div v-if="isParticipant">
     <div class="publications">
       <h1>My Publications</h1>
+      <PublicationsFilter
+          :conferences="conferencesList"
+          :initialFilters="{ query: filterQuery, status: filterStatus, conference: filterConference }"
+          @filter-change="updateFilters"
+      />
       <table>
         <thead>
         <tr>
@@ -98,7 +114,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="publication in participantPublications" :key="publication._id">
+        <tr v-for="publication in filteredParticipantPublications" :key="publication._id">
           <td>
             <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
               {{ publication.title }}
@@ -141,8 +157,10 @@
 <script>
 import api from "../services/api";
 import { decodeTokenUpdateData } from "../services/tokenUtils";
+import PublicationsFilter from "@/components/PublicationsFilter.vue";
 
 export default {
+  components: { PublicationsFilter },
   data() {
     return {
       user_id: "",
@@ -158,6 +176,9 @@ export default {
         submissionDate: "",
         conferenceId: "",
       },
+      filterQuery: "",
+      filterStatus: "",
+      filterConference: "",
       uploadError: null,
       isLoggedIn: false,
       isAdmin: false,
@@ -169,11 +190,34 @@ export default {
     this.setUserRole();
   },
   computed: {
-    allPublications() {
-      if (this.isAdmin) {
-        return this.publications;
-      }
-      return [];
+    filteredReviewerPublications() {
+      return this.reviewerPublications.filter((publication) => {
+        const matchesTitle = publication.title.toLowerCase().includes(this.filterQuery.toLowerCase());
+        const matchesStatus = !this.filterStatus || publication.review_status === this.filterStatus;
+        const matchesConference = !this.filterConference || publication.conferenceId === this.filterConference;
+        return matchesTitle && matchesStatus && matchesConference;
+      });
+    },
+    filteredAllPublications()
+    {
+      return this.publications.filter((publication) => {
+        const matchesTitle = publication.title.toLowerCase().includes(this.filterQuery.toLowerCase());
+        const matchesStatus = !this.filterStatus || publication.review_status === this.filterStatus;
+        const matchesConference = !this.filterConference || publication.conferenceId === this.filterConference;
+        return matchesTitle && matchesStatus && matchesConference;
+      });
+    },
+    filteredParticipantPublications()
+    {
+      return this.participantPublications.filter((publication) => {
+        const matchesTitle = publication.title.toLowerCase().includes(this.filterQuery.toLowerCase());
+        const matchesStatus = !this.filterStatus || publication.review_status === this.filterStatus;
+        const matchesConference = !this.filterConference || publication.conferenceId === this.filterConference;
+        return matchesTitle && matchesStatus && matchesConference;
+      });
+    },
+    conferencesList() {
+      return Object.values(this.conferences);
     },
     reviewerPublications() {
       if (this.isReviewer) {
@@ -197,6 +241,11 @@ export default {
     },
   },
   methods: {
+    updateFilters(filters) {
+      this.filterQuery = filters.query;
+      this.filterStatus = filters.status;
+      this.filterConference = filters.conference;
+    },
     fetchPublications() {
       api.getPublications().then((response) => {
         this.publications = response.data;
