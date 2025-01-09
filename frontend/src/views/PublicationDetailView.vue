@@ -3,6 +3,7 @@
     <h1 class="green-text">{{ publication.title }}</h1>
     <p><strong class="green-text">Author:</strong> {{ author }}</p>
     <p><strong class="green-text">Co-Authors:</strong> {{ co_authors }}</p>
+    <p><strong class="green-text">Key words:</strong> {{ key_words }}</p>
     <p><strong class="green-text">Reviewer:</strong> {{ reviewer ? reviewer : 'No assigned reviewer' }}</p>
     <p><strong class="green-text">Status:</strong> {{ publication.review_status }}</p>
 
@@ -72,6 +73,7 @@ export default {
       publication: null,
       author: null,
       co_authors: null,
+      key_words: null,
       reviewerId: null,
       reviewer: null,
       isAuthorized: false,
@@ -127,6 +129,7 @@ export default {
 
             if (this.publication.authorId) this.fetchUserName(this.publication.authorId, 'author');
             if (this.publication.co_authors) this.co_authors = this.publication.co_authors;
+            if (this.publication.key_words) this.key_words = this.publication.key_words;
             if (this.publication.reviewerId) this.fetchUserName(this.publication.reviewerId, 'reviewer');
 
             Promise.all(this.feedback.map(async (comment) => {

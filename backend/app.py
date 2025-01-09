@@ -273,6 +273,7 @@ def upload_publication():
         author_id = request.form.get('authorId')
         file = request.files.get('file')
         co_authors = request.form.get('co_authors')
+        key_words = request.form.get('key_words')
         conferenceId = request.form.get('conferenceId')
 
         if not (title and author_id and file):
@@ -285,6 +286,7 @@ def upload_publication():
             'authorId': ObjectId(author_id),
             'fileId': str(file_id),  # Save file ID as a string
             'co_authors': co_authors,
+            'key_words' : key_words,
             'submissionDate': datetime.utcnow().strftime('%B %d, %Y'),
             'review_status': 'pending',
             'conferenceId': conferenceId,

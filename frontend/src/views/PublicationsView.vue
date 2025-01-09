@@ -137,6 +137,7 @@
         <form @submit.prevent="uploadPublication">
           <input type="text" v-model="newPublication.title" placeholder="Title" required />
           <input type="text" v-model="newPublication.co_authors" placeholder="Co-authors" />
+          <input type="text" v-model="newPublication.key_words" placeholder="Key words" />
           <select v-model="newPublication.conferenceId">
             <option value="" disabled>Select a conference</option>
             <option v-for="conference in inProgressConferences" :key="conference._id" :value="conference._id">
@@ -173,6 +174,7 @@ export default {
         authorId: "",
         selectedFile: null,
         co_authors: "",
+        key_words: "",
         submissionDate: "",
         conferenceId: "",
       },
@@ -342,13 +344,14 @@ export default {
       formData.append("title", this.newPublication.title);
       formData.append("authorId", this.user_id);
       formData.append("co_authors", this.newPublication.co_authors);
+      formData.append("key_words", this.newPublication.key_words);
       formData.append("conferenceId", this.newPublication.conferenceId);
       formData.append("file", this.newPublication.selectedFile);
 
       try {
         await api.uploadPublication(formData);
         alert("Publication uploaded successfully!");
-        this.newPublication = { title: "", authorId: "", selectedFile: null, co_authors: "", conferenceId: "" };
+        this.newPublication = { title: "", authorId: "", selectedFile: null, co_authors: "", key_words: "", conferenceId: "" };
         this.uploadError = null;
         this.fetchPublications();
       } catch (error) {
