@@ -350,6 +350,7 @@ def create_conference():
     try:
         data = request.get_json()
         name = data.get('name')
+        description = data.get('description')
         start_date = data.get('start_date')
         end_date = data.get('end_date')
 
@@ -363,6 +364,7 @@ def create_conference():
 
         new_conference = {
             'name': name,
+            'description': description,
             'start_date': start_date_obj,
             'end_date': end_date_obj,
         }

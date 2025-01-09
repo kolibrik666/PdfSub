@@ -9,6 +9,10 @@
         <input v-model="newConference.name" id="name" required />
       </div>
       <div class="form-group">
+        <label for="name">Description:</label>
+        <input v-model="newConference.description" id="description" required />
+      </div>
+      <div class="form-group">
         <label for="start_date">Start Date:</label>
         <input type="date" v-model="newConference.start_date" id="start_date" required />
       </div>
@@ -54,6 +58,7 @@ export default {
       conferences: [],
       newConference: {
         name: "",
+        description: "",
         start_date: "",
         end_date: "",
       },
@@ -75,7 +80,7 @@ export default {
           .then(() => {
             alert("Conference created successfully!");
             this.fetchConferences();
-            this.newConference = { name: "", start_date: "", end_date: "" };
+            this.newConference = { name: "", description: "", start_date: "", end_date: "" };
             this.errorMessage = null;
           })
           .catch((error) => {
@@ -86,6 +91,7 @@ export default {
     updateConference(conference) {
       api.updateConference(conference._id, {
         name: conference.name,
+        description: conference.description,
         start_date: conference.start_date,
         end_date: conference.end_date,
       })
