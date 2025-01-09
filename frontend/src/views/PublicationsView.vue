@@ -22,7 +22,7 @@
           <td>{{ getConferenceName(publication.conferenceId) }}</td>
           <td>
             <router-link :to="{ name: 'review', params: { id: publication._id } }">
-              <button v-if="isReviewer && publication.review_status === 'pending'">Review</button>
+              <button   :disabled="!(isReviewer && publication.review_status === 'pending')" >Review</button>
             </router-link>
             <button  class="download-button" @click="downloadPublication(publication.fileId, publication.title + '.pdf')"><i class="fa-solid fa-file-arrow-down"></i> Download</button>
           </td>
@@ -110,7 +110,7 @@
           <td>{{ getConferenceName(publication.conferenceId) }}</td>
           <td>
             <button class="download-button" @click="downloadPublication(publication.fileId, publication.title + '.pdf')"><i class="fa-solid fa-file-arrow-down"></i> Download</button>
-            <button v-if="isParticipant && isBeforeDeadline()" @click="deletePublication(publication)">Delete</button>
+            <button :disabled="!isBeforeDeadline(publication.conferenceId)" @click="deletePublication(publication)"> Delete </button>
           </td>
         </tr>
         </tbody>
@@ -334,10 +334,14 @@ export default {
         alert("An error occurred while deleting the publication.");
       }
     },
-    isBeforeDeadline() {
-      const deadline = new Date("2024-12-31");
-      return new Date() <= deadline;
-    },
+    isBeforeDeadline(conferenceId) {
+      if (!conferenceId || !this.conferences[conferenceId]) {
+        return false;
+      }
+
+      const conferenceEndDate = new Date(this.conferences[conferenceId].end_date);
+      return new Date() <= conferenceEndDate;
+    }
   },
   mounted() {
     this.fetchPublications();
@@ -367,7 +371,11 @@ th {
 button {
   margin-right: 5px;
 }
-
+button:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}
 form {
   margin-top: 20px;
 }
