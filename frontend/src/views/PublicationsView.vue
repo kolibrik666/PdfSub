@@ -1,38 +1,67 @@
 <template>
-
   <div v-if="isReviewer">
     <div class="publications">
       <h1>For Review</h1>
       <PublicationsFilter
-          :conferences="conferencesList"
-          :initialFilters="{ query: filterQuery, status: filterStatus, conference: filterConference }"
-          @filter-change="updateFilters"
+        :conferences="conferencesList"
+        :initialFilters="{
+          query: filterQuery,
+          status: filterStatus,
+          conference: filterConference,
+        }"
+        @filter-change="updateFilters"
       />
       <table>
         <thead>
-        <tr>
-          <th>Title</th>
-          <th>Review Status</th>
-          <th>Conference</th>
-          <th>Actions</th>
-        </tr>
+          <tr>
+            <th>Title</th>
+            <th>Review Status</th>
+            <th>Conference</th>
+            <th>Actions</th>
+          </tr>
         </thead>
         <tbody>
-        <tr v-for="publication in filteredReviewerPublications" :key="publication._id">
-          <td>
-            <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
-              {{ publication.title }}
-            </router-link>
-          </td>
-          <td>{{ publication.review_status }}</td>
-          <td>{{ getConferenceName(publication.conferenceId) }}</td>
-          <td>
-            <router-link :to="{ name: 'review', params: { id: publication._id } }">
-              <button   :disabled="!(isReviewer && publication.review_status === 'pending')" >Review</button>
-            </router-link>
-            <button  class="download-button" @click="downloadPublication(publication.fileId, publication.title + '.pdf')"><i class="fa-solid fa-file-arrow-down"></i> Download</button>
-          </td>
-        </tr>
+          <tr
+            v-for="publication in filteredReviewerPublications"
+            :key="publication._id"
+          >
+            <td>
+              <router-link
+                :to="{
+                  name: 'publication-detail',
+                  params: { id: publication._id },
+                }"
+              >
+                {{ publication.title }}
+              </router-link>
+            </td>
+            <td>{{ publication.review_status }}</td>
+            <td>{{ getConferenceName(publication.conferenceId) }}</td>
+            <td>
+              <router-link
+                :to="{ name: 'review', params: { id: publication._id } }"
+              >
+                <button
+                  :disabled="
+                    !(isReviewer && publication.review_status === 'pending')
+                  "
+                >
+                  Review
+                </button>
+              </router-link>
+              <button
+                class="download-button"
+                @click="
+                  downloadPublication(
+                    publication.fileId,
+                    publication.title + '.pdf'
+                  )
+                "
+              >
+                <i class="fa-solid fa-file-arrow-down"></i> Download
+              </button>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -40,55 +69,106 @@
 
   <div v-if="isAdmin">
     <div class="publications">
-      <h1>Assign Reviewer</h1>
+      <h1>All Publications</h1>
       <PublicationsFilter
-          :conferences="conferencesList"
-          :initialFilters="{ query: filterQuery, status: filterStatus, conference: filterConference }"
-          @filter-change="updateFilters"
+        :conferences="conferencesList"
+        :initialFilters="{
+          query: filterQuery,
+          status: filterStatus,
+          conference: filterConference,
+        }"
+        @filter-change="updateFilters"
       />
+      <button
+        @click="downloadSelectedPublications"
+        id="downloadSelectedPublicationsBtn"
+      >
+        <i class="fa-regular fa-file-zipper"></i> Download Selected Publications
+      </button>
+
       <table>
         <thead>
-        <tr>
-          <th>Title</th>
-          <th>Author</th>
-          <th>Co-Authors</th>
-          <th>Date of Submission</th>
-          <th>Review Status</th>
-          <th>Conference</th>
-          <th>Reviewer</th>
-          <th>Actions</th>
-        </tr>
+          <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Co-Authors</th>
+            <th>Date of Submission</th>
+            <th>Review Status</th>
+            <th>Conference</th>
+            <th>Reviewer</th>
+            <th>Actions</th>
+          </tr>
         </thead>
         <tbody>
-        <tr v-for="publication in filteredAllPublications" :key="publication._id">
-          <td>
-            <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
-              {{ publication.title }}
-            </router-link>
-          </td>
-          <td>{{ getUserName(publication.authorId) }}</td>
-          <td>{{ publication.co_authors }}</td>
-          <td>{{ publication.submissionDate }}</td>
-          <td>{{ publication.review_status }}</td>
-          <td>
-            <select v-model="publication.conferenceId" @change="updateConference(publication._id, publication.conferenceId)">
-              <option v-for="conference in conferences" :key="conference._id" :value="conference._id">
-                {{ conference.name }}
-              </option>
-            </select>
-          </td>
-          <td>
-            <select v-model="publication.reviewerId" @change="assignReviewer(publication)" :disabled="publication.review_status !== 'pending'">
-              <option v-for="user in reviewers" :key="user._id" :value="user._id">
-                {{ user.name }}
-              </option>
-            </select>
-            <span v-if="!publication.reviewerId">Reviewer not selected</span>
-          </td>
-          <td>
-            <button  class="download-button" @click="downloadPublication(publication.fileId, publication.title + '.pdf')"><i class="fa-solid fa-file-arrow-down"></i> Download</button>
-          </td>
-        </tr>
+          <tr
+            v-for="publication in filteredAllPublications"
+            :key="publication._id"
+          >
+            <td>
+              <input
+                type="checkbox"
+                v-model="selectedPublications"
+                :value="publication._id"
+              />
+              <router-link
+                :to="{
+                  name: 'publication-detail',
+                  params: { id: publication._id },
+                }"
+              >
+                {{ publication.title }}
+              </router-link>
+            </td>
+            <td>{{ getUserName(publication.authorId) }}</td>
+            <td>{{ publication.co_authors }}</td>
+            <td>{{ publication.submissionDate }}</td>
+            <td>{{ publication.review_status }}</td>
+            <td>
+              <select
+                v-model="publication.conferenceId"
+                @change="
+                  updateConference(publication._id, publication.conferenceId)
+                "
+              >
+                <option
+                  v-for="conference in conferences"
+                  :key="conference._id"
+                  :value="conference._id"
+                >
+                  {{ conference.name }}
+                </option>
+              </select>
+            </td>
+            <td>
+              <select
+                v-model="publication.reviewerId"
+                @change="assignReviewer(publication)"
+                :disabled="publication.review_status !== 'pending'"
+              >
+                <option
+                  v-for="user in reviewers"
+                  :key="user._id"
+                  :value="user._id"
+                >
+                  {{ user.name }}
+                </option>
+              </select>
+              <span v-if="!publication.reviewerId">Reviewer not selected</span>
+            </td>
+            <td>
+              <button
+                class="download-button"
+                @click="
+                  downloadPublication(
+                    publication.fileId,
+                    publication.title + '.pdf'
+                  )
+                "
+              >
+                <i class="fa-solid fa-file-arrow-down"></i> Download
+              </button>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -98,53 +178,102 @@
     <div class="publications">
       <h1>My Publications</h1>
       <PublicationsFilter
-          :conferences="conferencesList"
-          :initialFilters="{ query: filterQuery, status: filterStatus, conference: filterConference }"
-          @filter-change="updateFilters"
+        :conferences="conferencesList"
+        :initialFilters="{
+          query: filterQuery,
+          status: filterStatus,
+          conference: filterConference,
+        }"
+        @filter-change="updateFilters"
       />
       <table>
         <thead>
-        <tr>
-          <th>Title</th>
-          <th>Author</th>
-          <th>Co-Authors</th>
-          <th>Date of Submission</th>
-          <th>Conference</th>
-          <th>Actions</th>
-        </tr>
+          <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Co-Authors</th>
+            <th>Date of Submission</th>
+            <th>Conference</th>
+            <th>Actions</th>
+          </tr>
         </thead>
         <tbody>
-        <tr v-for="publication in filteredParticipantPublications" :key="publication._id">
-          <td>
-            <router-link :to="{ name: 'publication-detail', params: { id: publication._id } }">
-              {{ publication.title }}
-            </router-link>
-          </td>
-          <td>{{ getUserName(publication.authorId) }}</td>
-          <td>{{ publication.co_authors }}</td>
-          <td>{{ publication.submissionDate }}</td>
-          <td>{{ getConferenceName(publication.conferenceId) }}</td>
-          <td>
-            <button class="download-button" @click="downloadPublication(publication.fileId, publication.title + '.pdf')"><i class="fa-solid fa-file-arrow-down"></i> Download</button>
-            <button :disabled="!isBeforeDeadline(publication.conferenceId)" @click="deletePublication(publication)"> Delete </button>
-          </td>
-        </tr>
+          <tr
+            v-for="publication in filteredParticipantPublications"
+            :key="publication._id"
+          >
+            <td>
+              <router-link
+                :to="{
+                  name: 'publication-detail',
+                  params: { id: publication._id },
+                }"
+              >
+                {{ publication.title }}
+              </router-link>
+            </td>
+            <td>{{ getUserName(publication.authorId) }}</td>
+            <td>{{ publication.co_authors }}</td>
+            <td>{{ publication.submissionDate }}</td>
+            <td>{{ getConferenceName(publication.conferenceId) }}</td>
+            <td>
+              <button
+                class="download-button"
+                @click="
+                  downloadPublication(
+                    publication.fileId,
+                    publication.title + '.pdf'
+                  )
+                "
+              >
+                <i class="fa-solid fa-file-arrow-down"></i> Download
+              </button>
+              <button
+                :disabled="!isBeforeDeadline(publication.conferenceId)"
+                @click="deletePublication(publication)"
+              >
+                Delete
+              </button>
+            </td>
+          </tr>
         </tbody>
       </table>
 
       <div v-if="isParticipant">
         <h2>Add Publication</h2>
         <form @submit.prevent="uploadPublication">
-          <input type="text" v-model="newPublication.title" placeholder="Title" required />
-          <input type="text" v-model="newPublication.co_authors" placeholder="Co-authors" />
-          <input type="text" v-model="newPublication.key_words" placeholder="Key words" />
+          <input
+            type="text"
+            v-model="newPublication.title"
+            placeholder="Title"
+            required
+          />
+          <input
+            type="text"
+            v-model="newPublication.co_authors"
+            placeholder="Co-authors"
+          />
+          <input
+            type="text"
+            v-model="newPublication.key_words"
+            placeholder="Key words"
+          />
           <select v-model="newPublication.conferenceId">
             <option value="" disabled>Select a conference</option>
-            <option v-for="conference in inProgressConferences" :key="conference._id" :value="conference._id">
+            <option
+              v-for="conference in inProgressConferences"
+              :key="conference._id"
+              :value="conference._id"
+            >
               {{ conference.name }}
             </option>
           </select>
-          <input type="file" @change="handleFileUpload" accept=".pdf,.docx" required />
+          <input
+            type="file"
+            @change="handleFileUpload"
+            accept=".pdf"
+            required
+          />
           <button type="submit">Upload</button>
         </form>
         <div v-if="uploadError" class="error-message">
@@ -159,6 +288,7 @@
 import api from "../services/api";
 import { decodeTokenUpdateData } from "../services/tokenUtils";
 import PublicationsFilter from "@/components/PublicationsFilter.vue";
+import JSZip from "jszip";
 
 export default {
   components: { PublicationsFilter },
@@ -166,6 +296,7 @@ export default {
     return {
       user_id: "",
       publications: [],
+      selectedPublications: [],
       reviewers: [],
       users: {},
       conferences: {},
@@ -194,27 +325,40 @@ export default {
   computed: {
     filteredReviewerPublications() {
       return this.reviewerPublications.filter((publication) => {
-        const matchesTitle = publication.title.toLowerCase().includes(this.filterQuery.toLowerCase());
-        const matchesStatus = !this.filterStatus || publication.review_status === this.filterStatus;
-        const matchesConference = !this.filterConference || publication.conferenceId === this.filterConference;
+        const matchesTitle = publication.title
+          .toLowerCase()
+          .includes(this.filterQuery.toLowerCase());
+        const matchesStatus =
+          !this.filterStatus || publication.review_status === this.filterStatus;
+        const matchesConference =
+          !this.filterConference ||
+          publication.conferenceId === this.filterConference;
         return matchesTitle && matchesStatus && matchesConference;
       });
     },
-    filteredAllPublications()
-    {
+    filteredAllPublications() {
       return this.publications.filter((publication) => {
-        const matchesTitle = publication.title.toLowerCase().includes(this.filterQuery.toLowerCase());
-        const matchesStatus = !this.filterStatus || publication.review_status === this.filterStatus;
-        const matchesConference = !this.filterConference || publication.conferenceId === this.filterConference;
+        const matchesTitle = publication.title
+          .toLowerCase()
+          .includes(this.filterQuery.toLowerCase());
+        const matchesStatus =
+          !this.filterStatus || publication.review_status === this.filterStatus;
+        const matchesConference =
+          !this.filterConference ||
+          publication.conferenceId === this.filterConference;
         return matchesTitle && matchesStatus && matchesConference;
       });
     },
-    filteredParticipantPublications()
-    {
+    filteredParticipantPublications() {
       return this.participantPublications.filter((publication) => {
-        const matchesTitle = publication.title.toLowerCase().includes(this.filterQuery.toLowerCase());
-        const matchesStatus = !this.filterStatus || publication.review_status === this.filterStatus;
-        const matchesConference = !this.filterConference || publication.conferenceId === this.filterConference;
+        const matchesTitle = publication.title
+          .toLowerCase()
+          .includes(this.filterQuery.toLowerCase());
+        const matchesStatus =
+          !this.filterStatus || publication.review_status === this.filterStatus;
+        const matchesConference =
+          !this.filterConference ||
+          publication.conferenceId === this.filterConference;
         return matchesTitle && matchesStatus && matchesConference;
       });
     },
@@ -223,7 +367,9 @@ export default {
     },
     reviewerPublications() {
       if (this.isReviewer) {
-        return this.publications.filter((pub) => pub.reviewerId === this.user_id);
+        return this.publications.filter(
+          (pub) => pub.reviewerId === this.user_id
+        );
       }
       return [];
     },
@@ -235,7 +381,7 @@ export default {
     },
     inProgressConferences() {
       const currentDate = new Date();
-      return Object.values(this.conferences).filter(conference => {
+      return Object.values(this.conferences).filter((conference) => {
         const startDate = new Date(conference.start_date);
         const endDate = new Date(conference.end_date);
         return currentDate >= startDate && currentDate <= endDate;
@@ -252,7 +398,9 @@ export default {
       api.getPublications().then((response) => {
         this.publications = response.data;
         const userIds = [
-          ...new Set(this.publications.flatMap((pub) => [pub.authorId, pub.reviewerId])),
+          ...new Set(
+            this.publications.flatMap((pub) => [pub.authorId, pub.reviewerId])
+          ),
         ];
         this.fetchUsers(userIds);
         this.fetchReviewers();
@@ -260,21 +408,29 @@ export default {
       });
     },
     fetchReviewers() {
-      api.getUsers().then((response) => {
-        this.reviewers = response.data.filter((user) => user.roles.isReviewer);
-      }).catch((error) => {
-        console.error("Error fetching reviewers:", error);
-      });
+      api
+        .getUsers()
+        .then((response) => {
+          this.reviewers = response.data.filter(
+            (user) => user.roles.isReviewer
+          );
+        })
+        .catch((error) => {
+          console.error("Error fetching reviewers:", error);
+        });
     },
     fetchConferences() {
-      api.getConferences().then((response) => {
-        this.conferences = response.data.reduce((acc, conf) => {
-          acc[conf._id] = conf;
-          return acc;
-        }, {});
-      }).catch((error) => {
-        console.error("Error fetching conferences:", error);
-      });
+      api
+        .getConferences()
+        .then((response) => {
+          this.conferences = response.data.reduce((acc, conf) => {
+            acc[conf._id] = conf;
+            return acc;
+          }, {});
+        })
+        .catch((error) => {
+          console.error("Error fetching conferences:", error);
+        });
     },
     getConferenceName(conferenceId) {
       const conference = this.conferences[conferenceId];
@@ -287,14 +443,18 @@ export default {
       }
       try {
         await api.updatePublication(publicationId, { conferenceId });
-        const publication = this.publications.find(pub => pub._id === publicationId);
+        const publication = this.publications.find(
+          (pub) => pub._id === publicationId
+        );
         if (publication) {
           publication.conferenceId = conferenceId;
         }
         alert("Conference updated successfully!");
       } catch (error) {
         console.error("Error updating conference:", error);
-        alert("An error occurred while updating the conference. Please try again.");
+        alert(
+          "An error occurred while updating the conference. Please try again."
+        );
       }
     },
     async assignReviewer(publication) {
@@ -303,23 +463,27 @@ export default {
         return;
       }
       try {
-        await api.updatePublication(publication._id, { reviewerId: publication.reviewerId });
+        await api.updatePublication(publication._id, {
+          reviewerId: publication.reviewerId,
+        });
         alert("Reviewer updated successfully!");
       } catch (error) {
         console.error("Error assigning reviewer:", error);
-        alert("An error occurred while assigning the reviewer. Please try again.");
+        alert(
+          "An error occurred while assigning the reviewer. Please try again."
+        );
       }
     },
     fetchUsers(userIds) {
       Promise.all(userIds.map((id) => api.getUserById(id).catch(() => null)))
-          .then((responses) => {
-            responses.forEach((user) => {
-              if (user && user.data) {
-                this.users[user.data._id] = `${user.data.name}`;
-              }
-            });
-          })
-          .catch((error) => console.error("Failed to fetch users", error));
+        .then((responses) => {
+          responses.forEach((user) => {
+            if (user && user.data) {
+              this.users[user.data._id] = `${user.data.name}`;
+            }
+          });
+        })
+        .catch((error) => console.error("Failed to fetch users", error));
     },
     getUserName(userId) {
       return this.users[userId] || "Unknown";
@@ -351,7 +515,14 @@ export default {
       try {
         await api.uploadPublication(formData);
         alert("Publication uploaded successfully!");
-        this.newPublication = { title: "", authorId: "", selectedFile: null, co_authors: "", key_words: "", conferenceId: "" };
+        this.newPublication = {
+          title: "",
+          authorId: "",
+          selectedFile: null,
+          co_authors: "",
+          key_words: "",
+          conferenceId: "",
+        };
         this.uploadError = null;
         this.fetchPublications();
       } catch (error) {
@@ -361,7 +532,9 @@ export default {
     async downloadPublication(fileId, filename) {
       try {
         const response = await api.downloadPublication(fileId);
-        const blob = new Blob([response.data], { type: response.headers["content-type"] });
+        const blob = new Blob([response.data], {
+          type: response.headers["content-type"],
+        });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
         link.download = filename;
@@ -374,12 +547,67 @@ export default {
         alert("An error occurred while downloading the file.");
       }
     },
+    async downloadSelectedPublications() {
+      if (this.selectedPublications.length === 0) {
+        alert("Please select publications to download.");
+        return;
+      }
+
+      try {
+        const zip = new JSZip();
+        const zipFileName = "selected_publications.zip";
+        let count = 0;
+
+        for (const publicationId of this.selectedPublications) {
+          const publication = this.publications.find(
+            (pub) => pub._id === publicationId
+          );
+          if (publication && publication.fileId) {
+            const response = await api.downloadPublication(publication.fileId);
+            const blob = new Blob([response.data], {
+              type: response.headers["content-type"],
+            });
+            const filename = `${publication.title}.pdf`; // Use the publication title for the filename
+
+            // Add file to zip
+            zip.file(filename, blob);
+            count++;
+          }
+        }
+
+        if (count > 0) {
+          // Generate the zip file
+          zip.generateAsync({ type: "blob" }).then((content) => {
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(content);
+            link.download = zipFileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+          });
+        } else {
+          alert("No files available for download.");
+        }
+      } catch (error) {
+        console.error(
+          "Error downloading selected publications:",
+          error.message
+        );
+        alert("An error occurred while downloading the publications.");
+      }
+    },
+
     async deletePublication(publication) {
       try {
-        const confirmation = window.confirm(`Are you sure you want to delete the publication titled "${publication.title}"?`);
+        const confirmation = window.confirm(
+          `Are you sure you want to delete the publication titled "${publication.title}"?`
+        );
         if (!confirmation) return;
         await api.deletePublication(publication._id);
-        this.publications = this.publications.filter((pub) => pub._id !== publication._id);
+        this.publications = this.publications.filter(
+          (pub) => pub._id !== publication._id
+        );
         alert("Publication deleted successfully!");
       } catch (error) {
         console.error("Error deleting publication:", error);
@@ -391,9 +619,11 @@ export default {
         return false;
       }
 
-      const conferenceEndDate = new Date(this.conferences[conferenceId].end_date);
+      const conferenceEndDate = new Date(
+        this.conferences[conferenceId].end_date
+      );
       return new Date() <= conferenceEndDate;
-    }
+    },
   },
   mounted() {
     this.fetchPublications();
@@ -450,6 +680,11 @@ button[type="submit"] {
   padding: 10px 20px;
 }
 
+#downloadSelectedPublicationsBtn {
+  margin-bottom: 20px;
+  float: right;
+}
+
 .error-message {
   color: red;
   margin-top: 20px;
@@ -465,7 +700,8 @@ select {
   background-color: #579f97;
 }
 
-.assign-reviewer-button:hover, .download-button:hover {
+.assign-reviewer-button:hover,
+.download-button:hover {
   background-color: #26e7aa;
 }
 
@@ -478,7 +714,8 @@ table {
   border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 8px;
   text-overflow: ellipsis; /* Adds an ellipsis (...) when content overflows */
@@ -488,5 +725,4 @@ th, td {
 th {
   background-color: #f2f2f2;
 }
-
 </style>

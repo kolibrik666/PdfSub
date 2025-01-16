@@ -104,6 +104,10 @@ export default {
   flex-direction: column;
 }
 
+h2 {
+  margin-top: 60px;
+}
+
 .conferences-row {
   display: flex;
   justify-content: center;

@@ -4,14 +4,35 @@
     <p><strong class="green-text">Author:</strong> {{ author }}</p>
     <p><strong class="green-text">Co-Authors:</strong> {{ co_authors }}</p>
     <p><strong class="green-text">Key words:</strong> {{ key_words }}</p>
-    <p><strong class="green-text">Reviewer:</strong> {{ reviewer ? reviewer : 'No assigned reviewer' }}</p>
-    <p><strong class="green-text">Status:</strong> {{ publication.review_status }}</p>
+    <p>
+      <strong class="green-text">Reviewer:</strong>
+      {{ reviewer ? reviewer : "No assigned reviewer" }}
+    </p>
+    <p>
+      <strong class="green-text">Status:</strong>
+      {{ publication.review_status }}
+    </p>
 
-    <p v-if="!this.publication?.review_data"><strong class="green-text">Review: </strong>Not reviewed yet</p>
-    <router-link to="/publications" class="button-link">Back to Publications</router-link>
-    <button  class="download-button" @click="downloadPublication(publication.fileId, publication.title + '.pdf')"><i class="fa-solid fa-file-arrow-down"></i> Download</button>
-    <button v-if="this.publication?.review_data" @click="toggleReviewDetails" class="fold-button">
-      {{ reviewDetailsVisible ? 'Hide Review Details' : 'Show Review Details' }}
+    <p v-if="!this.publication?.review_data">
+      <strong class="green-text">Review: </strong>Not reviewed yet
+    </p>
+    <router-link to="/publications" class="button-link"
+      >Back to Publications</router-link
+    >
+    <button
+      class="download-button"
+      @click="
+        downloadPublication(publication.fileId, publication.title + '.pdf')
+      "
+    >
+      <i class="fa-solid fa-file-arrow-down"></i> Download
+    </button>
+    <button
+      v-if="this.publication?.review_data"
+      @click="toggleReviewDetails"
+      class="fold-button"
+    >
+      {{ reviewDetailsVisible ? "Hide Review Details" : "Show Review Details" }}
     </button>
 
     <!-- Review Data -->
@@ -19,27 +40,32 @@
       <div v-if="reviewDetailsVisible">
         <table class="review-table">
           <thead>
-          <tr>
-            <th>Criteria</th>
-            <th>Rating/Comment</th>
-          </tr>
+            <tr>
+              <th>Criteria</th>
+              <th>Rating/Comment</th>
+            </tr>
           </thead>
           <tbody>
-          <tr v-for="(value, criteria) in orderedReviewData" :key="criteria">
-            <td><strong>{{ criteria }}</strong></td>
-            <td>{{ value }}</td>
-          </tr>
+            <tr v-for="(value, criteria) in orderedReviewData" :key="criteria">
+              <td>
+                <strong>{{ criteria }}</strong>
+              </td>
+              <td>{{ value }}</td>
+            </tr>
           </tbody>
         </table>
       </div>
     </div>
 
     <!-- Comments Section -->
-    <div class="comments-section" >
+    <div class="comments-section">
       <h2>Comments</h2>
       <ul v-if="commentsWithNames.length">
         <li v-for="(comment, index) in commentsWithNames" :key="index">
-          <p><strong class="green-text">{{ comment.reviewerName }}:</strong> {{ comment.comments }}</p>
+          <p>
+            <strong class="green-text">{{ comment.reviewerName }}:</strong>
+            {{ comment.comments }}
+          </p>
           <small>{{ formatDate(comment.submittedAt) }}</small>
         </li>
       </ul>
@@ -49,11 +75,11 @@
       <h3>Add a Comment</h3>
       <form @submit.prevent="submitComment">
         <textarea
-            v-model="newComment.comments"
-            placeholder="Write your comment..."
-            class="input-field"
+          v-model="newComment.comments"
+          placeholder="Write your comment..."
+          class="input-field"
         ></textarea>
-        <button type="submit" >Submit Comment</button>
+        <button type="submit">Submit Comment</button>
       </form>
     </div>
   </div>
@@ -64,7 +90,7 @@
 
 <script>
 import api from "../services/api";
-import { decodeTokenUpdateData } from '../services/tokenUtils';
+import { decodeTokenUpdateData } from "../services/tokenUtils";
 
 export default {
   data() {
@@ -95,24 +121,65 @@ export default {
 
       // Return the fields in the specific order
       return {
-        "Aktuálnosť a náročnosť práce": reviewData["Aktuálnosť a náročnosť práce"],
-        "Rozsah a úroveň dosiahnutých výsledkov": reviewData["Rozsah a úroveň dosiahnutých výsledkov"],
-        "Analýza a interpretácia výsledkov a formulácia záveru práce": reviewData["Analýza a interpretácia výsledkov a formulácia záveru práce"],
-        "Prehľadnosť a logická štruktúra práce": reviewData["Prehľadnosť a logická štruktúra práce"],
-        "Formálna, jazyková a štylistická úprava práce": reviewData["Formálna, jazyková a štylistická úprava práce"],
-        "Chýba názov práce v slovenskom alebo anglickom jazyku": reviewData["Chýba názov práce v slovenskom alebo anglickom jazyku"],
-        "Chýba meno autora alebo školiteľa": reviewData["Chýba meno autora alebo školiteľa"],
-        "Chýba pracovná emailová adresa autora alebo školiteľa": reviewData["Chýba pracovná emailová adresa autora alebo školiteľa"],
-        "Chýba abstrakt v slovenskom alebo anglickom jazyku": reviewData["Chýba abstrakt v slovenskom alebo anglickom jazyku"],
+        "Aktuálnosť a náročnosť práce":
+          reviewData["Aktuálnosť a náročnosť práce"],
+        "Zorientovanie sa študenta v danej problematike prostredníctvom analýzou domácej a zahraničnej literatúry":
+          reviewData[
+            "Zorientovanie sa študenta v danej problematike prostredníctvom analýzou domácej a zahraničnej literatúry"
+          ],
+        "Vhodnosť zvolených metód spracovania riešenej problematiky":
+          reviewData[
+            "Vhodnosť zvolených metód spracovania riešenej problematiky"
+          ],
+        "Rozsah a úroveň dosiahnutých výsledkov":
+          reviewData["Rozsah a úroveň dosiahnutých výsledkov"],
+        "Analýza a interpretácia výsledkov a formulácia záverov práce":
+          reviewData[
+            "Analýza a interpretácia výsledkov a formulácia záverov práce"
+          ],
+        "Prehľadnosť a logická štruktúra práce":
+          reviewData["Prehľadnosť a logická štruktúra práce"],
+        "Formálna, jazyková a štylistická úroveň práce":
+          reviewData["Formálna, jazyková a štylistická úroveň práce"],
+        "Práca zodpovedá šablóne určenej pre ŠVK":
+          reviewData["Práca zodpovedá šablóne určenej pre ŠVK"],
+        "Chýba názov práce v slovenskom alebo anglickom jazyku":
+          reviewData["Chýba názov práce v slovenskom alebo anglickom jazyku"],
+        "Chýba meno autora alebo školiteľa":
+          reviewData["Chýba meno autora alebo školiteľa"],
+        "Chýba pracovná emailová adresa autora alebo školiteľa":
+          reviewData["Chýba pracovná emailová adresa autora alebo školiteľa"],
+        "Chýba abstrakt v slovenskom alebo anglickom jazyku":
+          reviewData["Chýba abstrakt v slovenskom alebo anglickom jazyku"],
+        "Abstrakt nespĺňa rozsah 100–150 slov":
+          reviewData["Abstrakt nespĺňa rozsah 100–150 slov"],
+        "Chýbajú kľúčové slová v slovenskom alebo anglickom jazyku":
+          reviewData[
+            "Chýbajú kľúčové slová v slovenskom alebo anglickom jazyku"
+          ],
+        "Chýba „Úvod“, „Výsledky a diskusia“ alebo „Záver“":
+          reviewData["Chýba „Úvod“, „Výsledky a diskusia“ alebo „Záver“"],
+        "Nie sú uvedené zdroje a použitá literatúra":
+          reviewData["Nie sú uvedené zdroje a použitá literatúra"],
+        "V texte chýbajú referencie na zoznam bibliografie":
+          reviewData["V texte chýbajú referencie na zoznam bibliografie"],
+        "V texte chýbajú referencie na použité obrázky a/alebo tabuľky":
+          reviewData[
+            "V texte chýbajú referencie na použité obrázky a/alebo tabuľky"
+          ],
+        "Obrázkom a/alebo tabuľkám chýba popis":
+          reviewData["Obrázkom a/alebo tabuľkám chýba popis"],
         "Silné stránky práce": reviewData["Silné stránky práce"],
-        "Slabé stránky práce": reviewData["Slabé stránky práce"]
+        "Slabé stránky práce": reviewData["Slabé stránky práce"],
+
+        "Prácu odporúčam": reviewData["Prácu odporúčam"],
       };
     },
   },
   created() {
     const publicationId = this.$route.params.id;
     this.fetchPublication(publicationId);
-    const token = localStorage.getItem('userToken');
+    const token = localStorage.getItem("userToken");
     if (token) {
       decodeTokenUpdateData(token, this);
       this.isLoggedIn = true;
@@ -120,42 +187,56 @@ export default {
   },
   methods: {
     fetchPublication(id) {
-      api.getPublication(id)
-          .then((response) => {
-            this.publication = response.data;
-            this.feedback = response.data.feedback || [];
-            this.commentsWithNames = [];
-            this.review_status = response.data.review_status;
+      api
+        .getPublication(id)
+        .then((response) => {
+          this.publication = response.data;
+          this.feedback = response.data.feedback || [];
+          this.commentsWithNames = [];
+          this.review_status = response.data.review_status;
 
-            if (this.publication.authorId) this.fetchUserName(this.publication.authorId, 'author');
-            if (this.publication.co_authors) this.co_authors = this.publication.co_authors;
-            if (this.publication.key_words) this.key_words = this.publication.key_words;
-            if (this.publication.reviewerId) this.fetchUserName(this.publication.reviewerId, 'reviewer');
+          if (this.publication.authorId)
+            this.fetchUserName(this.publication.authorId, "author");
+          if (this.publication.co_authors)
+            this.co_authors = this.publication.co_authors;
+          if (this.publication.key_words)
+            this.key_words = this.publication.key_words;
+          if (this.publication.reviewerId)
+            this.fetchUserName(this.publication.reviewerId, "reviewer");
 
-            Promise.all(this.feedback.map(async (comment) => {
-              const reviewerName = await this.fetchUserNameId(comment.reviewerId);
+          Promise.all(
+            this.feedback.map(async (comment) => {
+              const reviewerName = await this.fetchUserNameId(
+                comment.reviewerId
+              );
               this.commentsWithNames.push({
                 ...comment,
                 reviewerName,
               });
-            })).then(() => {
-              this.commentsWithNames.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt)); // od najnovšieho
-            });
-
-            this.isAuthorized = this.user_id === this.publication.authorId || this.user_id === this.publication.reviewerId;
-          })
-          .catch((error) => {
-            console.error("Failed to fetch publication", error);
+            })
+          ).then(() => {
+            this.commentsWithNames.sort(
+              (a, b) => new Date(b.submittedAt) - new Date(a.submittedAt)
+            ); // od najnovšieho
           });
+
+          this.isAuthorized =
+            this.user_id === this.publication.authorId ||
+            this.user_id === this.publication.reviewerId;
+        })
+        .catch((error) => {
+          console.error("Failed to fetch publication", error);
+        });
     },
     fetchUserName(userId, property) {
-      api.getUserById(userId)
-          .then((response) => {
-            this[property] = response.data.name;
-          })
-          .catch(() => {
-            this[property] = "Unknown";
-          });
+      api
+        .getUserById(userId)
+        .then((response) => {
+          this[property] = response.data.name;
+        })
+        .catch(() => {
+          this[property] = "Unknown";
+        });
     },
     async fetchUserNameId(userId) {
       try {
@@ -176,21 +257,22 @@ export default {
         comments: this.newComment.comments,
       };
 
-      api.addCommentToPublication(publicationId, commentData)
-          .then((response) => {
-            const newFeedback = response.data.feedback;
-            this.feedback.push({
-              ...newFeedback,
-              reviewerName: "You", // Placeholder until fetched
-            });
-
-            // Reset form
-            this.newComment.comments = "";
-            this.fetchPublication(publicationId);
-          })
-          .catch((error) => {
-            console.error("Failed to add comment", error);
+      api
+        .addCommentToPublication(publicationId, commentData)
+        .then((response) => {
+          const newFeedback = response.data.feedback;
+          this.feedback.push({
+            ...newFeedback,
+            reviewerName: "You", // Placeholder until fetched
           });
+
+          // Reset form
+          this.newComment.comments = "";
+          this.fetchPublication(publicationId);
+        })
+        .catch((error) => {
+          console.error("Failed to add comment", error);
+        });
     },
     formatDate(date) {
       return new Date(date).toLocaleString();
@@ -198,7 +280,9 @@ export default {
     async downloadPublication(fileId, filename) {
       try {
         const response = await api.downloadPublication(fileId);
-        const blob = new Blob([response.data], { type: response.headers['content-type'] });
+        const blob = new Blob([response.data], {
+          type: response.headers["content-type"],
+        });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
         link.download = filename;
@@ -220,7 +304,6 @@ export default {
 </script>
 
 <style scoped>
-
 review-data {
   display: flex;
   align-items: center;
@@ -248,7 +331,8 @@ review-data {
   padding: 20px;
 }
 
-button, .button-link {
+button,
+.button-link {
   margin-top: 20px;
   margin-right: 10px;
   padding: 10px 20px;
@@ -274,7 +358,9 @@ li {
   padding-bottom: 10px;
 }
 
-.button-link:hover, button:hover, .download-button:hover {
+.button-link:hover,
+button:hover,
+.download-button:hover {
   background-color: #26e7aa;
 }
 
@@ -285,5 +371,4 @@ li {
 .review-table {
   margin-top: 20px;
 }
-
 </style>
