@@ -47,8 +47,8 @@
           <label><input type="checkbox" v-model="user.roles.isReviewer" /> Reviewer</label>
         </td>
         <td>
-          <button @click="updateUser(user)" class="update-button">Update</button>
-          <button @click="deleteUser(user.email)">Delete</button>
+          <button @click="updateUser(user)" class="update-button"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+          <button @click="deleteUser(user.email)"><i class="fa-regular fa-trash-can"></i> Delete</button>
         </td>
       </tr>
       </tbody>

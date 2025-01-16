@@ -42,8 +42,8 @@
         <td><input type="date" v-model="conference.end_date" /></td>
         <td><textarea v-model="conference.description"></textarea></td>
         <td>
-          <button @click="updateConference(conference)" class="btn">Update</button>
-          <button @click="deleteConference(conference._id)" class="btn btn-danger">Delete</button>
+          <button @click="updateConference(conference)" class="btn"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+          <button @click="deleteConference(conference._id)" class="btn btn-danger"><i class="fa-regular fa-trash-can"></i> Delete</button>
         </td>
       </tr>
       </tbody>

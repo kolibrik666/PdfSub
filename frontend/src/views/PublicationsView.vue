@@ -167,7 +167,7 @@
                 <i class="fa-solid fa-file-arrow-down"></i> Download
               </button>
               <button :disabled="!isBeforeDeadline(publication.conferenceId)" @click="deletePublication(publication)">
-                Delete
+                <i class="fa-regular fa-trash-can"></i> Delete
               </button>
             </td>
           </tr>
