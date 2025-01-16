@@ -9,8 +9,8 @@
         <input v-model="newConference.name" id="name" required />
       </div>
       <div class="form-group">
-        <label for="name">Description:</label>
-        <input v-model="newConference.description" id="description" required />
+        <label for="description">Description:</label>
+        <textarea v-model="newConference.description" id="description" required></textarea>
       </div>
       <div class="form-group">
         <label for="start_date">Start Date:</label>
@@ -31,6 +31,7 @@
         <th>Name</th>
         <th>Start Date</th>
         <th>End Date</th>
+        <th>Description</th>
         <th>Actions</th>
       </tr>
       </thead>
@@ -39,6 +40,7 @@
         <td><input v-model="conference.name" /></td>
         <td><input type="date" v-model="conference.start_date" /></td>
         <td><input type="date" v-model="conference.end_date" /></td>
+        <td><textarea v-model="conference.description"></textarea></td>
         <td>
           <button @click="updateConference(conference)" class="btn">Update</button>
           <button @click="deleteConference(conference._id)" class="btn btn-danger">Delete</button>
@@ -131,7 +133,7 @@ export default {
 
 .conferences-container {
   padding: 20px;
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
@@ -190,6 +192,10 @@ h1 {
 .conference-table {
   width: 100%;
   border-collapse: collapse;
+}
+
+.conference-table textarea{
+  width: 90%;
 }
 
 .conference-table th, .conference-table td {

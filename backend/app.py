@@ -428,6 +428,8 @@ def update_conference(id):
 
         if "name" in data:
             update_fields["name"] = data["name"]
+        if "description" in data:
+            update_fields["description"] = data["description"]
         if "start_date" in data:
             update_fields["start_date"] = datetime.strptime(
                 data["start_date"], "%Y-%m-%d"
