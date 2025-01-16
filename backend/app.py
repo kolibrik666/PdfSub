@@ -178,7 +178,6 @@ def get_user_by_id(id):
     except Exception as e:
         return jsonify({"error": "Invalid User ID format or user not found"}), 400
 
-
 def convert_to_json_compatible(doc):
     """Convert MongoDB document to a JSON-compatible format."""
     if isinstance(doc, list):
