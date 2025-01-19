@@ -50,7 +50,7 @@
           <th>Email</th>
           <th>Name</th>
           <th>Roles</th>
-          <th>Edit</th>
+          <th>Update</th>
           <th>Manage Access</th>
         </tr>
       </thead>

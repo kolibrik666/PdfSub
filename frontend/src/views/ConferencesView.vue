@@ -30,6 +30,7 @@
         <th>Name</th>
         <th>Start Date</th>
         <th>End Date</th>
+        <th>Paper Review Deadline</th>
         <th>Description</th>
         <th>Actions</th>
       </tr>
@@ -39,6 +40,7 @@
         <td><input v-model="conference.name" /></td>
         <td><input type="date" v-model="conference.start_date" /></td>
         <td><input type="date" v-model="conference.end_date" /></td>
+        <td><input type="date" v-model="conference.paper_review_deadline" /></td>
         <td><textarea v-model="conference.description"></textarea></td>
         <td>
           <button @click="updateConference(conference)" class="btn"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
@@ -62,6 +64,7 @@ export default {
         description: "",
         start_date: "",
         end_date: "",
+        paper_review_deadline: "",
       },
       errorMessage: null,
     };
@@ -81,7 +84,7 @@ export default {
           .then(() => {
             alert("Conference created successfully!");
             this.fetchConferences();
-            this.newConference = { name: "", description: "", start_date: "", end_date: "" };
+            this.newConference = { name: "", description: "", start_date: "", end_date: "", paper_review_deadline: "" };
             this.errorMessage = null;
           })
           .catch((error) => {
@@ -95,6 +98,7 @@ export default {
         description: conference.description,
         start_date: conference.start_date,
         end_date: conference.end_date,
+        paper_review_deadline: conference.paper_review_deadline,
       })
           .then(() => {
             alert("Conference updated successfully");

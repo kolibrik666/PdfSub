@@ -413,6 +413,12 @@ def get_conferences():
             else:
                 conf["end_date"] = "No End Date"
 
+            paper_review_deadline = conf.get("paper_review_deadline")
+            if isinstance(paper_review_deadline, datetime):
+                conf["paper_review_deadline"] = paper_review_deadline.strftime("%Y-%m-%d")
+            else:
+                conf["paper_review_deadline"] = "No Paper Review Deadline"
+
         return jsonify(conferences), 200
     except Exception as e:
         print(f"Error during GET /api/conferences: {str(e)}")  # Log error for debugging
@@ -427,6 +433,7 @@ def create_conference():
         description = data.get("description")
         start_date = data.get("start_date")
         end_date = data.get("end_date")
+        paper_review_deadline = data.get("paper_review_deadline")
 
         # Validate required fields
         if not name or not start_date or not end_date:
@@ -438,12 +445,14 @@ def create_conference():
         # Convert date strings to datetime objects
         start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")
         end_date_obj = datetime.strptime(end_date, "%Y-%m-%d")
+        paper_review_deadline_obj = datetime.strptime(paper_review_deadline, "%Y-%m-%d")
 
         new_conference = {
             "name": name,
             "description": description,
             "start_date": start_date_obj,
             "end_date": end_date_obj,
+            "paper_review_deadline": paper_review_deadline_obj
         }
 
         db["conferences"].insert_one(new_conference)
@@ -468,6 +477,10 @@ def update_conference(id):
             )
         if "end_date" in data:
             update_fields["end_date"] = datetime.strptime(data["end_date"], "%Y-%m-%d")
+        if "paper_review_deadline" in data:
+            update_fields["paper_review_deadline"] = datetime.strptime(
+                data["paper_review_deadline"], "%Y-%m-%d"
+            )
 
         result = db["conferences"].update_one(
             {"_id": ObjectId(id)}, {"$set": update_fields}
