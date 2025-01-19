@@ -11,6 +11,7 @@
         <thead>
           <tr>
             <th>Title</th>
+            <th>Review Deadline</th>
             <th>Review Status</th>
             <th>Conference</th>
             <th>Actions</th>
@@ -25,6 +26,9 @@
               }">
                 {{ publication.title }}
               </router-link>
+            </td>
+            <td>
+              {{ getConferencePaperReviewDeadline(publication.conferenceId) }}
             </td>
             <td>{{ publication.review_status }}</td>
             <td>
