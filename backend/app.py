@@ -58,7 +58,6 @@ def decode_token():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
 @app.route("/api/login", methods=["POST"])
 def login():
     data = request.get_json()
@@ -66,36 +65,42 @@ def login():
     password = data.get("password")
 
     user = users_collection.find_one({"email": email})
-    if user and bcrypt.check_password_hash(user["password"], password):
-        time = datetime.utcnow() + timedelta(hours=24)
-        token = jwt.encode(
-            {
-                "user": {
-                    "email": f"{user['email']}",
-                    "id": f"{user['_id']}",
-                    "isAdmin": user["roles"].get("isAdmin", False),
-                    "isParticipant": user["roles"].get("isParticipant", False),
-                    "isReviewer": user["roles"].get("isReviewer", False),
-                },
-                "exp": time,
-            },
-            secret,
-        )
-        return (
-            jsonify(
-                {
-                    "message": "Login successful",
-                    "isAdmin": user["roles"].get("isAdmin", False),
-                    "isParticipant": user["roles"].get("isParticipant", False),
-                    "isReviewer": user["roles"].get("isReviewer", False),
-                    "token": token,
-                }
-            ),
-            200,
-        )
-    else:
-        return jsonify({"message": "Invalid credentials"}), 401
+    if user:
+        
+        is_enabled = user.get("isEnabled", None)
 
+        if is_enabled is False:  
+            return jsonify({"message": "Your account is currently disabled. Please contact the admin."}), 403
+
+        if bcrypt.check_password_hash(user["password"], password):
+            time = datetime.utcnow() + timedelta(hours=24)
+            token = jwt.encode(
+                {
+                    "user": {
+                        "email": f"{user['email']}",
+                        "id": f"{user['_id']}",
+                        "isAdmin": user["roles"].get("isAdmin", False),
+                        "isParticipant": user["roles"].get("isParticipant", False),
+                        "isReviewer": user["roles"].get("isReviewer", False),
+                    },
+                    "exp": time,
+                },
+                secret,
+            )
+            return (
+                jsonify(
+                    {
+                        "message": "Login successful",
+                        "isAdmin": user["roles"].get("isAdmin", False),
+                        "isParticipant": user["roles"].get("isParticipant", False),
+                        "isReviewer": user["roles"].get("isReviewer", False),
+                        "token": token,
+                    }
+                ),
+                200,
+            )
+
+    return jsonify({"message": "Invalid credentials"}), 401
 
 @app.route("/api/register", methods=["POST"])
 def register():
@@ -110,6 +115,7 @@ def register():
         "password": hashed_password.decode("utf-8"),
         "name": name,
         "roles": {"isAdmin": False, "isParticipant": False, "isReviewer": False},
+        "isEnabled": False,
         "conferences": [],
         "papers": [],
     }
@@ -139,6 +145,9 @@ def update_user(email):
             update_fields["roles.isParticipant"] = data["roles"]["isParticipant"]
         if "isReviewer" in data["roles"]:
             update_fields["roles.isReviewer"] = data["roles"]["isReviewer"]
+        
+    if "isEnabled" in data:
+        update_fields["isEnabled"] = data["isEnabled"]
 
     users_collection.update_one({"email": email}, {"$set": update_fields})
     return jsonify({"message": "User updated successfully"}), 200
@@ -168,16 +177,6 @@ def update_user_by_id(id):
 
     return jsonify({"message": "User updated successfully"}), 200
 
-
-@app.route("/api/users/<string:email>", methods=["DELETE"])
-def delete_user(email):
-    result = users_collection.delete_one({"email": email})
-    if result.deleted_count == 1:
-        return jsonify({"message": "User deleted successfully"}), 200
-    else:
-        return jsonify({"message": "User not found"}), 404
-
-
 @app.route("/api/users", methods=["GET"])
 def get_users():
     users = list(
@@ -191,6 +190,7 @@ def get_users():
                 "roles.isAdmin": 1,
                 "roles.isParticipant": 1,
                 "roles.isReviewer": 1,
+                "isEnabled": 1,
             },
         )
     )

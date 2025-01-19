@@ -2,11 +2,15 @@
   <div v-if="isReviewer">
     <div class="publications">
       <h1>For Review</h1>
-      <PublicationsFilter :conferences="conferencesList" :initialFilters="{
-        query: filterQuery,
-        status: filterStatus,
-        conference: filterConference,
-      }" @filter-change="updateFilters" />
+      <PublicationsFilter
+        :conferences="conferencesList"
+        :initialFilters="{
+          query: filterQuery,
+          status: filterStatus,
+          conference: filterConference,
+        }"
+        @filter-change="updateFilters"
+      />
       <table>
         <thead>
           <tr>
@@ -17,30 +21,43 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="publication in filteredReviewerPublications" :key="publication._id">
+          <tr
+            v-for="publication in filteredReviewerPublications"
+            :key="publication._id"
+          >
             <td>
-              <router-link :to="{
-                name: 'publication-detail',
-                params: { id: publication._id },
-              }">
+              <router-link
+                :to="{
+                  name: 'publication-detail',
+                  params: { id: publication._id },
+                }"
+              >
                 {{ publication.title }}
               </router-link>
             </td>
             <td>{{ publication.review_status }}</td>
             <td>{{ getConferenceName(publication.conferenceId) }}</td>
             <td>
-              <router-link :to="{ name: 'review', params: { id: publication._id } }">
-                <button :disabled="!(isReviewer && publication.review_status === 'pending')
-                  ">
+              <router-link
+                :to="{ name: 'review', params: { id: publication._id } }"
+              >
+                <button
+                  :disabled="
+                    !(isReviewer && publication.review_status === 'pending')
+                  "
+                >
                   Review
                 </button>
               </router-link>
-              <button class="download-button" @click="
-                downloadPublication(
-                  publication.fileId,
-                  publication.title + '.pdf'
-                )
-                ">
+              <button
+                class="download-button"
+                @click="
+                  downloadPublication(
+                    publication.fileId,
+                    publication.title + '.pdf'
+                  )
+                "
+              >
                 <i class="fa-solid fa-file-arrow-down"></i> Download
               </button>
             </td>
@@ -53,12 +70,19 @@
   <div v-if="isAdmin">
     <div class="publications">
       <h1>All Publications</h1>
-      <PublicationsFilter :conferences="conferencesList" :initialFilters="{
-        query: filterQuery,
-        status: filterStatus,
-        conference: filterConference,
-      }" @filter-change="updateFilters" />
-      <button @click="downloadSelectedPublications" id="downloadSelectedPublicationsBtn">
+      <PublicationsFilter
+        :conferences="conferencesList"
+        :initialFilters="{
+          query: filterQuery,
+          status: filterStatus,
+          conference: filterConference,
+        }"
+        @filter-change="updateFilters"
+      />
+      <button
+        @click="downloadSelectedPublications"
+        id="downloadSelectedPublicationsBtn"
+      >
         <i class="fa-regular fa-file-zipper"></i> Download Selected Publications
       </button>
 
@@ -76,13 +100,22 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="publication in filteredAllPublications" :key="publication._id">
+          <tr
+            v-for="publication in filteredAllPublications"
+            :key="publication._id"
+          >
             <td>
-              <input type="checkbox" v-model="selectedPublications" :value="publication._id" />
-              <router-link :to="{
-                name: 'publication-detail',
-                params: { id: publication._id },
-              }">
+              <input
+                type="checkbox"
+                v-model="selectedPublications"
+                :value="publication._id"
+              />
+              <router-link
+                :to="{
+                  name: 'publication-detail',
+                  params: { id: publication._id },
+                }"
+              >
                 {{ publication.title }}
               </router-link>
             </td>
@@ -91,30 +124,47 @@
             <td>{{ publication.submissionDate }}</td>
             <td>{{ publication.review_status }}</td>
             <td>
-              <select v-model="publication.conferenceId" @change="
-                updateConference(publication._id, publication.conferenceId)
-                ">
-                <option v-for="conference in conferences" :key="conference._id" :value="conference._id">
+              <select
+                v-model="publication.conferenceId"
+                @change="
+                  updateConference(publication._id, publication.conferenceId)
+                "
+              >
+                <option
+                  v-for="conference in conferences"
+                  :key="conference._id"
+                  :value="conference._id"
+                >
                   {{ conference.name }}
                 </option>
               </select>
             </td>
             <td>
-              <select v-model="publication.reviewerId" @change="assignReviewer(publication)"
-                :disabled="publication.review_status !== 'pending'">
-                <option v-for="user in reviewers" :key="user._id" :value="user._id">
+              <select
+                v-model="publication.reviewerId"
+                @change="assignReviewer(publication)"
+                :disabled="publication.review_status !== 'pending'"
+              >
+                <option
+                  v-for="user in reviewers"
+                  :key="user._id"
+                  :value="user._id"
+                >
                   {{ user.name }}
                 </option>
               </select>
               <span v-if="!publication.reviewerId">Reviewer not selected</span>
             </td>
             <td>
-              <button class="download-button" @click="
-                downloadPublication(
-                  publication.fileId,
-                  publication.title + '.pdf'
-                )
-                ">
+              <button
+                class="download-button"
+                @click="
+                  downloadPublication(
+                    publication.fileId,
+                    publication.title + '.pdf'
+                  )
+                "
+              >
                 <i class="fa-solid fa-file-arrow-down"></i> Download
               </button>
             </td>
@@ -127,11 +177,15 @@
   <div v-if="isParticipant">
     <div class="publications">
       <h1>My Publications</h1>
-      <PublicationsFilter :conferences="conferencesList" :initialFilters="{
-        query: filterQuery,
-        status: filterStatus,
-        conference: filterConference,
-      }" @filter-change="updateFilters" />
+      <PublicationsFilter
+        :conferences="conferencesList"
+        :initialFilters="{
+          query: filterQuery,
+          status: filterStatus,
+          conference: filterConference,
+        }"
+        @filter-change="updateFilters"
+      />
       <table>
         <thead>
           <tr>
@@ -144,12 +198,17 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="publication in filteredParticipantPublications" :key="publication._id">
+          <tr
+            v-for="publication in filteredParticipantPublications"
+            :key="publication._id"
+          >
             <td>
-              <router-link :to="{
-                name: 'publication-detail',
-                params: { id: publication._id },
-              }">
+              <router-link
+                :to="{
+                  name: 'publication-detail',
+                  params: { id: publication._id },
+                }"
+              >
                 {{ publication.title }}
               </router-link>
             </td>
@@ -158,15 +217,21 @@
             <td>{{ publication.submissionDate }}</td>
             <td>{{ getConferenceName(publication.conferenceId) }}</td>
             <td>
-              <button class="download-button" @click="
-                downloadPublication(
-                  publication.fileId,
-                  publication.title + '.pdf'
-                )
-                ">
+              <button
+                class="download-button"
+                @click="
+                  downloadPublication(
+                    publication.fileId,
+                    publication.title + '.pdf'
+                  )
+                "
+              >
                 <i class="fa-solid fa-file-arrow-down"></i> Download
               </button>
-              <button :disabled="!isBeforeDeadline(publication.conferenceId)" @click="deletePublication(publication)">
+              <button
+                :disabled="!isBeforeDeadline(publication.conferenceId)"
+                @click="deletePublication(publication)"
+              >
                 <i class="fa-regular fa-trash-can"></i> Delete
               </button>
             </td>
@@ -177,16 +242,38 @@
       <div v-if="isParticipant">
         <h2>Add Publication</h2>
         <form @submit.prevent="uploadPublication">
-          <input type="text" v-model="newPublication.title" placeholder="Title" required />
-          <input type="text" v-model="newPublication.co_authors" placeholder="Co-authors" />
-          <input type="text" v-model="newPublication.key_words" placeholder="Keywords" />
+          <input
+            type="text"
+            v-model="newPublication.title"
+            placeholder="Title"
+            required
+          />
+          <input
+            type="text"
+            v-model="newPublication.co_authors"
+            placeholder="Co-authors"
+          />
+          <input
+            type="text"
+            v-model="newPublication.key_words"
+            placeholder="Keywords"
+          />
           <select v-model="newPublication.conferenceId">
             <option value="" disabled>Select a conference</option>
-            <option v-for="conference in inProgressConferences" :key="conference._id" :value="conference._id">
+            <option
+              v-for="conference in inProgressConferences"
+              :key="conference._id"
+              :value="conference._id"
+            >
               {{ conference.name }}
             </option>
           </select>
-          <input type="file" @change="handleFileUpload" accept=".pdf" required />
+          <input
+            type="file"
+            @change="handleFileUpload"
+            accept=".pdf"
+            required
+          />
           <button type="submit">Upload</button>
         </form>
         <div v-if="uploadError" class="error-message">
@@ -557,6 +644,7 @@ export default {
 table {
   width: 100%;
   border-collapse: collapse;
+  text-align: center;
 }
 
 th,
