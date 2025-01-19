@@ -1,7 +1,6 @@
 <template>
   <div class="conferences-container">
-    <h1>Conferences Management</h1>
-
+    <h1>Conference Management</h1>
     <!-- Form to Add a Conference -->
     <form @submit.prevent="addConference" class="conference-form">
       <div class="form-group">

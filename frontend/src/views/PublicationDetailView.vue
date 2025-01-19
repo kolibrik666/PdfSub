@@ -3,7 +3,7 @@
     <h1 class="green-text">{{ publication.title }}</h1>
     <p><strong class="green-text">Author:</strong> {{ author }}</p>
     <p><strong class="green-text">Co-Authors:</strong> {{ co_authors }}</p>
-    <p><strong class="green-text">Key words:</strong> {{ key_words }}</p>
+    <p><strong class="green-text">Keywords:</strong> {{ key_words }}</p>
     <p>
       <strong class="green-text">Reviewer:</strong>
       {{ reviewer ? reviewer : "No assigned reviewer" }}

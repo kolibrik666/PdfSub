@@ -20,6 +20,7 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:8080"}})
 
+
 bcrypt = Bcrypt(app)
 secret = "***************"
 
@@ -124,6 +125,12 @@ def update_user(email):
 
     if "name" in data:
         update_fields["name"] = data["name"]
+    if "email" in data:
+        update_fields["email"] = data["email"]
+    if "password" in data:
+        update_fields["password"] = bcrypt.generate_password_hash(
+            data["password"]
+        ).decode("utf-8")
 
     if "roles" in data:
         if "isAdmin" in data["roles"]:
@@ -134,6 +141,31 @@ def update_user(email):
             update_fields["roles.isReviewer"] = data["roles"]["isReviewer"]
 
     users_collection.update_one({"email": email}, {"$set": update_fields})
+    return jsonify({"message": "User updated successfully"}), 200
+
+
+@app.route("/api/users/<string:id>", methods=["PUT"])
+def update_user_by_id(id):
+    try:
+        # Convert id to ObjectId
+        obj_id = ObjectId(id)
+    except Exception:
+        return jsonify({"error": "Invalid ID format"}), 400
+
+    data = request.get_json()
+    update_fields = {}
+
+    if "name" in data:
+        update_fields["name"] = data["name"]
+    if "email" in data:
+        update_fields["email"] = data["email"]
+
+    result = users_collection.update_one({"id": obj_id}, {"$set": update_fields})
+    if result.matched_count == 0:
+        return jsonify({"message": "User not found"}), 404
+    if not update_fields:
+        return jsonify({"error": "No valid fields to update"}), 400
+
     return jsonify({"message": "User updated successfully"}), 200
 
 
@@ -177,6 +209,7 @@ def get_user_by_id(id):
             return jsonify({"message": "User not found"}), 404
     except Exception as e:
         return jsonify({"error": "Invalid User ID format or user not found"}), 400
+
 
 def convert_to_json_compatible(doc):
     """Convert MongoDB document to a JSON-compatible format."""

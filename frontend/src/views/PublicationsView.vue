@@ -179,7 +179,7 @@
         <form @submit.prevent="uploadPublication">
           <input type="text" v-model="newPublication.title" placeholder="Title" required />
           <input type="text" v-model="newPublication.co_authors" placeholder="Co-authors" />
-          <input type="text" v-model="newPublication.key_words" placeholder="Key words" />
+          <input type="text" v-model="newPublication.key_words" placeholder="Keywords" />
           <select v-model="newPublication.conferenceId">
             <option value="" disabled>Select a conference</option>
             <option v-for="conference in inProgressConferences" :key="conference._id" :value="conference._id">

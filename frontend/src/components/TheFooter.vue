@@ -1,7 +1,7 @@
 <template>
     <footer class="footer">
       <div class="container">
-        <p>© 2024 A-Team. All Rights Reserved.</p>
+        <p>© 2025 A-Team. All Rights Reserved.</p>
       </div>
     </footer>
   </template>

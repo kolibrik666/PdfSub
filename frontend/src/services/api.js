@@ -52,6 +52,11 @@ export default {
   updateUser(email, data) {
     return apiClient.put(`/users/${email}`, data);
   },
+  updateUserById(id, data) {
+    console.log("Updating user with ID:", id);
+    console.log("Data to update:", data);
+    return apiClient.put(`/users/${id}`, data);
+  },
   deleteUser(email) {
     return apiClient.delete(`/users/${email}`);
   },

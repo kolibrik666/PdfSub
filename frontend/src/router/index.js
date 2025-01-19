@@ -7,6 +7,8 @@ import LandingPageView from '@/views/LandingPageView.vue'
 import ReviewView from '@/views/ReviewView.vue';
 import PublicationsView from "@/views/PublicationsView.vue";
 import ConferencesView from "@/views/ConferencesView.vue";
+import MyAccountView from "@/views/MyAccountView.vue";
+
 const routes = [
   {
     path: '/',
@@ -22,6 +24,12 @@ const routes = [
     path: '/sign-up',
     name: 'sign-up',
     component: SignUpView
+  },
+  {
+    path: '/my-account',
+    name: 'my-account',
+    component: MyAccountView,
+    meta: { requiresAuth: true }
   },
   {
     path: '/admin',
