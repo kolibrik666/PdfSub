@@ -10,12 +10,13 @@
         <span class="logo-text">PDFSubmit</span>
       </div>
       <div class="nav-links">
-        <router-link to="/" class="nav-link">Home</router-link>
+        <router-link to="/" class="nav-link" v-if="!isLoggedIn">Home</router-link>
         <router-link to="/login" class="nav-link" v-if="!isLoggedIn">Login</router-link>
         <router-link to="/sign-up" class="nav-link" v-if="!isLoggedIn">Sign Up</router-link>
         <router-link to="/publications" class="nav-link" v-if="isLoggedIn">Publications</router-link>
         <router-link to="/admin" class="nav-link" v-if="isAdmin && isLoggedIn">Manage Users</router-link>
         <router-link to="/conferences" class="nav-link" v-if="isAdmin && isLoggedIn">Manage Conferences</router-link>
+        <router-link to="/my-account" class="nav-link" v-if="isLoggedIn">My Account</router-link>
         <button v-if="isLoggedIn" @click="logout" class="logout-button">Logout ({{ email }})</button>
       </div>
     </div>

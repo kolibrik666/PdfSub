@@ -1,12 +1,15 @@
 <template>
   <div class="conferences-container">
-    <h1>Conferences Management</h1>
-
+    <h1>Conference Management</h1>
     <!-- Form to Add a Conference -->
     <form @submit.prevent="addConference" class="conference-form">
       <div class="form-group">
         <label for="name">Conference Name:</label>
         <input v-model="newConference.name" id="name" required />
+      </div>
+      <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea v-model="newConference.description" id="description" required></textarea>
       </div>
       <div class="form-group">
         <label for="start_date">Start Date:</label>
@@ -27,6 +30,8 @@
         <th>Name</th>
         <th>Start Date</th>
         <th>End Date</th>
+        <th>Paper Review Deadline</th>
+        <th>Description</th>
         <th>Actions</th>
       </tr>
       </thead>
@@ -35,9 +40,11 @@
         <td><input v-model="conference.name" /></td>
         <td><input type="date" v-model="conference.start_date" /></td>
         <td><input type="date" v-model="conference.end_date" /></td>
+        <td><input type="date" v-model="conference.paper_review_deadline" /></td>
+        <td><textarea v-model="conference.description"></textarea></td>
         <td>
-          <button @click="updateConference(conference)" class="btn">Update</button>
-          <button @click="deleteConference(conference._id)" class="btn btn-danger">Delete</button>
+          <button @click="updateConference(conference)" class="btn"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+          <button @click="deleteConference(conference._id)" class="btn btn-danger"><i class="fa-regular fa-trash-can"></i> Delete</button>
         </td>
       </tr>
       </tbody>
@@ -54,8 +61,10 @@ export default {
       conferences: [],
       newConference: {
         name: "",
+        description: "",
         start_date: "",
         end_date: "",
+        paper_review_deadline: "",
       },
       errorMessage: null,
     };
@@ -75,7 +84,7 @@ export default {
           .then(() => {
             alert("Conference created successfully!");
             this.fetchConferences();
-            this.newConference = { name: "", start_date: "", end_date: "" };
+            this.newConference = { name: "", description: "", start_date: "", end_date: "", paper_review_deadline: "" };
             this.errorMessage = null;
           })
           .catch((error) => {
@@ -86,8 +95,10 @@ export default {
     updateConference(conference) {
       api.updateConference(conference._id, {
         name: conference.name,
+        description: conference.description,
         start_date: conference.start_date,
         end_date: conference.end_date,
+        paper_review_deadline: conference.paper_review_deadline,
       })
           .then(() => {
             alert("Conference updated successfully");
@@ -125,7 +136,7 @@ export default {
 
 .conferences-container {
   padding: 20px;
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
@@ -184,6 +195,10 @@ h1 {
 .conference-table {
   width: 100%;
   border-collapse: collapse;
+}
+
+.conference-table textarea{
+  width: 90%;
 }
 
 .conference-table th, .conference-table td {
