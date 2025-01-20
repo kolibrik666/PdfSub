@@ -49,12 +49,7 @@ export default {
   register(user) {
     return apiClient.post("/register", user);
   },
-  updateUser(email, data) {
-    return apiClient.put(`/users/${email}`, data);
-  },
-  updateUserById(id, data) {
-    console.log("Updating user with ID:", id);
-    console.log("Data to update:", data);
+  updateUser(id, data) {
     return apiClient.put(`/users/${id}`, data);
   },
   decode_token(data) {

@@ -148,7 +148,7 @@ export default {
     },
     updateUser(user) {
       api
-        .updateUser(user.email, {
+        .updateUser(user._id, {
           name: user.name,
           roles: {
             isAdmin: user.roles.isAdmin,
@@ -166,16 +166,13 @@ export default {
         });
     },
     toggleUserAccess(user) {
-      // Toggle the user's `isEnabled` status
       const updatedStatus = !user.isEnabled;
 
-      // Send the update to the backend
-      api
-        .updateUser(user.email, {
-          isEnabled: updatedStatus, // Update the isEnabled field
+      api.updateUser(user._id, {
+          isEnabled: updatedStatus,
         })
         .then(() => {
-          user.isEnabled = updatedStatus; // Update the local user object on success
+          user.isEnabled = updatedStatus;
           alert(
             `User access ${updatedStatus ? "enabled" : "disabled"} successfully`
           );

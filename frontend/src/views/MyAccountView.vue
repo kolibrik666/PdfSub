@@ -48,7 +48,7 @@ export default {
         setUserRole() {
             const token = localStorage.getItem("userToken");
             if (token) {
-                decodeTokenUpdateData(token, this); // This sets user_id and roles
+                decodeTokenUpdateData(token, this);
                 this.isLoggedIn = true;
             }
         },
@@ -68,26 +68,22 @@ export default {
         async updateUser() {
             console.log("Updating user...");
 
-            // Ensure passwords match if provided
             if (this.newPassword && this.newPassword !== this.confirmPassword) {
                 alert("Passwords do not match.");
                 return;
             }
 
-            // Create the update payload
             const userUpdateData = {
                 name: this.name,
                 email: this.email
             };
 
-            // Include the password if it's being updated
             if (this.newPassword) {
                 userUpdateData.password = this.newPassword;
             }
 
             try {
-                // Send the update request
-                await api.updateUserById(this.user_id, userUpdateData);
+                await api.updateUser(this.user_id, userUpdateData);
                 alert('User updated successfully');
             } catch (error) {
                 console.error('Update failed', error);
@@ -98,12 +94,12 @@ export default {
     watch: {
         user_id(newId) {
             if (newId) {
-                this.fetchUser(newId); // Automatically fetch user when user_id is set
+                this.fetchUser(newId);
             }
         },
     },
     created() {
-        this.setUserRole(); // Set roles and user_id during component creation
+        this.setUserRole();
     },
 };
 </script>

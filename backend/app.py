@@ -123,9 +123,8 @@ def register():
     users_collection.insert_one(user)
     return jsonify({"message": "User registered successfully"}), 201
 
-
-@app.route("/api/users/<string:email>", methods=["PUT"])
-def update_user(email):
+@app.route("/api/users/<string:id>", methods=["PUT"])
+def update_user(id):
     data = request.get_json()
     update_fields = {}
 
@@ -145,31 +144,11 @@ def update_user(email):
             update_fields["roles.isParticipant"] = data["roles"]["isParticipant"]
         if "isReviewer" in data["roles"]:
             update_fields["roles.isReviewer"] = data["roles"]["isReviewer"]
-        
+
     if "isEnabled" in data:
         update_fields["isEnabled"] = data["isEnabled"]
 
-    users_collection.update_one({"email": email}, {"$set": update_fields})
-    return jsonify({"message": "User updated successfully"}), 200
-
-
-@app.route("/api/users/<string:id>", methods=["PUT"])
-def update_user_by_id(id):
-    try:
-        # Convert id to ObjectId
-        obj_id = ObjectId(id)
-    except Exception:
-        return jsonify({"error": "Invalid ID format"}), 400
-
-    data = request.get_json()
-    update_fields = {}
-
-    if "name" in data:
-        update_fields["name"] = data["name"]
-    if "email" in data:
-        update_fields["email"] = data["email"]
-
-    result = users_collection.update_one({"id": obj_id}, {"$set": update_fields})
+    result = users_collection.update_one({"_id": ObjectId(id)}, {"$set": update_fields})
     if result.matched_count == 0:
         return jsonify({"message": "User not found"}), 404
     if not update_fields:
