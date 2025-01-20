@@ -15,7 +15,7 @@
           <input
             type="text"
             v-model="form.name"
-            placeholder="Enter Name"
+            placeholder="Enter your first and last name"
             required
           />
         </div>
