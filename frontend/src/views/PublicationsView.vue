@@ -71,10 +71,12 @@
         status: filterStatus,
         conference: filterConference,
       }" @filter-change="updateFilters" />
-      <button @click="downloadSelectedPublications" id="downloadSelectedPublicationsBtn">
+      <button @click="downloadPublications('filtered')" id="downloadSelectedPublicationsBtn">
+        <i class="fa-regular fa-file-zipper"></i> Download Filtered Publications
+      </button>
+      <button @click="downloadPublications('selected')" id="downloadSelectedPublicationsBtn">
         <i class="fa-regular fa-file-zipper"></i> Download Selected Publications
       </button>
-
       <table>
         <thead>
           <tr>
@@ -91,7 +93,6 @@
         <tbody>
           <tr v-for="publication in filteredAllPublications" :key="publication._id">
             <td>
-              <input type="checkbox" v-model="selectedPublications" :value="publication._id" />
               <router-link :to="{
                 name: 'publication-detail',
                 params: { id: publication._id },
@@ -122,6 +123,7 @@
               <span v-if="!publication.reviewerId">Reviewer not selected</span>
             </td>
             <td>
+              <input type="checkbox" v-model="selectedPublications" :value="publication._id" class="custom-checkbox" />
               <button class="download-button" @click="
                 downloadPublication(
                   publication.fileId,
@@ -483,36 +485,47 @@ export default {
         alert("An error occurred while downloading the file.");
       }
     },
-    async downloadSelectedPublications() {
-      if (this.selectedPublications.length === 0) {
-        alert("Please select publications to download.");
-        return;
-      }
-
+    async downloadPublications(type) {
       try {
+        let publicationsToDownload = [];
+        let zipFileName = "";
+
+        if (type === 'selected') {
+          if (this.selectedPublications.length === 0) {
+            alert("Please select publications to download.");
+            return;
+          }
+          publicationsToDownload = this.publications.filter(pub =>
+              this.selectedPublications.includes(pub._id)
+          );
+          zipFileName = "selected_publications.zip";
+        } else if (type === 'filtered') {
+          const filteredPublications = this.filteredAllPublications;
+          if (filteredPublications.length === 0) {
+            alert("No publications available to download.");
+            return;
+          }
+          publicationsToDownload = filteredPublications;
+          zipFileName = "filtered_publications.zip";
+        }
+
         const zip = new JSZip();
-        const zipFileName = "selected_publications.zip";
         let count = 0;
 
-        for (const publicationId of this.selectedPublications) {
-          const publication = this.publications.find(
-            (pub) => pub._id === publicationId
-          );
-          if (publication && publication.fileId) {
+        for (const publication of publicationsToDownload) {
+          if (publication.fileId) {
             const response = await api.downloadPublication(publication.fileId);
             const blob = new Blob([response.data], {
               type: response.headers["content-type"],
             });
-            const filename = `${publication.title}.pdf`; // Use the publication title for the filename
+            const filename = `${publication.title}.pdf`;
 
-            // Add file to zip
             zip.file(filename, blob);
             count++;
           }
         }
 
         if (count > 0) {
-          // Generate the zip file
           zip.generateAsync({ type: "blob" }).then((content) => {
             const link = document.createElement("a");
             link.href = URL.createObjectURL(content);
@@ -526,28 +539,8 @@ export default {
           alert("No files available for download.");
         }
       } catch (error) {
-        console.error(
-          "Error downloading selected publications:",
-          error.message
-        );
+        console.error("Error downloading publications:", error.message);
         alert("An error occurred while downloading the publications.");
-      }
-    },
-
-    async deletePublication(publication) {
-      try {
-        const confirmation = window.confirm(
-          `Are you sure you want to delete the publication titled "${publication.title}"?`
-        );
-        if (!confirmation) return;
-        await api.deletePublication(publication._id);
-        this.publications = this.publications.filter(
-          (pub) => pub._id !== publication._id
-        );
-        alert("Publication deleted successfully!");
-      } catch (error) {
-        console.error("Error deleting publication:", error);
-        alert("An error occurred while deleting the publication.");
       }
     },
     isBeforeDeadline(conferenceId) {
@@ -608,6 +601,39 @@ select {
   padding: 8px;
   width: 100%;
   box-sizing: border-box;
+}
+
+.custom-checkbox {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 5px;
+  border: 2px solid #51948c;
+  background-color: #fff;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.custom-checkbox:checked {
+  background-color: #579f97;
+  border-color:  #51948c;
+}
+
+.custom-checkbox:checked::before {
+  content: 'X';
+  position: absolute;
+  top: 3px;
+  left: 7px;
+  font-size: 18px;
+  color: white;
+}
+
+.custom-checkbox:hover {
+  background-color:#add2cd;
+  border-color: #51948c;
 }
 
 input[type="file"] {
