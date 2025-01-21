@@ -201,7 +201,7 @@
               {{ conference.name }}
             </option>
           </select>
-          <input type="file" @change="handleFileUpload" accept=".pdf" required />
+          <input type="file" @change="handleFileUpload" ref="fileInput" accept=".pdf" required />
           <button type="submit">Upload</button>
         </form>
         <div v-if="uploadError" class="error-message">
@@ -462,6 +462,8 @@ export default {
           conferenceId: "",
         };
         this.uploadError = null;
+        // Reset file input
+        this.$refs.fileInput.value = "";
         this.fetchPublications();
       } catch (error) {
         this.uploadError = error.response?.data?.error || "Upload failed";
