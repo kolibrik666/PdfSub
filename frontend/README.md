@@ -22,3 +22,17 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+
+### Example credentials for testing purposes
+Admin
+login: a@a
+password: aa
+
+Student
+login: sara@student
+password: ss
+
+Reviewer
+login: ron@reviewer
+password: rr
