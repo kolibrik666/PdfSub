@@ -341,6 +341,24 @@ export default {
         this.fetchConferences();
       });
     },
+    async deletePublication(publication) {
+      if (!confirm(`Are you sure you want to delete the publication "${publication.title}"?`)) {
+        return; // User canceled the action
+      }
+      try {
+        const response = await api.deletePublication(publication._id);
+        alert(response.data.message || "Publication deleted successfully!");
+
+        // Remove the publication from the local list
+        this.publications = this.publications.filter(pub => pub._id !== publication._id);
+
+        // Refresh the filtered lists
+        this.fetchPublications();
+      } catch (error) {
+        console.error("Error deleting publication:", error.message);
+        alert("An error occurred while deleting the publication.");
+      }
+    },
     fetchReviewers() {
       api
         .getUsers()
