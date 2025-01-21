@@ -26,27 +26,29 @@
     <!-- Table to Display Conferences -->
     <table class="conference-table">
       <thead>
-      <tr>
-        <th>Name</th>
-        <th>Start Date</th>
-        <th>End Date</th>
-        <th>Paper Review Deadline</th>
-        <th>Description</th>
-        <th>Actions</th>
-      </tr>
+        <tr>
+          <th>Name</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Paper Review Deadline</th>
+          <th>Description</th>
+          <th>Actions</th>
+        </tr>
       </thead>
       <tbody>
-      <tr v-for="conference in conferences" :key="conference._id">
-        <td><input v-model="conference.name" /></td>
-        <td><input type="date" v-model="conference.start_date" /></td>
-        <td><input type="date" v-model="conference.end_date" /></td>
-        <td><input type="date" v-model="conference.paper_review_deadline" /></td>
-        <td><textarea v-model="conference.description"></textarea></td>
-        <td>
-          <button @click="updateConference(conference)" class="btn"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
-          <button @click="deleteConference(conference._id)" class="btn btn-danger"><i class="fa-regular fa-trash-can"></i> Delete</button>
-        </td>
-      </tr>
+        <tr v-for="conference in conferences" :key="conference._id">
+          <td><input v-model="conference.name" /></td>
+          <td><input type="date" v-model="conference.start_date" /></td>
+          <td><input type="date" v-model="conference.end_date" /></td>
+          <td><input type="date" v-model="conference.paper_review_deadline" /></td>
+          <td><textarea v-model="conference.description"></textarea></td>
+          <td>
+            <button @click="updateConference(conference)" class="btn"><i class="fa-solid fa-pen-to-square"></i>
+              Edit</button>
+            <button @click="deleteConference(conference._id)" class="btn btn-danger"><i
+                class="fa-regular fa-trash-can"></i> Delete</button>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -62,9 +64,9 @@ export default {
       newConference: {
         name: "",
         description: "",
-        start_date: "",
-        end_date: "",
-        paper_review_deadline: "",
+        start_date: new Date().toISOString().split("T")[0], // Today's date in 'YYYY-MM-DD' format
+        end_date: new Date().toISOString().split("T")[0],
+        paper_review_deadline: new Date().toISOString().split("T")[0],
       },
       errorMessage: null,
     };
@@ -72,25 +74,29 @@ export default {
   methods: {
     fetchConferences() {
       api.getConferences()
-          .then((response) => {
-            this.conferences = response.data;
-          })
-          .catch((error) => {
-            console.error("Error fetching conferences:", error);
-          });
+        .then((response) => {
+          this.conferences = response.data;
+        })
+        .catch((error) => {
+          console.error("Error fetching conferences:", error);
+        });
     },
     addConference() {
+      if (!this.newConference.start_date || !this.newConference.end_date) {
+        this.errorMessage = "Please fill in all required fields.";
+        return;
+      }
       api.createConference(this.newConference)
-          .then(() => {
-            alert("Conference created successfully!");
-            this.fetchConferences();
-            this.newConference = { name: "", description: "", start_date: "", end_date: "", paper_review_deadline: "" };
-            this.errorMessage = null;
-          })
-          .catch((error) => {
-            console.error("Error creating conference:", error);
-            this.errorMessage = error.response?.data?.error || "Failed to create conference.";
-          });
+        .then(() => {
+          alert("Conference created successfully!");
+          this.fetchConferences();
+          this.newConference = { name: "", description: "", start_date: new Date().toISOString().split("T")[0], end_date: new Date().toISOString().split("T")[0], paper_review_deadline: new Date().toISOString().split("T")[0] };
+          this.errorMessage = null;
+        })
+        .catch((error) => {
+          console.error("Error creating conference:", error);
+          this.errorMessage = error.response?.data?.error || "Failed to create conference.";
+        });
     },
     updateConference(conference) {
       api.updateConference(conference._id, {
@@ -100,25 +106,25 @@ export default {
         end_date: conference.end_date,
         paper_review_deadline: conference.paper_review_deadline,
       })
-          .then(() => {
-            alert("Conference updated successfully");
-            this.errorMessage = null; // Reset error message on successful update
-          })
-          .catch((error) => {
-            console.error("Update failed", error);
-            this.errorMessage = error.response?.data?.error || "Update failed";
-          });
+        .then(() => {
+          alert("Conference updated successfully");
+          this.errorMessage = null; // Reset error message on successful update
+        })
+        .catch((error) => {
+          console.error("Update failed", error);
+          this.errorMessage = error.response?.data?.error || "Update failed";
+        });
     },
     deleteConference(id) {
       api.deleteConference(id)
-          .then(() => {
-            this.conferences = this.conferences.filter(conference => conference._id !== id);
-            alert("Conference deleted successfully");
-          })
-          .catch((error) => {
-            console.error("Delete failed", error);
-            alert("Delete failed");
-          });
+        .then(() => {
+          this.conferences = this.conferences.filter(conference => conference._id !== id);
+          alert("Conference deleted successfully");
+        })
+        .catch((error) => {
+          console.error("Delete failed", error);
+          alert("Delete failed");
+        });
     },
   },
   created() {
@@ -128,7 +134,6 @@ export default {
 </script>
 
 <style scoped>
-
 .error-message {
   color: red;
   margin-top: 10px;
@@ -197,11 +202,12 @@ h1 {
   border-collapse: collapse;
 }
 
-.conference-table textarea{
+.conference-table textarea {
   width: 90%;
 }
 
-.conference-table th, .conference-table td {
+.conference-table th,
+.conference-table td {
   padding: 10px;
   border: 1px solid #ddd;
   text-align: left;
